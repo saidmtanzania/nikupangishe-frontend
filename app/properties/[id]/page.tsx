@@ -22,6 +22,7 @@ import { PropertyGallery } from "@/components/properties/property-gallery"
 import { PropertyCard } from "@/components/properties/property-card"
 import { mockProperties, mockUsers } from "@/lib/mock-data"
 import { formatTZS } from "@/lib/utils"
+import { PropertyDetailsMap } from "@/components/properties/property-details-map"
 
 export default async function PropertyDetailPage({
   params,
@@ -157,16 +158,15 @@ export default async function PropertyDetailPage({
           {/* Location */}
           <div>
             <h2 className="mb-3 text-lg font-semibold text-foreground">Location</h2>
-            <div className="flex h-48 items-center justify-center rounded-xl border border-border bg-secondary/50">
-              <div className="flex flex-col items-center gap-2 text-center">
-                <MapPin className="h-8 w-8 text-primary" />
-                <p className="text-sm font-medium text-foreground">
-                  {property.location.neighborhood}, {property.location.city}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  GPS: {property.location.lat.toFixed(4)}, {property.location.lng.toFixed(4)}
-                </p>
-              </div>
+            <PropertyDetailsMap property={property} />
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+              <p className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+                <MapPin className="h-4 w-4 text-primary" />
+                {property.location.neighborhood}, {property.location.city}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                GPS: {property.location.lat.toFixed(4)}, {property.location.lng.toFixed(4)}
+              </p>
             </div>
           </div>
         </div>
