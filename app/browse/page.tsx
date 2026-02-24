@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
-import { Grid3X3, List, Map, LayoutGrid, AlignJustify } from "lucide-react"
+import { Grid3X3, Map, LayoutGrid, AlignJustify } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { PropertyCard } from "@/components/properties/property-card"
@@ -24,7 +24,7 @@ export default function BrowsePage() {
 
   const [sortBy, setSortBy] = useState("newest")
   const [showMap, setShowMap] = useState(true)
-  const [showFilters, setShowFilters] = useState(true)
+  const [showFilters, setShowFilters] = useState(false)
   const [viewMode, setViewMode] = useState<ViewMode>("grid")
   const [filters, setFilters] = useState<FilterState>({
     priceRange: [100000, 6000000],
@@ -87,183 +87,146 @@ export default function BrowsePage() {
 
   return (
     <div className="flex flex-col">
-      {/* ── Controls bar ─────────────────────────────────────── */}
-      <div className="border-b border-border bg-card px-4 py-3 lg:px-6">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-2">
-
-          {/* Left: result count */}
-          <p className="hidden text-sm text-muted-foreground lg:block">
-            <span className="font-semibold text-foreground">{filteredProperties.length}</span>{" "}
-            properties found
-          </p>
-
-          {/* Right: controls */}
-          <div className="ml-auto flex items-center gap-2">
-            {/* Sort */}
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-44">
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="newest">Newest</SelectItem>
-                <SelectItem value="price-low">Price: Low to High</SelectItem>
-                <SelectItem value="price-high">Price: High to Low</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {/* Divider */}
-            <div className="hidden h-6 w-px bg-border lg:block" />
-
-            {/* Grid / List toggle */}
-            <div className="hidden items-center gap-0.5 rounded-lg border border-border bg-secondary p-0.5 lg:flex">
-              <button
-                id="view-grid"
-                aria-label="Grid view"
-                onClick={() => setViewMode("grid")}
-                className={`flex h-8 w-8 items-center justify-center rounded-md transition-all ${viewMode === "grid"
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-                  }`}
-              >
-                <LayoutGrid className="h-4 w-4" />
-              </button>
-              <button
-                id="view-list"
-                aria-label="List view"
-                onClick={() => setViewMode("list")}
-                className={`flex h-8 w-8 items-center justify-center rounded-md transition-all ${viewMode === "list"
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-                  }`}
-              >
-                <AlignJustify className="h-4 w-4" />
-              </button>
-            </div>
-
-            {/* Divider */}
-            <div className="hidden h-6 w-px bg-border lg:block" />
-
-            {/* Filter toggle */}
-            <Button
-              variant={showFilters ? "default" : "outline"}
-              size="icon"
-              onClick={() => setShowFilters(!showFilters)}
-              className="hidden lg:flex"
-              aria-label="Toggle filters"
-            >
-              <List className="h-4 w-4" />
-            </Button>
-
-            {/* Map toggle */}
-            <Button
-              variant={showMap ? "default" : "outline"}
-              size="icon"
-              onClick={() => setShowMap(!showMap)}
-              className="hidden lg:flex"
-              aria-label="Toggle map"
-            >
-              <Map className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </div>
-
       {/* ── Main content: filter | listings | map ────────────── */}
-      <div className="flex w-full" style={{ height: "calc(100vh - 112px)" }}>
+      <div className="flex w-full" style={{ height: "calc(100vh - 64px)" }}>
 
-        {/* Filter Sidebar */}
-        {showFilters && (
-          <div className="hidden w-72 shrink-0 overflow-y-auto border-r border-border bg-card p-5 lg:block">
-            <FilterSidebar
-              filters={filters}
-              onFilterChange={setFilters}
-              search={search}
-              onSearchChange={setSearch}
-            />
-          </div>
-        )}
+        {/* Filter Sidebar – always visible on desktop */}
+        <div className="hidden w-72 shrink-0 overflow-y-auto border-r border-border bg-card p-5 lg:block">
+          <FilterSidebar
+            filters={filters}
+            onFilterChange={setFilters}
+            search={search}
+            onSearchChange={setSearch}
+          />
+        </div>
 
         {/* Listings column */}
-        <div className="flex-1 overflow-y-auto p-4 lg:p-6">
+        <div className="flex flex-1 flex-col overflow-hidden">
 
-          {/* Mobile top bar */}
-          <div className="mb-4 flex items-center justify-between lg:hidden">
-            <p className="text-sm text-muted-foreground">
-              <span className="font-semibold text-foreground">{filteredProperties.length}</span>{" "}
-              found
-            </p>
-            <div className="flex items-center gap-2">
-              {/* Mobile grid/list toggle */}
-              <div className="flex items-center gap-0.5 rounded-lg border border-border bg-secondary p-0.5">
+          {/* ── Inline controls header (inside listings area) ── */}
+          <div className="shrink-0 border-b border-border bg-card/80 px-4 py-2.5 backdrop-blur-sm lg:px-5">
+            <div className="flex items-center justify-between gap-2">
+
+              {/* Left: result count */}
+              <p className="text-sm text-muted-foreground">
+                <span className="font-semibold text-foreground">{filteredProperties.length}</span>{" "}
+                <span className="hidden sm:inline">properties</span> found
+              </p>
+
+              {/* Right: controls */}
+              <div className="flex items-center gap-2">
+
+                {/* Sort */}
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger className="h-8 w-36 text-xs">
+                    <SelectValue placeholder="Sort by" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="newest">Newest</SelectItem>
+                    <SelectItem value="price-low">Price: Low → High</SelectItem>
+                    <SelectItem value="price-high">Price: High → Low</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                {/* Divider */}
+                <div className="hidden h-5 w-px bg-border lg:block" />
+
+                {/* Grid / List toggle */}
+                <div className="flex items-center gap-0.5 rounded-lg border border-border bg-secondary p-0.5">
+                  <button
+                    id="view-grid"
+                    aria-label="Grid view"
+                    onClick={() => setViewMode("grid")}
+                    className={`flex h-7 w-7 items-center justify-center rounded-md transition-all ${viewMode === "grid"
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                      }`}
+                  >
+                    <LayoutGrid className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    id="view-list"
+                    aria-label="List view"
+                    onClick={() => setViewMode("list")}
+                    className={`flex h-7 w-7 items-center justify-center rounded-md transition-all ${viewMode === "list"
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                      }`}
+                  >
+                    <AlignJustify className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+
+                {/* Divider */}
+                <div className="hidden h-5 w-px bg-border xl:block" />
+
+                {/* Map toggle – desktop only */}
                 <button
-                  aria-label="Grid view"
-                  onClick={() => setViewMode("grid")}
-                  className={`flex h-7 w-7 items-center justify-center rounded-md transition-all ${viewMode === "grid"
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
+                  aria-label="Toggle map"
+                  onClick={() => setShowMap(!showMap)}
+                  className={`hidden h-7 w-7 items-center justify-center rounded-md border transition-all xl:flex ${showMap
+                    ? "border-primary/30 bg-primary/10 text-primary"
+                    : "border-border bg-secondary text-muted-foreground hover:text-foreground"
                     }`}
                 >
-                  <LayoutGrid className="h-3.5 w-3.5" />
+                  <Map className="h-3.5 w-3.5" />
                 </button>
-                <button
-                  aria-label="List view"
-                  onClick={() => setViewMode("list")}
-                  className={`flex h-7 w-7 items-center justify-center rounded-md transition-all ${viewMode === "list"
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                    }`}
+
+                {/* Mobile filter toggle */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 text-xs lg:hidden"
+                  onClick={() => setShowFilters(!showFilters)}
                 >
-                  <AlignJustify className="h-3.5 w-3.5" />
-                </button>
+                  Filters
+                </Button>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowFilters(!showFilters)}
-              >
-                Filters
-              </Button>
             </div>
           </div>
 
-          {/* Mobile Filters Panel */}
-          {showFilters && (
-            <div className="mb-4 rounded-xl border border-border bg-card p-4 lg:hidden">
-              <FilterSidebar
-                filters={filters}
-                onFilterChange={setFilters}
-                search={search}
-                onSearchChange={setSearch}
-              />
-            </div>
-          )}
+          {/* ── Scrollable listings area ── */}
+          <div className="flex-1 overflow-y-auto p-4 lg:p-5">
 
-          {/* Property Cards */}
-          {filteredProperties.length > 0 ? (
-            viewMode === "grid" ? (
-              /* ── Grid view ── */
-              <div className="grid gap-4 sm:grid-cols-2">
-                {filteredProperties.map((property) => (
-                  <PropertyCard key={property.id} property={property} />
-                ))}
+            {/* Mobile Filters Panel */}
+            {showFilters && (
+              <div className="mb-4 rounded-xl border border-border bg-card p-4 lg:hidden">
+                <FilterSidebar
+                  filters={filters}
+                  onFilterChange={setFilters}
+                  search={search}
+                  onSearchChange={setSearch}
+                />
               </div>
+            )}
+
+            {/* Property Cards */}
+            {filteredProperties.length > 0 ? (
+              viewMode === "grid" ? (
+                /* ── Grid view ── */
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {filteredProperties.map((property) => (
+                    <PropertyCard key={property.id} property={property} />
+                  ))}
+                </div>
+              ) : (
+                /* ── List view ── */
+                <div className="flex flex-col gap-3">
+                  {filteredProperties.map((property) => (
+                    <PropertyListCard key={property.id} property={property} />
+                  ))}
+                </div>
+              )
             ) : (
-              /* ── List view ── */
-              <div className="flex flex-col gap-3">
-                {filteredProperties.map((property) => (
-                  <PropertyListCard key={property.id} property={property} />
-                ))}
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <Grid3X3 className="mb-4 h-12 w-12 text-muted-foreground/50" />
+                <h3 className="mb-2 text-lg font-semibold text-foreground">No properties found</h3>
+                <p className="text-sm text-muted-foreground">
+                  Try adjusting your filters or search query.
+                </p>
               </div>
-            )
-          ) : (
-            <div className="flex flex-col items-center justify-center py-20 text-center">
-              <Grid3X3 className="mb-4 h-12 w-12 text-muted-foreground/50" />
-              <h3 className="mb-2 text-lg font-semibold text-foreground">No properties found</h3>
-              <p className="text-sm text-muted-foreground">
-                Try adjusting your filters or search query.
-              </p>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Map Panel */}
