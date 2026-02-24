@@ -2,13 +2,16 @@
 
 import { useState, useMemo, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
-import { Grid3X3, List, Map } from "lucide-react"
+import { Grid3X3, List, Map, LayoutGrid, AlignJustify } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { PropertyCard } from "@/components/properties/property-card"
+import { PropertyListCard } from "@/components/properties/property-list-card"
 import { FilterSidebar, type FilterState } from "@/components/properties/filter-sidebar"
 import { MapPlaceholder } from "@/components/properties/map-placeholder"
 import { mockProperties } from "@/lib/mock-data"
+
+type ViewMode = "grid" | "list"
 
 export default function BrowsePage() {
   const searchParams = useSearchParams()
@@ -18,9 +21,11 @@ export default function BrowsePage() {
   useEffect(() => {
     setSearch(searchParams.get("q") ?? "")
   }, [searchParams])
+
   const [sortBy, setSortBy] = useState("newest")
   const [showMap, setShowMap] = useState(true)
   const [showFilters, setShowFilters] = useState(true)
+  const [viewMode, setViewMode] = useState<ViewMode>("grid")
   const [filters, setFilters] = useState<FilterState>({
     priceRange: [100000, 6000000],
     propertyTypes: [],
@@ -82,42 +87,90 @@ export default function BrowsePage() {
 
   return (
     <div className="flex flex-col">
-      {/* Controls bar – sort + view toggles only */}
+      {/* ── Controls bar ─────────────────────────────────────── */}
       <div className="border-b border-border bg-card px-4 py-3 lg:px-6">
-        <div className="mx-auto flex max-w-7xl items-center justify-end gap-2">
-          <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="Sort by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="newest">Newest</SelectItem>
-              <SelectItem value="price-low">Price: Low to High</SelectItem>
-              <SelectItem value="price-high">Price: High to Low</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button
-            variant={showFilters ? "default" : "outline"}
-            size="icon"
-            onClick={() => setShowFilters(!showFilters)}
-            className="hidden lg:flex"
-            aria-label="Toggle filters"
-          >
-            <List className="h-4 w-4" />
-          </Button>
-          <Button
-            variant={showMap ? "default" : "outline"}
-            size="icon"
-            onClick={() => setShowMap(!showMap)}
-            className="hidden lg:flex"
-            aria-label="Toggle map"
-          >
-            <Map className="h-4 w-4" />
-          </Button>
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-2">
+
+          {/* Left: result count */}
+          <p className="hidden text-sm text-muted-foreground lg:block">
+            <span className="font-semibold text-foreground">{filteredProperties.length}</span>{" "}
+            properties found
+          </p>
+
+          {/* Right: controls */}
+          <div className="ml-auto flex items-center gap-2">
+            {/* Sort */}
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-44">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">Newest</SelectItem>
+                <SelectItem value="price-low">Price: Low to High</SelectItem>
+                <SelectItem value="price-high">Price: High to Low</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Divider */}
+            <div className="hidden h-6 w-px bg-border lg:block" />
+
+            {/* Grid / List toggle */}
+            <div className="hidden items-center gap-0.5 rounded-lg border border-border bg-secondary p-0.5 lg:flex">
+              <button
+                id="view-grid"
+                aria-label="Grid view"
+                onClick={() => setViewMode("grid")}
+                className={`flex h-8 w-8 items-center justify-center rounded-md transition-all ${viewMode === "grid"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                  }`}
+              >
+                <LayoutGrid className="h-4 w-4" />
+              </button>
+              <button
+                id="view-list"
+                aria-label="List view"
+                onClick={() => setViewMode("list")}
+                className={`flex h-8 w-8 items-center justify-center rounded-md transition-all ${viewMode === "list"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                  }`}
+              >
+                <AlignJustify className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Divider */}
+            <div className="hidden h-6 w-px bg-border lg:block" />
+
+            {/* Filter toggle */}
+            <Button
+              variant={showFilters ? "default" : "outline"}
+              size="icon"
+              onClick={() => setShowFilters(!showFilters)}
+              className="hidden lg:flex"
+              aria-label="Toggle filters"
+            >
+              <List className="h-4 w-4" />
+            </Button>
+
+            {/* Map toggle */}
+            <Button
+              variant={showMap ? "default" : "outline"}
+              size="icon"
+              onClick={() => setShowMap(!showMap)}
+              className="hidden lg:flex"
+              aria-label="Toggle map"
+            >
+              <Map className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
 
-      {/* Main Content: filter | listings | map – all full height */}
+      {/* ── Main content: filter | listings | map ────────────── */}
       <div className="flex w-full" style={{ height: "calc(100vh - 112px)" }}>
+
         {/* Filter Sidebar */}
         {showFilters && (
           <div className="hidden w-72 shrink-0 overflow-y-auto border-r border-border bg-card p-5 lg:block">
@@ -130,22 +183,47 @@ export default function BrowsePage() {
           </div>
         )}
 
-        {/* Listing Grid */}
+        {/* Listings column */}
         <div className="flex-1 overflow-y-auto p-4 lg:p-6">
-          <div className="mb-4 flex items-center justify-between">
+
+          {/* Mobile top bar */}
+          <div className="mb-4 flex items-center justify-between lg:hidden">
             <p className="text-sm text-muted-foreground">
-              <span className="font-medium text-foreground">{filteredProperties.length}</span>{" "}
-              properties found
+              <span className="font-semibold text-foreground">{filteredProperties.length}</span>{" "}
+              found
             </p>
-            {/* Mobile filter toggle */}
-            <Button
-              variant="outline"
-              size="sm"
-              className="lg:hidden"
-              onClick={() => setShowFilters(!showFilters)}
-            >
-              Filters
-            </Button>
+            <div className="flex items-center gap-2">
+              {/* Mobile grid/list toggle */}
+              <div className="flex items-center gap-0.5 rounded-lg border border-border bg-secondary p-0.5">
+                <button
+                  aria-label="Grid view"
+                  onClick={() => setViewMode("grid")}
+                  className={`flex h-7 w-7 items-center justify-center rounded-md transition-all ${viewMode === "grid"
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                    }`}
+                >
+                  <LayoutGrid className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  aria-label="List view"
+                  onClick={() => setViewMode("list")}
+                  className={`flex h-7 w-7 items-center justify-center rounded-md transition-all ${viewMode === "list"
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                    }`}
+                >
+                  <AlignJustify className="h-3.5 w-3.5" />
+                </button>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowFilters(!showFilters)}
+              >
+                Filters
+              </Button>
+            </div>
           </div>
 
           {/* Mobile Filters Panel */}
@@ -160,12 +238,23 @@ export default function BrowsePage() {
             </div>
           )}
 
+          {/* Property Cards */}
           {filteredProperties.length > 0 ? (
-            <div className="grid gap-4 sm:grid-cols-2">
-              {filteredProperties.map((property) => (
-                <PropertyCard key={property.id} property={property} />
-              ))}
-            </div>
+            viewMode === "grid" ? (
+              /* ── Grid view ── */
+              <div className="grid gap-4 sm:grid-cols-2">
+                {filteredProperties.map((property) => (
+                  <PropertyCard key={property.id} property={property} />
+                ))}
+              </div>
+            ) : (
+              /* ── List view ── */
+              <div className="flex flex-col gap-3">
+                {filteredProperties.map((property) => (
+                  <PropertyListCard key={property.id} property={property} />
+                ))}
+              </div>
+            )
           ) : (
             <div className="flex flex-col items-center justify-center py-20 text-center">
               <Grid3X3 className="mb-4 h-12 w-12 text-muted-foreground/50" />
@@ -177,7 +266,7 @@ export default function BrowsePage() {
           )}
         </div>
 
-        {/* Map Panel – sticky, full height, 480px wide */}
+        {/* Map Panel */}
         {showMap && (
           <div className="hidden w-[480px] shrink-0 border-l border-border xl:flex xl:flex-col">
             <MapPlaceholder properties={filteredProperties} />
