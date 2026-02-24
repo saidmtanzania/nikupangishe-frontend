@@ -58,7 +58,7 @@ export default function IdentityVerificationPage() {
         setIsLoading(true)
         setTimeout(() => {
             setIsLoading(false)
-            router.push("/onboarding/owner/address")
+            router.push("/onboarding/owner/profile")
         }, 1500)
     }
 
@@ -88,7 +88,7 @@ export default function IdentityVerificationPage() {
                 </div>
 
                 <div className="p-6 lg:p-10">
-                    {/* Intro Section */}
+                    {/* Intro Section
                     <div className="mb-8 flex items-start gap-3">
                         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/5">
                             <UserCheck className="h-5 w-5 text-primary" />
@@ -99,7 +99,7 @@ export default function IdentityVerificationPage() {
                                 Please provide your legal identification details.
                             </p>
                         </div>
-                    </div>
+                    </div> */}
 
                     <form onSubmit={handleSubmit} className="space-y-8">
                         {/* Form Fields */}
