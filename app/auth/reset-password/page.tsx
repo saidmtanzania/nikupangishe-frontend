@@ -65,14 +65,6 @@ function ResetPasswordContent() {
                 <div className="h-1.5 w-full bg-primary" />
 
                 <div className="relative p-6 lg:p-10">
-                    {/* Back Button */}
-                    <Link
-                        href="/auth/forgot-password"
-                        className="absolute left-4 top-4 flex h-9 w-9 items-center justify-center rounded-xl bg-muted/50 text-muted-foreground transition-all hover:bg-muted hover:text-foreground active:scale-95 lg:left-6 lg:top-6"
-                    >
-                        <ChevronLeft className="h-4 w-4" />
-                    </Link>
-
                     {!isSuccess ? (
                         <div className="flex flex-col gap-6 pt-4">
                             <div className="mb-8">
@@ -153,6 +145,17 @@ function ResetPasswordContent() {
                                     {!isLoading && <ArrowRight className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4" />}
                                 </Button>
                             </form>
+
+                            {/* Bottom Back Link */}
+                            <div className="mt-4 border-t border-muted/10 pt-6">
+                                <Link
+                                    href="/auth/forgot-password"
+                                    className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary transition-colors group"
+                                >
+                                    <ChevronLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+                                    <span>Back to Recovery</span>
+                                </Link>
+                            </div>
                         </div>
                     ) : (
                         <div className="flex flex-col items-center gap-6 pt-12 pb-4 text-center">

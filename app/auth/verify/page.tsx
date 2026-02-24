@@ -14,7 +14,6 @@ function VerifyContent() {
 
     const maskPhoneNumber = (phone: string) => {
         if (!phone) return "+255 ••• ••67"
-        // Keep first 4 characters and last 2 characters, mask the middle with dots
         if (phone.length < 6) return phone
         const first = phone.slice(0, 4)
         const last = phone.slice(-2)
@@ -42,10 +41,9 @@ function VerifyContent() {
     const handleResend = () => {
         if (countdown > 0 || isResending) return
         setIsResending(true)
-        // Simulate API call
         setTimeout(() => {
             setIsResending(false)
-            setCountdown(60) // Reset timer after "sending"
+            setCountdown(60)
         }, 2000)
     }
 
@@ -85,14 +83,6 @@ function VerifyContent() {
                 <div className="h-1.5 w-full bg-primary" />
 
                 <div className="relative p-6 lg:p-10">
-                    {/* Back Button */}
-                    <Link
-                        href="/auth/register"
-                        className="absolute left-4 top-4 flex h-9 w-9 items-center justify-center rounded-xl bg-muted/50 text-muted-foreground transition-all hover:bg-muted hover:text-foreground active:scale-95 lg:left-6 lg:top-6"
-                    >
-                        <ChevronLeft className="h-4 w-4" />
-                    </Link>
-
                     <div className="flex flex-col items-center text-center pt-2">
                         {/* Phone Icon */}
                         <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
@@ -152,7 +142,7 @@ function VerifyContent() {
                                     >
                                         {isResending ? (
                                             <>
-                                                <div className="h-3 w-3 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                                                <span className="h-3 w-3 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                                                 <span>Resending...</span>
                                             </>
                                         ) : countdown > 0 ? (
@@ -168,6 +158,17 @@ function VerifyContent() {
                             <div className="flex items-center justify-center gap-2 pt-4 text-[10px] font-bold uppercase tracking-widest text-[#94a3b8]">
                                 <Lock className="h-3 w-3" />
                                 SECURE VERIFICATION
+                            </div>
+
+                            {/* Bottom Back Link */}
+                            <div className="mt-4 border-t border-muted/10 pt-6 text-left">
+                                <Link
+                                    href="/auth/register"
+                                    className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary transition-colors group"
+                                >
+                                    <ChevronLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+                                    <span>Back to Sign Up</span>
+                                </Link>
                             </div>
                         </form>
                     </div>
