@@ -26,12 +26,15 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [selectedRole, setSelectedRole] = useState<string>("tenant")
 
+  const [phoneNumber, setPhoneNumber] = useState("")
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setIsLoading(true)
     setTimeout(() => {
       setIsLoading(false)
-      router.push(`/dashboard/${selectedRole}`)
+      const encodedPhone = encodeURIComponent(phoneNumber)
+      router.push(`/auth/verify?phone=${encodedPhone}`)
     }, 1200)
   }
 
@@ -110,12 +113,19 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              {/* Phone */}
               <div className="space-y-2">
                 <Label htmlFor="phone" className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Phone Number</Label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input id="phone" type="tel" placeholder="+255 7XX XXX XXX" className="pl-10 h-11 bg-muted/30 border-border focus-visible:ring-primary/20 transition-all font-normal" required />
+                  <Input
+                    id="phone"
+                    type="tel"
+                    placeholder="+255 7XX XXX XXX"
+                    className="pl-10 h-11 bg-muted/30 border-border focus-visible:ring-primary/20 transition-all font-normal"
+                    required
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                  />
                 </div>
               </div>
 
@@ -160,9 +170,9 @@ export default function RegisterPage() {
 
             <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
               By signing up, you agree to our
-              <Link className="mx-1 font-medium text-foreground hover:text-primary transition-colors underline decoration-primary/20" href="/terms">Terms of Service</Link>
+              <Link className="mx-1 font-medium text-foreground hover:text-primary transition-colors" href="/terms">Terms of Service</Link>
               and
-              <Link className="mx-1 font-medium text-foreground hover:text-primary transition-colors underline decoration-primary/20" href="/privacy">Privacy Policy</Link>.
+              <Link className="mx-1 font-medium text-foreground hover:text-primary transition-colors" href="/privacy">Privacy Policy</Link>.
             </p>
           </form>
 
@@ -170,7 +180,7 @@ export default function RegisterPage() {
           <div className="mt-8 text-center md:hidden">
             <p className="text-sm text-muted-foreground">
               Already have an account?{" "}
-              <Link href="/auth/login" className="font-medium text-primary hover:underline">
+              <Link href="/auth/login" className="font-medium text-primary">
                 Login here
               </Link>
             </p>
