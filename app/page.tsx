@@ -375,9 +375,6 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-
-      {/* Bottom spacing for mobile nav */}
-      <div className="h-16 lg:hidden" />
     </div>
   )
 }
