@@ -22,14 +22,48 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [selectedRole, setSelectedRole] = useState<string>("tenant")
 
-  const [phoneNumber, setPhoneNumber] = useState("")
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: ""
+  })
+
+  const [errors, setErrors] = useState<Record<string, string>>({})
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {}
+
+    if (!formData.name.trim()) {
+      newErrors.name = "Full name is required"
+    } else if (formData.name.trim().length < 3) {
+      newErrors.name = "Name must be at least 3 characters"
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = "Email address is required"
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "Please enter a valid email address"
+    }
+
+    if (!formData.phone.trim()) {
+      newErrors.phone = "Phone number is required"
+    } else if (formData.phone.length !== 9) {
+      newErrors.phone = "Please enter all 9 digits"
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+
+    if (!validateForm()) return
+
     setIsLoading(true)
     setTimeout(() => {
       setIsLoading(false)
-      const fullPhone = `+255 ${phoneNumber}`
+      const fullPhone = `+255 ${formData.phone}`
       const encodedPhone = encodeURIComponent(fullPhone)
       router.push(`/auth/verify?phone=${encodedPhone}`)
     }, 1200)
@@ -52,15 +86,28 @@ export default function RegisterPage() {
             <p className="text-sm text-muted-foreground">Join the future of renting in Tanzania.</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6" noValidate>
             <div className="space-y-4">
               {/* Full Name */}
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Full Name</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input id="name" placeholder="John Doe" className="pl-10 h-11 bg-muted/20 border-border focus-visible:ring-primary/20 transition-all font-normal" required />
+                  <Input
+                    id="name"
+                    placeholder="John Doe"
+                    className={cn(
+                      "pl-10 h-11 bg-muted/20 border-border focus-visible:ring-primary/20 transition-all font-normal",
+                      errors.name && "border-destructive focus-visible:ring-destructive/20"
+                    )}
+                    value={formData.name}
+                    onChange={(e) => {
+                      setFormData({ ...formData, name: e.target.value })
+                      if (errors.name) setErrors({ ...errors, name: "" })
+                    }}
+                  />
                 </div>
+                {errors.name && <p className="text-[11px] font-medium text-destructive ml-1">{errors.name}</p>}
               </div>
 
               {/* Email */}
@@ -68,8 +115,22 @@ export default function RegisterPage() {
                 <Label htmlFor="email" className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Email Address</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input id="email" type="email" placeholder="john@example.com" className="pl-10 h-11 bg-muted/20 border-border focus-visible:ring-primary/20 transition-all font-normal" required />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="john@example.com"
+                    className={cn(
+                      "pl-10 h-11 bg-muted/20 border-border focus-visible:ring-primary/20 transition-all font-normal",
+                      errors.email && "border-destructive focus-visible:ring-destructive/20"
+                    )}
+                    value={formData.email}
+                    onChange={(e) => {
+                      setFormData({ ...formData, email: e.target.value })
+                      if (errors.email) setErrors({ ...errors, email: "" })
+                    }}
+                  />
                 </div>
+                {errors.email && <p className="text-[11px] font-medium text-destructive ml-1">{errors.email}</p>}
               </div>
 
               <div className="space-y-2">
@@ -84,16 +145,22 @@ export default function RegisterPage() {
                       id="phone"
                       type="tel"
                       placeholder="7XX XXX XXX"
-                      className="pl-10 h-11 bg-muted/30 border-border focus-visible:ring-primary/20 transition-all font-normal"
-                      required
-                      value={phoneNumber}
+                      className={cn(
+                        "pl-10 h-11 bg-muted/30 border-border focus-visible:ring-primary/20 transition-all font-normal",
+                        errors.phone && "border-destructive focus-visible:ring-destructive/20"
+                      )}
+                      value={formData.phone}
                       onChange={(e) => {
                         const val = e.target.value.replace(/\D/g, '')
-                        if (val.length <= 9) setPhoneNumber(val)
+                        if (val.length <= 9) {
+                          setFormData({ ...formData, phone: val })
+                          if (errors.phone) setErrors({ ...errors, phone: "" })
+                        }
                       }}
                     />
                   </div>
                 </div>
+                {errors.phone && <p className="text-[11px] font-medium text-destructive ml-1">{errors.phone}</p>}
               </div>
 
               {/* Role Switcher */}
