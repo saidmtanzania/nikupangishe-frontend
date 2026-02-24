@@ -116,8 +116,8 @@ export default function BrowsePage() {
         </div>
       </div>
 
-      {/* Main Content: 3-column on desktop */}
-      <div className="mx-auto flex w-full max-w-[1600px] flex-1 gap-0">
+      {/* Main Content: filter | listings | map – all full height */}
+      <div className="flex w-full" style={{ height: "calc(100vh - 112px)" }}>
         {/* Filter Sidebar */}
         {showFilters && (
           <div className="hidden w-72 shrink-0 overflow-y-auto border-r border-border bg-card p-5 lg:block">
@@ -177,9 +177,9 @@ export default function BrowsePage() {
           )}
         </div>
 
-        {/* Map Panel */}
+        {/* Map Panel – sticky, full height, 480px wide */}
         {showMap && (
-          <div className="hidden w-[400px] shrink-0 border-l border-border xl:block">
+          <div className="hidden w-[480px] shrink-0 border-l border-border xl:flex xl:flex-col">
             <MapPlaceholder properties={filteredProperties} />
           </div>
         )}
