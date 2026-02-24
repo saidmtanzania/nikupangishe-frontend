@@ -14,6 +14,7 @@ export interface FilterState {
   propertyTypes: string[]
   verifiedOnly: boolean
   amenities: string[]
+  minBedrooms: number
 }
 
 const propertyTypes = [
@@ -47,6 +48,7 @@ export function FilterSidebar({ filters, onFilterChange, search, onSearchChange 
   const [expanded, setExpanded] = useState({
     price: true,
     type: true,
+    bedrooms: true,
     amenities: false,
   })
 
@@ -63,6 +65,14 @@ export function FilterSidebar({ filters, onFilterChange, search, onSearchChange 
       : [...filters.amenities, amenity]
     onFilterChange({ ...filters, amenities })
   }
+
+  const bedroomOptions = [
+    { label: "Any", value: 0 },
+    { label: "1+", value: 1 },
+    { label: "2+", value: 2 },
+    { label: "3+", value: 3 },
+    { label: "4+", value: 4 },
+  ]
 
   return (
     <aside className="flex flex-col gap-6">
@@ -110,6 +120,35 @@ export function FilterSidebar({ filters, onFilterChange, search, onSearchChange 
               <span>{formatTZSShort(filters.priceRange[0])}</span>
               <span>{formatTZSShort(filters.priceRange[1])}</span>
             </div>
+          </div>
+        )}
+      </div>
+
+      <Separator />
+
+      {/* Bedrooms */}
+      <div>
+        <button
+          onClick={() => setExpanded((p) => ({ ...p, bedrooms: !p.bedrooms }))}
+          className="mb-3 flex w-full items-center justify-between text-sm font-medium text-foreground"
+        >
+          Bedrooms
+          <ChevronDown className={`h-4 w-4 transition-transform ${expanded.bedrooms ? "rotate-180" : ""}`} />
+        </button>
+        {expanded.bedrooms && (
+          <div className="flex gap-1.5">
+            {bedroomOptions.map((opt) => (
+              <button
+                key={opt.value}
+                onClick={() => onFilterChange({ ...filters, minBedrooms: opt.value })}
+                className={`flex-1 rounded-md border py-1.5 text-xs font-medium transition-all ${filters.minBedrooms === opt.value
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border bg-background text-muted-foreground hover:border-border-foreground"
+                  }`}
+              >
+                {opt.label}
+              </button>
+            ))}
           </div>
         )}
       </div>
@@ -201,6 +240,7 @@ export function FilterSidebar({ filters, onFilterChange, search, onSearchChange 
             propertyTypes: [],
             verifiedOnly: false,
             amenities: [],
+            minBedrooms: 0,
           })
           onSearchChange("")
         }}

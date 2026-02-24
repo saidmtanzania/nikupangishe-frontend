@@ -31,6 +31,7 @@ export default function BrowsePage() {
     propertyTypes: [],
     verifiedOnly: false,
     amenities: [],
+    minBedrooms: 0,
   })
 
   const filteredProperties = useMemo(() => {
@@ -67,6 +68,11 @@ export default function BrowsePage() {
       results = results.filter((p) =>
         filters.amenities.every((a) => p.amenities.includes(a))
       )
+    }
+
+    // Bedrooms
+    if (filters.minBedrooms > 0) {
+      results = results.filter((p) => p.bedrooms >= filters.minBedrooms)
     }
 
     // Sort
