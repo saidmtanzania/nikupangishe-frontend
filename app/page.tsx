@@ -7,17 +7,13 @@ import {
   Users,
   Briefcase,
   CheckCircle2,
-  MapPin,
-  Star,
   ChevronRight,
-  Bed,
-  Bath,
-  Maximize,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { mockProperties } from "@/lib/mock-data"
 import { formatTZS } from "@/lib/utils"
 import { HeroSearch } from "@/components/home/hero-search"
+import { PropertyCard } from "@/components/properties/property-card"
 
 export default function LandingPage() {
   const featured = mockProperties.filter((p) => p.isUnique).slice(0, 3)
@@ -142,60 +138,7 @@ export default function LandingPage() {
           </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {featured.map((property) => (
-              <Link
-                key={property.id}
-                href={`/properties/${property.id}`}
-                className="group overflow-hidden rounded-xl border border-border bg-card transition-all hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5"
-              >
-                <div className="relative aspect-[4/3] overflow-hidden">
-                  <Image
-                    src={property.images[0]}
-                    alt={property.title}
-                    fill
-                    className="object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                  <div className="absolute left-3 top-3 flex gap-2">
-                    {property.isVerified && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-[#059669] px-2.5 py-1 text-xs font-medium text-[#ffffff]">
-                        <CheckCircle2 className="h-3 w-3" />
-                        Verified
-                      </span>
-                    )}
-                    {property.isUnique && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-1 text-xs font-medium text-primary-foreground">
-                        <Star className="h-3 w-3" />
-                        Unique
-                      </span>
-                    )}
-                  </div>
-                  <div className="absolute bottom-3 left-3 rounded-md bg-[#1a1210]/80 px-3 py-1.5 text-sm font-semibold text-[#f5f0eb] backdrop-blur-sm">
-                    {formatTZS(property.price)}/mo
-                  </div>
-                </div>
-                <div className="p-4">
-                  <h3 className="mb-1 text-base font-semibold text-card-foreground">
-                    {property.title}
-                  </h3>
-                  <p className="mb-3 flex items-center gap-1 text-sm text-muted-foreground">
-                    <MapPin className="h-3.5 w-3.5" />
-                    {property.location.neighborhood}, {property.location.city}
-                  </p>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <Bed className="h-4 w-4" />
-                      {property.bedrooms} Bed{property.bedrooms !== 1 ? "s" : ""}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Bath className="h-4 w-4" />
-                      {property.bathrooms} Bath{property.bathrooms !== 1 ? "s" : ""}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Maximize className="h-4 w-4" />
-                      {property.area} m&sup2;
-                    </span>
-                  </div>
-                </div>
-              </Link>
+              <PropertyCard key={property.id} property={property} />
             ))}
           </div>
           <div className="mt-6 text-center sm:hidden">
