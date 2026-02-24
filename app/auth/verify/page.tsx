@@ -72,7 +72,8 @@ function VerifyContent() {
         setIsLoading(true)
         setTimeout(() => {
             setIsLoading(false)
-            router.push("/dashboard/tenant")
+            // Redirect to owner onboarding after verification
+            router.push("/onboarding/owner")
         }, 1500)
     }
 

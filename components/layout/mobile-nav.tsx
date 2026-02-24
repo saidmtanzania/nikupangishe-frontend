@@ -18,8 +18,9 @@ export function MobileNav() {
 
   const isDashboard = pathname.startsWith("/dashboard")
   const isChat = pathname.startsWith("/chat")
+  const isOnboarding = pathname.startsWith("/onboarding")
 
-  if (isDashboard || isChat) return null
+  if (isDashboard || isChat || isOnboarding) return null
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/95 backdrop-blur-md lg:hidden">

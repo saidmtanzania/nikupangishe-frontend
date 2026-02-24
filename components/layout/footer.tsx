@@ -27,8 +27,9 @@ export function Footer() {
   const pathname = usePathname()
   const isDashboard = pathname.startsWith("/dashboard")
   const isChat = pathname.startsWith("/chat")
+  const isOnboarding = pathname.startsWith("/onboarding")
 
-  if (isDashboard || isChat) return null
+  if (isDashboard || isChat || isOnboarding) return null
 
   return (
     <footer className="border-t border-border bg-card">

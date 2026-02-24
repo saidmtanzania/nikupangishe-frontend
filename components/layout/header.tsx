@@ -21,8 +21,9 @@ export function Header() {
 
   const isDashboard = pathname.startsWith("/dashboard")
   const isChat = pathname.startsWith("/chat")
+  const isOnboarding = pathname.startsWith("/onboarding")
 
-  if (isDashboard || isChat) return null
+  if (isDashboard || isChat || isOnboarding) return null
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-card/80 backdrop-blur-md">
