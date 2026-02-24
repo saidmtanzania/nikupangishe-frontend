@@ -29,7 +29,8 @@ export default function RegisterPage() {
     setIsLoading(true)
     setTimeout(() => {
       setIsLoading(false)
-      const encodedPhone = encodeURIComponent(phoneNumber)
+      const fullPhone = `+255 ${phoneNumber}`
+      const encodedPhone = encodeURIComponent(fullPhone)
       router.push(`/auth/verify?phone=${encodedPhone}`)
     }, 1200)
   }
@@ -48,7 +49,7 @@ export default function RegisterPage() {
               <div className="h-4 w-1 bg-primary rounded-full" />
               <h2 className="text-xl font-medium text-foreground lg:text-xl">Create account</h2>
             </div>
-            <p className="text-sm text-muted-foreground">Join the future of renting in Dar es Salaam.</p>
+            <p className="text-sm text-muted-foreground">Join the future of renting in Tanzania.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -73,17 +74,25 @@ export default function RegisterPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="phone" className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Phone Number</Label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    id="phone"
-                    type="tel"
-                    placeholder="+255 7XX XXX XXX"
-                    className="pl-10 h-11 bg-muted/30 border-border focus-visible:ring-primary/20 transition-all font-normal"
-                    required
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                  />
+                <div className="flex gap-2">
+                  <div className="flex h-11 items-center rounded-xl border border-border bg-muted/30 px-3 text-sm font-semibold text-muted-foreground">
+                    +255
+                  </div>
+                  <div className="relative flex-1">
+                    <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      id="phone"
+                      type="tel"
+                      placeholder="7XX XXX XXX"
+                      className="pl-10 h-11 bg-muted/30 border-border focus-visible:ring-primary/20 transition-all font-normal"
+                      required
+                      value={phoneNumber}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, '')
+                        if (val.length <= 9) setPhoneNumber(val)
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
 

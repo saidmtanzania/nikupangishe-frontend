@@ -43,7 +43,7 @@ export default function LandingPage() {
             </h1>
             <p className="mb-8 max-w-lg text-pretty text-lg leading-relaxed text-[#a89585]">
               Owner-led, agent-powered, tenant-first. Browse verified long-term
-              rentals across Dar es Salaam and beyond.
+              rentals across Tanzania and beyond.
             </p>
 
             {/* Search Bar */}
