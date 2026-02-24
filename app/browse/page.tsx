@@ -88,7 +88,7 @@ export default function BrowsePage() {
   return (
     <div className="flex flex-col">
       {/* ── Main content: filter | listings | map ────────────── */}
-      <div className="flex w-full" style={{ height: "calc(100vh - 64px)" }}>
+      <div className="flex w-full justify-center" style={{ height: "calc(100vh - 64px)" }}>
 
         {/* Filter Sidebar – always visible on desktop */}
         <div className="hidden w-72 shrink-0 overflow-y-auto border-r border-border bg-card p-5 lg:block">
@@ -100,8 +100,8 @@ export default function BrowsePage() {
           />
         </div>
 
-        {/* Listings column */}
-        <div className="flex flex-1 flex-col overflow-hidden">
+        {/* Listings column - narrowed for desktop */}
+        <div className="flex w-full flex-col overflow-hidden border-r border-border lg:w-[500px] xl:w-[600px] shrink-0">
 
           {/* ── Inline controls header (inside listings area) ── */}
           <div className="shrink-0 border-b border-border bg-card/80 px-4 py-2.5 backdrop-blur-sm lg:px-5">
