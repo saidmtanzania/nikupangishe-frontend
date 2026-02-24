@@ -6,7 +6,15 @@ import Link from "next/link"
 import type { Property } from "@/lib/types"
 import { formatTZS } from "@/lib/utils"
 
-export function PropertyCard({ property, priority = false }: { property: Property; priority?: boolean }) {
+export function PropertyCard({
+  property,
+  priority = false,
+  badge
+}: {
+  property: Property;
+  priority?: boolean;
+  badge?: React.ReactNode;
+}) {
   return (
     <Link
       href={`/properties/${property.id}`}
@@ -22,6 +30,7 @@ export function PropertyCard({ property, priority = false }: { property: Propert
         />
         {/* Badges */}
         <div className="absolute left-3 top-3 flex gap-2">
+          {badge}
           {property.isVerified && (
             <span className="inline-flex items-center rounded-full bg-[#059669] px-2.5 py-1 text-xs font-medium text-[#ffffff]">
               Verified

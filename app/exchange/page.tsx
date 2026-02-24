@@ -1,18 +1,15 @@
 import type { Metadata } from "next"
 import { mockExchangeRequests, mockProperties } from "@/lib/mock-data"
-import { ExchangeCard } from "@/components/exchange/exchange-card"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { formatTZS } from "@/lib/utils"
+import { PropertyCard } from "@/components/properties/property-card"
+import { Button } from "@/components/ui/button"
+import { ExchangeCard } from "@/components/exchange/exchange-card"
 import {
   ArrowLeftRight,
   Shield,
   Search,
   FileCheck,
   Home,
-  MapPin,
-  BedDouble,
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
@@ -97,35 +94,16 @@ export default function ExchangePage() {
             </Button>
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {exchangeableProperties.map((property, idx) => (
-              <Card key={property.id} className="overflow-hidden border-border group">
-                <div className="relative h-40">
-                  <Image
-                    src={property.images[0]}
-                    alt={property.title}
-                    fill
-                    className="object-cover transition-transform group-hover:scale-105"
-                    {...(idx === 0 ? { priority: true } : { loading: "lazy" as const })}
-                  />
-                  <div className="absolute top-2 left-2">
-                    <Badge className="bg-primary text-primary-foreground border-0 text-xs">Open to Swap</Badge>
-                  </div>
-                </div>
-                <CardContent className="p-4">
-                  <h3 className="text-sm font-semibold text-foreground line-clamp-1">{property.title}</h3>
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1 mb-2">
-                    <MapPin className="h-3 w-3" />
-                    {property.location.neighborhood}
-                  </div>
-                  <div className="flex items-center gap-3 text-xs text-muted-foreground mb-2">
-                    <span className="flex items-center gap-1"><BedDouble className="h-3 w-3" /> {property.bedrooms}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-bold text-primary">{formatTZS(property.price)}<span className="text-xs font-normal text-muted-foreground">/mo</span></p>
-                    <Link href={`/properties/${property.id}`} className="text-xs text-primary hover:underline">Details</Link>
-                  </div>
-                </CardContent>
-              </Card>
+            {exchangeableProperties.map((property) => (
+              <PropertyCard
+                key={property.id}
+                property={property}
+                badge={
+                  <span className="inline-flex items-center rounded-full bg-primary px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-primary-foreground">
+                    Open to Swap
+                  </span>
+                }
+              />
             ))}
           </div>
         </div>
