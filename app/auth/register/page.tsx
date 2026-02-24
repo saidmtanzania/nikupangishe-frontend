@@ -8,13 +8,9 @@ import {
   Mail,
   Phone,
   ChevronRight,
-  Shield,
-  Users,
-  Headphones,
   Search,
   Building2,
-  Handshake,
-  MapPin
+  Handshake
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -39,51 +35,13 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-5 lg:px-8 lg:py-6 selection:bg-primary/10">
-      <div className="flex w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm md:flex-row">
+    <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-8 lg:px-8 selection:bg-primary/10">
+      <div className="w-full max-w-lg overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
 
-        {/* Mobile-Only Top Color Accent */}
-        <div className="h-1.5 w-full bg-primary md:hidden" />
+        {/* Top Color Accent */}
+        <div className="h-1.5 w-full bg-primary" />
 
-        {/* Left Side: Brand Experience (Hidden on Mobile) */}
-        <div className="relative hidden w-full flex-col justify-center bg-primary p-5 text-primary-foreground md:flex md:w-2/5 lg:p-6">
-          {/* Background Texture Overlay */}
-          <div className="absolute inset-0 opacity-10 mix-blend-overlay grayscale"
-            style={{
-              backgroundImage: "url('https://images.unsplash.com/photo-1582408921715-18e7806365c1?auto=format&fit=crop&q=80&w=2070')",
-              backgroundSize: 'cover',
-              backgroundPosition: 'center'
-            }}
-          />
-
-          <div className="relative z-10">
-            <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
-              <MapPin className="h-5 w-5" />
-            </div>
-            <h1 className="mb-3 text-xl font-medium leading-tight text-white lg:text-2xl">Find your perfect space.</h1>
-            <p className="mb-8 text-xs leading-relaxed text-white/70 lg:text-sm">
-              Join Tanzania&apos;s trusted rental platform and connect with verified properties.
-            </p>
-
-            <div className="space-y-5">
-              {[
-                { icon: Shield, text: "Verified Listings" },
-                { icon: Users, text: "Trusted Community" },
-                { icon: Headphones, text: "Platform Support" }
-              ].map((item, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/10 border border-white/5">
-                    <item.icon className="h-4 w-4" />
-                  </div>
-                  <span className="text-sm font-normal text-white/80">{item.text}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Right Side: Registration Form */}
-        <div className="flex-1 px-4 py-4 lg:p-5">
+        <div className="p-6 lg:p-10">
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-1.5">
@@ -176,8 +134,8 @@ export default function RegisterPage() {
             </p>
           </form>
 
-          {/* Mobile Login Link */}
-          <div className="mt-8 text-center md:hidden">
+          {/* Login Link */}
+          <div className="mt-8 text-center border-t border-muted/10 pt-6">
             <p className="text-sm text-muted-foreground">
               Already have an account?{" "}
               <Link href="/auth/login" className="font-medium text-primary">
