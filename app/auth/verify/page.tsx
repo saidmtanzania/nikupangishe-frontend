@@ -3,7 +3,7 @@
 import { useState, useRef, Suspense, useEffect } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
-import { Lock, Smartphone } from "lucide-react"
+import { Lock, Smartphone, ChevronLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -79,28 +79,36 @@ function VerifyContent() {
     }
 
     return (
-        <div className="flex min-h-[calc(100vh-4rem)] items-start justify-center pt-0 px-4 pb-12 lg:items-center lg:py-12 selection:bg-primary/10">
-            <div className="flex w-full max-w-[480px] flex-col overflow-hidden rounded-[32px] border border-white bg-white shadow-[0_20px_50px_rgba(0,0,0,0.05)]">
-                {/* Mobile-Only Top Color Accent */}
-                <div className="h-1.5 w-full bg-primary md:hidden" />
+        <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-8 lg:py-12 selection:bg-primary/10">
+            <div className="flex w-full max-w-md flex-col overflow-hidden rounded-[24px] border border-border bg-card shadow-sm sm:max-w-[480px] sm:rounded-[32px]">
+                {/* Top Color Accent */}
+                <div className="h-1.5 w-full bg-primary" />
 
-                <div className="p-8 sm:p-12">
+                <div className="relative p-6 sm:p-10 lg:p-12">
+                    {/* Back Button */}
+                    <Link
+                        href="/auth/register"
+                        className="absolute left-6 top-6 flex h-10 w-10 items-center justify-center rounded-xl bg-muted/50 text-muted-foreground transition-all hover:bg-muted hover:text-foreground active:scale-95 sm:left-8 sm:top-8 lg:left-10 lg:top-10"
+                    >
+                        <ChevronLeft className="h-5 w-5" />
+                    </Link>
+
                     <div className="flex flex-col items-center text-center">
                         {/* Phone Icon */}
-                        <div className="mb-8 flex h-20 w-20 items-center justify-center rounded-full bg-[#fef1eb]">
-                            <Smartphone className="h-10 w-10 text-primary" />
+                        <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 sm:mb-8 sm:h-20 sm:w-20">
+                            <Smartphone className="h-8 w-8 text-primary sm:h-10 sm:w-10" />
                         </div>
 
-                        <h1 className="mb-2 text-[28px] font-bold tracking-tight text-[#1a1c1e] sm:text-3xl">
+                        <h1 className="mb-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
                             Verify your number
                         </h1>
 
-                        <div className="mb-10 text-slate-500">
-                            <p className="text-sm sm:text-base">We&apos;ve sent a 4-digit verification code to</p>
-                            <p className="text-base font-bold text-slate-900 mt-1">{displayPhone}</p>
+                        <div className="mb-8 text-muted-foreground sm:mb-10">
+                            <p className="text-sm">We&apos;ve sent a 4-digit verification code to</p>
+                            <p className="mt-1 text-base font-bold text-foreground">{displayPhone}</p>
                         </div>
 
-                        <form onSubmit={handleVerify} className="w-full space-y-8">
+                        <form onSubmit={handleVerify} className="w-full space-y-6 sm:space-y-8">
                             {/* OTP Input Fields */}
                             <div className="flex justify-between gap-2 sm:gap-3">
                                 {code.map((digit, i) => (
