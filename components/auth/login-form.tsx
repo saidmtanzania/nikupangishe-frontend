@@ -95,7 +95,7 @@ export function LoginForm() {
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <Label htmlFor="password" className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Password</Label>
-            <Link href="/auth/forgot-password" university-transition-colors className="text-[11px] font-medium text-primary">
+            <Link href="/auth/forgot-password" title="Transition to forgot password" className="text-[11px] font-medium text-primary hover:text-primary/80 transition-colors">
               Forgot Password?
             </Link>
           </div>
