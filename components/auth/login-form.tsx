@@ -42,6 +42,18 @@ export function LoginForm() {
     setIsLoading(true)
     setTimeout(() => {
       setIsLoading(false)
+
+      // Simulation: If password is 'verify', we pretend the account isn't verified yet
+      if (password.toLowerCase() === 'verify') {
+        const phone = identifier.startsWith('+') || /^\d+$/.test(identifier)
+          ? identifier
+          : "7XX XXX XXX" // Fallback placeholder
+
+        const formattedPhone = phone.startsWith('+255') ? phone : `+255 ${phone.startsWith('0') ? phone.slice(1) : phone}`
+        router.push(`/auth/verify?phone=${encodeURIComponent(formattedPhone)}`)
+        return
+      }
+
       router.push("/dashboard/tenant")
     }, 1200)
   }
@@ -86,7 +98,7 @@ export function LoginForm() {
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between ml-1">
             <Label htmlFor="password" className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Password</Label>
-            <Link href="#" className="text-[11px] font-medium text-primary">
+            <Link href="/auth/forgot-password" university-transition-colors className="text-[11px] font-medium text-primary">
               Forgot?
             </Link>
           </div>
