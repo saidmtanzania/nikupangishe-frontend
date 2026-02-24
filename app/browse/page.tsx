@@ -88,7 +88,10 @@ export default function BrowsePage() {
   return (
     <div className="flex flex-col">
       {/* ── Main content: filter | listings | map ────────────── */}
-      <div className="flex w-full justify-center" style={{ height: "calc(100vh - 64px)" }}>
+      <div className="flex w-full" style={{ height: "calc(100vh - 64px)" }}>
+
+        {/* Left Spacer to align content with app's layout width */}
+        <div className="hidden flex-1 max-w-[calc((100vw-1440px)/2)] xl:block" />
 
         {/* Filter Sidebar – always visible on desktop */}
         <div className="hidden w-72 shrink-0 overflow-y-auto border-r border-border bg-card p-5 lg:block">
@@ -101,7 +104,7 @@ export default function BrowsePage() {
         </div>
 
         {/* Listings column - narrowed for desktop */}
-        <div className="flex w-full flex-col overflow-hidden border-r border-border lg:w-[500px] xl:w-[600px] shrink-0">
+        <div className="flex w-full flex-col overflow-hidden border-r border-border lg:w-[460px] xl:w-[500px] shrink-0">
 
           {/* ── Inline controls header (inside listings area) ── */}
           <div className="shrink-0 border-b border-border bg-card/80 px-4 py-2.5 backdrop-blur-sm lg:px-5">
@@ -214,8 +217,8 @@ export default function BrowsePage() {
           </div>
         </div>
 
-        {/* Map Panel - Always visible on desktop (xl+) */}
-        <div className="hidden w-[480px] shrink-0 border-l border-border xl:flex xl:flex-col">
+        {/* Map Panel - Fills the rest of the screen to the right */}
+        <div className="hidden flex-1 border-l border-border xl:flex xl:flex-col">
           <MapPlaceholder properties={filteredProperties} />
         </div>
       </div>
