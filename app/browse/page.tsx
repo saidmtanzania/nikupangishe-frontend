@@ -111,10 +111,12 @@ export default function BrowsePage() {
             <div className="flex items-center justify-between gap-2">
 
               {/* Left: result count */}
-              <p className="text-sm text-muted-foreground">
-                <span className="font-semibold text-foreground">{filteredProperties.length}</span>{" "}
-                <span className="hidden sm:inline">properties</span> found
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="text-sm text-muted-foreground">
+                  <span className="font-semibold text-foreground">{filteredProperties.length}</span>{" "}
+                  <span className="hidden sm:inline">properties</span> found
+                </p>
+              </div>
 
               {/* Right: controls */}
               <div className="flex items-center gap-2">
@@ -246,7 +248,9 @@ export default function BrowsePage() {
               </Button>
             </div>
             <div className="flex-1">
-              <MapPlaceholder properties={filteredProperties} />
+              <MapPlaceholder
+                properties={filteredProperties}
+              />
             </div>
           </div>
         </div>

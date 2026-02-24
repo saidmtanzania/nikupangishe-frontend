@@ -95,40 +95,50 @@ export default function PropertyMap({ properties }: PropertyMapProps) {
                     position={[property.location.lat, property.location.lng]}
                     icon={createPin(property.isVerified ? "#ec5413" : "#a89585")}
                 >
-                    <Popup>
-                        <div className="min-w-[200px] font-sans">
-                            <p style={{ color: "#b83d0d" }} className="mb-0.5 text-[11px] font-semibold uppercase tracking-wide">
-                                {property.location.neighborhood}
-                            </p>
-                            <p className="mb-1 text-sm font-bold leading-snug text-gray-900">
-                                {property.title}
-                            </p>
-                            <p style={{ color: "#ec5413" }} className="mb-2 text-base font-extrabold">
-                                {TZS.format(property.price)}
-                                <span className="ml-0.5 text-xs font-medium text-gray-500">
-                                    /mo
-                                </span>
-                            </p>
-                            <div className="mb-2 flex flex-wrap gap-1 text-[11px] text-gray-600">
-                                {property.bedrooms > 0 && (
-                                    <span style={{ background: "#fef1eb", color: "#b83d0d" }} className="rounded px-1.5 py-0.5">
-                                        🛏 {property.bedrooms}
-                                    </span>
+                    <Popup maxWidth={280} className="property-popup">
+                        <div className="flex flex-col font-sans overflow-hidden rounded-lg">
+                            {/* Mobile-focused Image at the top */}
+                            <div className="relative h-32 w-full overflow-hidden">
+                                <img
+                                    src={property.images[0]}
+                                    alt={property.title}
+                                    className="h-full w-full object-cover"
+                                />
+                                {property.isVerified && (
+                                    <div className="absolute top-2 left-2 rounded bg-[#059669] px-1.5 py-0.5 text-[9px] font-bold text-white shadow-sm">
+                                        Verified
+                                    </div>
                                 )}
-                                <span style={{ background: "#fef1eb", color: "#b83d0d" }} className="rounded px-1.5 py-0.5">
-                                    🚿 {property.bathrooms}
-                                </span>
-                                <span style={{ background: "#fef1eb", color: "#b83d0d" }} className="rounded px-1.5 py-0.5">
-                                    📐 {property.area} m²
-                                </span>
                             </div>
-                            <a
-                                href={`/properties/${property.id}`}
-                                style={{ background: "#ec5413" }}
-                                className="inline-block rounded-md px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90"
-                            >
-                                View Property →
-                            </a>
+
+                            <div className="p-3">
+                                <p style={{ color: "#b83d0d" }} className="mb-0.5 text-[10px] font-semibold uppercase tracking-wide">
+                                    {property.location.neighborhood}
+                                </p>
+                                <p className="mb-1 line-clamp-1 text-sm font-bold leading-tight text-gray-900">
+                                    {property.title}
+                                </p>
+                                <p style={{ color: "#ec5413" }} className="mb-2 text-base font-extrabold flex items-center justify-between">
+                                    <span>
+                                        {TZS.format(property.price)}
+                                        <span className="ml-0.5 text-xs font-medium text-gray-500">/mo</span>
+                                    </span>
+                                </p>
+
+                                <div className="mb-3 flex items-center gap-3 text-[11px] text-gray-600">
+                                    <span className="flex items-center gap-1">🛏 {property.bedrooms}</span>
+                                    <span className="flex items-center gap-1">🚿 {property.bathrooms}</span>
+                                    <span className="flex items-center gap-1">📐 {property.area} m²</span>
+                                </div>
+
+                                <a
+                                    href={`/properties/${property.id}`}
+                                    style={{ background: "#ec5413" }}
+                                    className="flex w-full items-center justify-center rounded-md py-2 text-center text-xs font-bold text-white shadow-md transition-transform active:scale-95"
+                                >
+                                    Details →
+                                </a>
+                            </div>
                         </div>
                     </Popup>
                 </Marker>

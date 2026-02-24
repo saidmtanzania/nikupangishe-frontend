@@ -41,7 +41,11 @@ const PropertyMap = dynamic(
   }
 )
 
-export function MapPlaceholder({ properties }: { properties: Property[] }) {
+export function MapPlaceholder({
+  properties,
+}: {
+  properties: Property[]
+}) {
   const verified = properties.filter((p) => p.isVerified).length
   const unverified = properties.length - verified
 
