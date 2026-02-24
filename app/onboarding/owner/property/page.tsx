@@ -20,7 +20,7 @@ export default function AddFirstHousePage() {
         setIsLoading(true)
         setTimeout(() => {
             setIsLoading(false)
-            router.push("/dashboard") // or next onboarding step if exists
+            router.push("/onboarding/owner/complete")
         }, 1000)
     }
 
@@ -75,7 +75,7 @@ export default function AddFirstHousePage() {
 
                     <button
                         type="button"
-                        onClick={() => router.push("/dashboard")}
+                        onClick={() => router.push("/onboarding/owner/complete")}
                         className="text-sm font-bold text-primary underline decoration-primary/30 underline-offset-8 transition-colors hover:text-primary/80"
                     >
                         Skip for now
