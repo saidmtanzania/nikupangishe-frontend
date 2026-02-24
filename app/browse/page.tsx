@@ -103,8 +103,8 @@ export default function BrowsePage() {
           />
         </div>
 
-        {/* Listings column - narrowed for desktop */}
-        <div className="flex w-full flex-col overflow-hidden border-r border-border lg:w-[460px] xl:w-[500px] shrink-0">
+        {/* Listings column - slightly wider for better card visibility */}
+        <div className="flex w-full flex-col overflow-hidden border-r border-border lg:w-[540px] xl:w-[640px] shrink-0">
 
           {/* ── Inline controls header (inside listings area) ── */}
           <div className="shrink-0 border-b border-border bg-card/80 px-4 py-2.5 backdrop-blur-sm lg:px-5">
