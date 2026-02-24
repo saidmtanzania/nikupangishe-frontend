@@ -17,6 +17,7 @@ export interface Property {
   amenities: string[]
   isVerified: boolean
   isUnique: boolean
+  isOpenToExchange: boolean
   ownerId: string
   agentId?: string
   status: "available" | "occupied" | "pending"

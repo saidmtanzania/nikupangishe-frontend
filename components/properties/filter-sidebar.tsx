@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Check, ChevronDown, Search, SlidersHorizontal } from "lucide-react"
+import { Check, ChevronDown, Search, SlidersHorizontal, ArrowLeftRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
@@ -15,6 +15,7 @@ export interface FilterState {
   verifiedOnly: boolean
   amenities: string[]
   minBedrooms: number
+  swapOnly: boolean
 }
 
 const propertyTypes = [
@@ -142,8 +143,8 @@ export function FilterSidebar({ filters, onFilterChange, search, onSearchChange 
                 key={opt.value}
                 onClick={() => onFilterChange({ ...filters, minBedrooms: opt.value })}
                 className={`flex-1 rounded-md border py-1.5 text-xs font-medium transition-all ${filters.minBedrooms === opt.value
-                    ? "border-primary bg-primary/10 text-primary"
-                    : "border-border bg-background text-muted-foreground hover:border-border-foreground"
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-border bg-background text-muted-foreground hover:border-border-foreground"
                   }`}
               >
                 {opt.label}
@@ -199,6 +200,20 @@ export function FilterSidebar({ filters, onFilterChange, search, onSearchChange 
         </Label>
       </div>
 
+      <div className="flex items-center gap-2">
+        <Checkbox
+          id="swap-only"
+          checked={filters.swapOnly}
+          onCheckedChange={(checked) =>
+            onFilterChange({ ...filters, swapOnly: Boolean(checked) })
+          }
+        />
+        <Label htmlFor="swap-only" className="flex items-center gap-1.5 text-sm font-normal text-foreground cursor-pointer">
+          <ArrowLeftRight className="h-3.5 w-3.5 text-primary" />
+          Available for Swap
+        </Label>
+      </div>
+
       <Separator />
 
       {/* Amenities */}
@@ -241,6 +256,7 @@ export function FilterSidebar({ filters, onFilterChange, search, onSearchChange 
             verifiedOnly: false,
             amenities: [],
             minBedrooms: 0,
+            swapOnly: false,
           })
           onSearchChange("")
         }}

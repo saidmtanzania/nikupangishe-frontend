@@ -32,6 +32,7 @@ export default function BrowsePage() {
     verifiedOnly: false,
     amenities: [],
     minBedrooms: 0,
+    swapOnly: false,
   })
 
   const filteredProperties = useMemo(() => {
@@ -73,6 +74,11 @@ export default function BrowsePage() {
     // Bedrooms
     if (filters.minBedrooms > 0) {
       results = results.filter((p) => p.bedrooms >= filters.minBedrooms)
+    }
+
+    // Swap only
+    if (filters.swapOnly) {
+      results = results.filter((p) => p.isOpenToExchange)
     }
 
     // Sort

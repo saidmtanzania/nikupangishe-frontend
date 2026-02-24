@@ -31,6 +31,11 @@ export function PropertyCard({
         {/* Badges */}
         <div className="absolute left-3 top-3 flex gap-2">
           {badge}
+          {property.isOpenToExchange && (
+            <span className="inline-flex items-center rounded-full bg-primary px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-primary-foreground shadow-sm">
+              Swap
+            </span>
+          )}
           {property.isVerified && (
             <span className="inline-flex items-center rounded-full bg-[#059669] px-2.5 py-1 text-xs font-medium text-[#ffffff]">
               Verified

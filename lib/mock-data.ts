@@ -18,6 +18,7 @@ export const mockProperties: Property[] = [
     ownerId: "user-3",
     agentId: "user-5",
     status: "available",
+    isOpenToExchange: true,
     createdAt: "2026-01-15",
   },
   {
@@ -37,6 +38,7 @@ export const mockProperties: Property[] = [
     ownerId: "user-3",
     agentId: "user-5",
     status: "available",
+    isOpenToExchange: true,
     createdAt: "2026-01-20",
   },
   {
@@ -55,6 +57,7 @@ export const mockProperties: Property[] = [
     isUnique: false,
     ownerId: "user-4",
     status: "available",
+    isOpenToExchange: false,
     createdAt: "2026-02-01",
   },
   {
@@ -74,6 +77,7 @@ export const mockProperties: Property[] = [
     ownerId: "user-4",
     agentId: "user-5",
     status: "available",
+    isOpenToExchange: false,
     createdAt: "2026-01-10",
   },
   {
@@ -92,6 +96,7 @@ export const mockProperties: Property[] = [
     isUnique: false,
     ownerId: "user-3",
     status: "available",
+    isOpenToExchange: true,
     createdAt: "2026-02-05",
   },
   {
@@ -111,6 +116,7 @@ export const mockProperties: Property[] = [
     ownerId: "user-4",
     agentId: "user-5",
     status: "available",
+    isOpenToExchange: false,
     createdAt: "2026-01-25",
   },
   {
@@ -129,6 +135,7 @@ export const mockProperties: Property[] = [
     isUnique: false,
     ownerId: "user-3",
     status: "available",
+    isOpenToExchange: false,
     createdAt: "2026-02-10",
   },
   {
@@ -148,6 +155,7 @@ export const mockProperties: Property[] = [
     ownerId: "user-4",
     agentId: "user-5",
     status: "available",
+    isOpenToExchange: true,
     createdAt: "2026-02-08",
   },
 ]
