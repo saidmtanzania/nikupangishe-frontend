@@ -8,7 +8,6 @@ import { formatTZS } from "@/lib/utils"
 import {
   ArrowLeftRight,
   Shield,
-  CheckCircle2,
   Search,
   FileCheck,
   Home,
@@ -149,14 +148,13 @@ export default function ExchangePage() {
       <section className="border-t border-border bg-card">
         <div className="mx-auto max-w-7xl px-4 py-10 lg:px-6">
           <div className="flex flex-col items-center text-center gap-3">
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center justify-center gap-6">
               <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
                 <Shield className="h-4 w-4 text-primary" />
                 Verified Tenants Only
               </div>
               <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                <CheckCircle2 className="h-4 w-4 text-chart-2" />
-                Owner Approval Required
+                Verified Listings
               </div>
               <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
                 <ArrowLeftRight className="h-4 w-4 text-primary" />

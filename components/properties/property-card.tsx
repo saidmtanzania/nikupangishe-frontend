@@ -1,6 +1,6 @@
 "use client"
 
-import { CheckCircle2, Star, MapPin, Bed, Bath, Maximize, Heart } from "lucide-react"
+import { Star, MapPin, Bed, Bath, Maximize, Heart } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import type { Property } from "@/lib/types"
@@ -23,8 +23,7 @@ export function PropertyCard({ property, priority = false }: { property: Propert
         {/* Badges */}
         <div className="absolute left-3 top-3 flex gap-2">
           {property.isVerified && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-[#059669] px-2.5 py-1 text-xs font-medium text-[#ffffff]">
-              <CheckCircle2 className="h-3 w-3" />
+            <span className="inline-flex items-center rounded-full bg-[#059669] px-2.5 py-1 text-xs font-medium text-[#ffffff]">
               Verified
             </span>
           )}
@@ -67,9 +66,9 @@ export function PropertyCard({ property, priority = false }: { property: Propert
             <Bath className="h-4 w-4" />
             {property.bathrooms}
           </span>
-          <span className="flex items-center gap-1">
+          <span className="flex items-center gap-1 whitespace-nowrap">
             <Maximize className="h-4 w-4" />
-            {property.area} m&sup2;
+            {property.area}&nbsp;m&sup2;
           </span>
           <span className="ml-auto rounded bg-secondary px-2 py-0.5 text-xs font-medium capitalize text-secondary-foreground">
             {property.propertyType === "single-room" ? "Room" : property.propertyType}

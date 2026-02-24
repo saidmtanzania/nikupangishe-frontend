@@ -7,7 +7,6 @@ import {
   Bath,
   Maximize,
   Shield,
-  CheckCircle2,
   Star,
   Heart,
   Share2,
@@ -64,7 +63,6 @@ export default async function PropertyDetailPage({
             <div className="mb-2 flex flex-wrap items-center gap-2">
               {property.isVerified && (
                 <Badge variant="outline" className="gap-1 border-[#059669]/30 bg-[#059669]/10 text-[#059669]">
-                  <CheckCircle2 className="h-3 w-3" />
                   Verified
                 </Badge>
               )}
@@ -186,7 +184,6 @@ export default async function PropertyDetailPage({
                 <div>
                   <p className="font-medium text-foreground">{agent.name}</p>
                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                    {agent.isVerified && <CheckCircle2 className="h-3 w-3 text-[#059669]" />}
                     Verified Agent
                   </div>
                 </div>
@@ -215,7 +212,6 @@ export default async function PropertyDetailPage({
                 <div>
                   <p className="text-sm font-medium text-foreground">{owner.name}</p>
                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                    {owner.isVerified && <CheckCircle2 className="h-3 w-3 text-[#059669]" />}
                     Verified Owner
                   </div>
                 </div>

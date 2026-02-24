@@ -157,21 +157,6 @@ export default function BrowsePage() {
                   </button>
                 </div>
 
-                {/* Divider */}
-                <div className="hidden h-5 w-px bg-border xl:block" />
-
-                {/* Map toggle – desktop only */}
-                <button
-                  aria-label="Toggle map"
-                  onClick={() => setShowMap(!showMap)}
-                  className={`hidden h-7 w-7 items-center justify-center rounded-md border transition-all xl:flex ${showMap
-                    ? "border-primary/30 bg-primary/10 text-primary"
-                    : "border-border bg-secondary text-muted-foreground hover:text-foreground"
-                    }`}
-                >
-                  <Map className="h-3.5 w-3.5" />
-                </button>
-
                 {/* Mobile filter toggle */}
                 <Button
                   variant="outline"
@@ -229,12 +214,10 @@ export default function BrowsePage() {
           </div>
         </div>
 
-        {/* Map Panel */}
-        {showMap && (
-          <div className="hidden w-[480px] shrink-0 border-l border-border xl:flex xl:flex-col">
-            <MapPlaceholder properties={filteredProperties} />
-          </div>
-        )}
+        {/* Map Panel - Always visible on desktop (xl+) */}
+        <div className="hidden w-[480px] shrink-0 border-l border-border xl:flex xl:flex-col">
+          <MapPlaceholder properties={filteredProperties} />
+        </div>
       </div>
 
       {/* Mobile Map FAB */}
