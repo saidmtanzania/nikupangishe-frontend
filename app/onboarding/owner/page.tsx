@@ -54,10 +54,10 @@ export default function OwnerOnboardingWelcomePage() {
                 <div className="p-6 lg:p-8">
                     {/* Hero Content */}
                     <div className="flex flex-col items-center text-center">
-                        <h1 className="mb-2 text-2xl font-bold tracking-tight text-foreground lg:text-3xl">
+                        <h1 className="mb-2 text-xl font-medium tracking-tight text-foreground lg:text-xl">
                             Welcome, Owner
                         </h1>
-                        <p className="mb-8 max-w-md text-balance text-[13px] text-muted-foreground leading-relaxed">
+                        <p className="mb-8 max-w-md text-balance text-sm text-muted-foreground leading-relaxed">
                             Let&apos;s set up your profile and properties on Tanzania&apos;s most trusted rental platform.
                         </p>
 
@@ -72,8 +72,8 @@ export default function OwnerOnboardingWelcomePage() {
                                         <feature.icon className={cn("h-4 w-4", feature.iconColor)} />
                                     </div>
                                     <div>
-                                        <h3 className="mb-0.5 text-[13px] font-bold text-foreground">{feature.title}</h3>
-                                        <p className="text-[11px] leading-snug text-muted-foreground line-clamp-2">
+                                        <h3 className="mb-0.5 text-[11px] font-bold text-foreground uppercase tracking-tight">{feature.title}</h3>
+                                        <p className="text-[10px] leading-snug text-muted-foreground line-clamp-2">
                                             {feature.description}
                                         </p>
                                     </div>
@@ -86,7 +86,7 @@ export default function OwnerOnboardingWelcomePage() {
                             <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-primary/30 to-primary/10 opacity-40 blur-lg" />
                             <Button
                                 asChild
-                                className="relative h-12 w-full rounded-xl bg-primary text-sm font-bold text-white shadow-lg transition-all hover:bg-primary/90 active:scale-[0.98] group"
+                                className="relative h-11 w-full rounded-xl bg-primary text-sm font-medium text-white shadow-lg transition-all hover:bg-primary/90 active:scale-[0.98] group"
                             >
                                 <Link href="/onboarding/owner/details">
                                     <span>Get Started</span>
@@ -97,7 +97,7 @@ export default function OwnerOnboardingWelcomePage() {
 
                         <div className="mt-6 flex items-center gap-2 text-[11px] font-medium text-muted-foreground">
                             <span>Need help?</span>
-                            <Link href="#" className="flex items-center gap-1 text-primary hover:underline">
+                            <Link href="#" className="flex items-center gap-1 text-primary hover:underline transition-colors">
                                 <MessageCircle className="h-3 w-3" />
                                 Support
                             </Link>
