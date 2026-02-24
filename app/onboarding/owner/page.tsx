@@ -64,52 +64,27 @@ export default function OwnerOnboardingWelcomePage() {
                     </p>
                 </div>
 
-                <div className="space-y-10">
+                <div className="space-y-16">
                     {/* Hero Section */}
-                    <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
-                        <div className="space-y-8">
-                            <div className="space-y-4">
-                                <h1 className="text-4xl font-bold tracking-tight text-foreground lg:text-5xl">
-                                    Manage your property with confidence.
-                                </h1>
-                                <p className="text-sm leading-relaxed text-muted-foreground">
-                                    Nikupangishe provides you with the professional tools you need to list, manage, and grow your rental business seamlessly.
-                                </p>
-                            </div>
-
-                            <div className="grid gap-6">
-                                {features.map((feature, idx) => (
-                                    <div key={idx} className="flex gap-4">
-                                        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${feature.color}`}>
-                                            <feature.icon className="h-5 w-5" />
-                                        </div>
-                                        <div className="space-y-1">
-                                            <h3 className="text-[13px] font-bold text-foreground uppercase tracking-tight">{feature.title}</h3>
-                                            <p className="text-[11px] text-muted-foreground leading-relaxed">{feature.description}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
+                    <div className="mx-auto max-w-2xl text-center space-y-12">
+                        <div className="space-y-6">
+                            <p className="mx-auto max-w-lg text-sm leading-relaxed text-muted-foreground">
+                                Nikupangishe provides you with the professional tools you need to list, manage, and grow your rental business seamlessly.
+                            </p>
                         </div>
 
-                        <div className="relative aspect-square overflow-hidden rounded-[32px] border border-border bg-muted shadow-2xl">
-                            <Image
-                                src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=1000&auto=format&fit=crop"
-                                alt="Modern Property"
-                                fill
-                                className="object-cover transition-transform duration-700 hover:scale-110"
-                            />
-                            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-8">
-                                <div className="flex items-center gap-3">
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white">
-                                        <CheckCircle2 className="h-5 w-5" />
+                        <div className="grid gap-8 sm:grid-cols-2 text-left">
+                            {features.map((feature, idx) => (
+                                <div key={idx} className="flex gap-4 p-4 rounded-2xl border border-border/50 bg-card/50 transition-all hover:border-primary/20 hover:bg-primary/[0.01]">
+                                    <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${feature.color}`}>
+                                        <feature.icon className="h-5 w-5" />
                                     </div>
-                                    <div className="text-white">
-                                        <p className="text-xs font-bold uppercase tracking-widest">Premium Partner</p>
-                                        <p className="text-[10px] opacity-80">Join 500+ Top Owners</p>
+                                    <div className="space-y-1">
+                                        <h3 className="text-[12px] font-bold text-foreground uppercase tracking-tight">{feature.title}</h3>
+                                        <p className="text-[11px] text-muted-foreground leading-relaxed">{feature.description}</p>
                                     </div>
                                 </div>
-                            </div>
+                            ))}
                         </div>
                     </div>
 

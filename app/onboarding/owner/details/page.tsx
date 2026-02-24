@@ -94,14 +94,6 @@ export default function IdentityVerificationPage() {
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-10">
-                    {/* Title Section */}
-                    <div className="space-y-3">
-                        <h1 className="text-4xl font-bold tracking-tight text-foreground lg:text-5xl">Identify Verification</h1>
-                        <p className="max-w-xl text-sm text-muted-foreground leading-relaxed">
-                            Please provide your legal identification details as they appear on your documents.
-                        </p>
-                    </div>
-
                     {/* Form Fields Section */}
                     <div className="grid gap-8">
                         <div className="space-y-2">

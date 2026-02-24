@@ -60,8 +60,8 @@ export default function OwnerProfileOnboardingPage() {
     }
 
     return (
-        <div className="mx-auto max-w-4xl px-4 py-10 lg:py-16">
-            <div className="space-y-12">
+        <div className="mx-auto max-w-4xl px-4 py-6 lg:py-10">
+            <div className="space-y-8">
                 {/* Header Section */}
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
@@ -74,28 +74,17 @@ export default function OwnerProfileOnboardingPage() {
                     <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
                         <div className="h-full w-[60%] rounded-full bg-primary transition-all duration-500" />
                     </div>
-                    <p className="text-[12px] italic text-muted-foreground/80">
-                        "Your profile helps build trust with potential tenants."
-                    </p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-10">
-                    {/* Title Section */}
-                    <div className="space-y-3">
-                        <h1 className="text-4xl font-bold tracking-tight text-foreground lg:text-5xl">Complete Your Profile</h1>
-                        <p className="max-w-xl text-sm text-muted-foreground leading-relaxed">
-                            How you present yourself matters. Tell tenants who you are.
-                        </p>
-                    </div>
-
-                    <div className="grid gap-12 lg:grid-cols-[1fr,2fr]">
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="grid gap-8 lg:grid-cols-[1fr,2fr]">
                         {/* Left Column: Media & Role */}
-                        <div className="space-y-10">
+                        <div className="space-y-8">
                             {/* Profile Photo */}
                             <div className="flex flex-col items-center">
                                 <div
                                     onClick={() => fileInputRef.current?.click()}
-                                    className="group relative mb-4 h-32 w-32 cursor-pointer"
+                                    className="group relative mb-4 h-24 w-24 cursor-pointer"
                                 >
                                     <div className="h-full w-full overflow-hidden rounded-full border-4 border-white bg-muted shadow-xl transition-all group-hover:border-primary/20">
                                         {previewUrl ? (
@@ -107,12 +96,12 @@ export default function OwnerProfileOnboardingPage() {
                                             />
                                         ) : (
                                             <div className="flex h-full w-full items-center justify-center bg-muted/50">
-                                                <User className="h-12 w-12 text-muted-foreground" />
+                                                <User className="h-10 w-10 text-muted-foreground" />
                                             </div>
                                         )}
                                     </div>
-                                    <div className="absolute bottom-1 right-1 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white shadow-lg border-4 border-white transition-transform group-hover:scale-110">
-                                        <Camera className="h-5 w-5" />
+                                    <div className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white shadow-lg border-2 border-white transition-transform group-hover:scale-110">
+                                        <Camera className="h-4 w-4" />
                                     </div>
                                     <input
                                         ref={fileInputRef}
@@ -128,69 +117,66 @@ export default function OwnerProfileOnboardingPage() {
 
                             {/* Account Type */}
                             <div className="space-y-4">
-                                <Label className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Account Type</Label>
-                                <div className="flex flex-col gap-3">
+                                <div className="grid grid-cols-2 gap-3">
                                     <button
                                         type="button"
                                         onClick={() => setRole("individual")}
                                         className={cn(
-                                            "flex items-center justify-between rounded-2xl border-2 p-4 transition-all",
+                                            "flex items-center gap-3 rounded-2xl border-2 p-3 transition-all text-left",
                                             role === "individual" ? "border-primary bg-primary/[0.02]" : "border-muted/40 bg-card hover:border-muted/60"
                                         )}
                                     >
-                                        <div className="flex items-center gap-3">
-                                            <div className={cn("h-4 w-4 rounded-full border-2 flex items-center justify-center", role === "individual" ? "border-primary" : "border-muted-foreground/30")}>
-                                                {role === "individual" && <div className="h-2 w-2 rounded-full bg-primary" />}
-                                            </div>
-                                            <span className={cn("text-xs font-bold uppercase tracking-tight", role === "individual" ? "text-primary" : "text-muted-foreground")}>Individual</span>
+                                        <div className={cn("h-4 w-4 shrink-0 rounded-full border-2 flex items-center justify-center", role === "individual" ? "border-primary" : "border-muted-foreground/30")}>
+                                            {role === "individual" && <div className="h-2 w-2 rounded-full bg-primary" />}
                                         </div>
-                                        <User className={cn("h-4 w-4", role === "individual" ? "text-primary" : "text-muted-foreground/40")} />
+                                        <div className="min-w-0">
+                                            <span className={cn("text-[10px] font-bold uppercase tracking-tight block truncate", role === "individual" ? "text-primary" : "text-muted-foreground")}>Individual</span>
+                                        </div>
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setRole("company")}
                                         className={cn(
-                                            "flex items-center justify-between rounded-2xl border-2 p-4 transition-all",
+                                            "flex items-center gap-3 rounded-2xl border-2 p-3 transition-all text-left",
                                             role === "company" ? "border-primary bg-primary/[0.02]" : "border-muted/40 bg-card hover:border-muted/60"
                                         )}
                                     >
-                                        <div className="flex items-center gap-3">
-                                            <div className={cn("h-4 w-4 rounded-full border-2 flex items-center justify-center", role === "company" ? "border-primary" : "border-muted-foreground/30")}>
-                                                {role === "company" && <div className="h-2 w-2 rounded-full bg-primary" />}
-                                            </div>
-                                            <span className={cn("text-xs font-bold uppercase tracking-tight", role === "company" ? "text-primary" : "text-muted-foreground")}>Company</span>
+                                        <div className={cn("h-4 w-4 shrink-0 rounded-full border-2 flex items-center justify-center", role === "company" ? "border-primary" : "border-muted-foreground/30")}>
+                                            {role === "company" && <div className="h-2 w-2 rounded-full bg-primary" />}
                                         </div>
-                                        <Building2 className={cn("h-4 w-4", role === "company" ? "text-primary" : "text-muted-foreground/40")} />
+                                        <div className="min-w-0">
+                                            <span className={cn("text-[10px] font-bold uppercase tracking-tight block truncate", role === "company" ? "text-primary" : "text-muted-foreground")}>Company</span>
+                                        </div>
                                     </button>
                                 </div>
                             </div>
                         </div>
 
                         {/* Right Column: Information Form */}
-                        <div className="space-y-8 lg:pt-4">
-                            <div className="grid gap-6">
+                        <div className="space-y-6">
+                            <div className="grid gap-5">
                                 <div className="space-y-2">
-                                    <Label htmlFor="companyName" className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Company Name (Optional)</Label>
+                                    <Label htmlFor="companyName" className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground ml-1">Company Name (Optional)</Label>
                                     <Input
                                         id="companyName"
                                         placeholder="e.g. BlueSky Properties Ltd"
-                                        className="h-12 rounded-xl border-muted/50 bg-muted/5 focus-visible:ring-primary/20 font-normal transition-all"
+                                        className="h-11 rounded-xl border-muted/50 bg-muted/5 focus-visible:ring-primary/20 font-normal transition-all"
                                         value={formData.companyName}
                                         onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
                                     />
                                 </div>
 
-                                <div className="grid gap-6 sm:grid-cols-2">
+                                <div className="grid gap-5 sm:grid-cols-2">
                                     <div className="space-y-2">
-                                        <Label htmlFor="phone" className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Phone Number</Label>
+                                        <Label htmlFor="phone" className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground ml-1">Phone Number</Label>
                                         <div className="relative">
                                             <Input
                                                 id="phone"
                                                 readOnly
-                                                className="h-12 rounded-xl border-muted/50 bg-muted/5 font-normal text-muted-foreground pr-20"
+                                                className="h-11 rounded-xl border-muted/50 bg-muted/5 font-normal text-muted-foreground pr-20"
                                                 value={formData.phone}
                                             />
-                                            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[9px] font-bold text-emerald-600">
+                                            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[8px] font-bold text-emerald-600">
                                                 <CheckCircle2 className="h-3 w-3" />
                                                 <span>VERIFIED</span>
                                             </div>
@@ -198,12 +184,12 @@ export default function OwnerProfileOnboardingPage() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="city" className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">City</Label>
+                                        <Label htmlFor="city" className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground ml-1">City</Label>
                                         <Select
                                             value={formData.city}
                                             onValueChange={(val) => setFormData({ ...formData, city: val })}
                                         >
-                                            <SelectTrigger id="city" className="h-12 rounded-xl border-muted/50 bg-muted/5 focus-visible:ring-primary/20 font-normal transition-all text-sm">
+                                            <SelectTrigger id="city" className="h-11 rounded-xl border-muted/50 bg-muted/5 focus-visible:ring-primary/20 font-normal transition-all text-xs">
                                                 <SelectValue placeholder="Select city" />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -218,21 +204,21 @@ export default function OwnerProfileOnboardingPage() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="email" className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Email Address</Label>
+                                    <Label htmlFor="email" className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground ml-1">Email Address</Label>
                                     <Input
                                         id="email"
                                         type="email"
-                                        className="h-12 rounded-xl border-muted/50 bg-muted/5 focus-visible:ring-primary/20 font-normal transition-all"
+                                        className="h-11 rounded-xl border-muted/50 bg-muted/5 focus-visible:ring-primary/20 font-normal transition-all"
                                         value={formData.email}
                                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                     />
                                 </div>
 
                                 {/* Privacy Note */}
-                                <div className="rounded-2xl border border-primary/10 bg-primary/[0.01] p-5">
+                                <div className="rounded-2xl border border-primary/10 bg-primary/[0.01] p-4">
                                     <div className="flex gap-4">
                                         <Globe className="h-5 w-5 shrink-0 text-primary/60" />
-                                        <p className="text-[11px] leading-relaxed text-muted-foreground">
+                                        <p className="text-[10px] leading-relaxed text-muted-foreground">
                                             Your profile information is shared with tenants only when you approve an application or message them. We keep your primary contact details private until a viewing is scheduled.
                                         </p>
                                     </div>
@@ -242,7 +228,7 @@ export default function OwnerProfileOnboardingPage() {
                     </div>
 
                     {/* Footer Actions */}
-                    <div className="flex items-center justify-between pt-10 border-t border-border/50">
+                    <div className="flex items-center justify-between pt-6 border-t border-border/50">
                         <button
                             type="button"
                             onClick={() => router.back()}

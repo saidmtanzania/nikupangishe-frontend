@@ -46,13 +46,6 @@ export default function AddFirstHousePage() {
 
                 {/* Main Content Card */}
                 <div className="space-y-10 text-center">
-                    {/* <div className="space-y-3">
-                        <h1 className="text-4xl font-bold tracking-tight text-foreground lg:text-5xl">Add Your First House</h1>
-                        <p className="mx-auto max-w-lg text-sm text-muted-foreground leading-relaxed">
-                            Listing your first property allows you to start receiving tenant applications immediately.
-                        </p>
-                    </div> */}
-
                     {/* Dotted Upload Area */}
                     <div className="relative overflow-hidden rounded-[32px] border-2 border-dashed border-muted bg-card px-8 py-20 transition-all hover:border-primary/20 hover:bg-primary/[0.01]">
                         <div className="flex flex-col items-center gap-6">
@@ -85,7 +78,7 @@ export default function AddFirstHousePage() {
                         onClick={() => router.push("/dashboard")}
                         className="text-sm font-bold text-primary underline decoration-primary/30 underline-offset-8 transition-colors hover:text-primary/80"
                     >
-                        Skip for now and go to dashboard
+                        Skip for now
                     </button>
                 </div>
 
