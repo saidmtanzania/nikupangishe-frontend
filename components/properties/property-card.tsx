@@ -47,30 +47,30 @@ export function PropertyCard({ property, priority = false }: { property: Propert
           {formatTZS(property.price)}/mo
         </div>
       </div>
-      <div className="flex flex-1 flex-col p-4">
-        <h3 className="mb-1 line-clamp-1 text-base font-semibold text-card-foreground">
+      <div className="flex flex-1 flex-col p-3">
+        <h3 className="mb-0.5 line-clamp-1 text-sm font-bold text-card-foreground lg:text-base">
           {property.title}
         </h3>
-        <p className="mb-3 flex items-center gap-1 text-sm text-muted-foreground">
-          <MapPin className="h-3.5 w-3.5 shrink-0" />
+        <p className="mb-2 flex items-center gap-1 text-[11px] text-muted-foreground lg:text-xs">
+          <MapPin className="h-3 w-3 shrink-0" />
           {property.location.neighborhood}, {property.location.city}
         </p>
-        <div className="mt-auto flex items-center gap-4 text-sm text-muted-foreground">
+        <div className="mt-auto flex items-center gap-3 text-[11px] text-muted-foreground lg:text-xs">
           {property.bedrooms > 0 && (
             <span className="flex items-center gap-1">
-              <Bed className="h-4 w-4" />
+              <Bed className="h-3.5 w-3.5" />
               {property.bedrooms}
             </span>
           )}
           <span className="flex items-center gap-1">
-            <Bath className="h-4 w-4" />
+            <Bath className="h-3.5 w-3.5" />
             {property.bathrooms}
           </span>
           <span className="flex items-center gap-1 whitespace-nowrap">
-            <Maximize className="h-4 w-4" />
+            <Maximize className="h-3.5 w-3.5" />
             {property.area}&nbsp;m&sup2;
           </span>
-          <span className="ml-auto rounded bg-secondary px-2 py-0.5 text-xs font-medium capitalize text-secondary-foreground">
+          <span className="ml-auto rounded bg-secondary px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-secondary-foreground">
             {property.propertyType === "single-room" ? "Room" : property.propertyType}
           </span>
         </div>

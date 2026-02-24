@@ -176,7 +176,7 @@ export default function BrowsePage() {
           </div>
 
           {/* ── Scrollable listings area ── */}
-          <div className="flex-1 overflow-y-auto p-4 lg:p-5">
+          <div className="flex-1 overflow-y-auto p-3 lg:p-4">
 
             {/* Mobile Filters Panel */}
             {showFilters && (
@@ -194,7 +194,7 @@ export default function BrowsePage() {
             {filteredProperties.length > 0 ? (
               viewMode === "grid" ? (
                 /* ── Grid view ── */
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid gap-3 sm:grid-cols-2">
                   {filteredProperties.map((property) => (
                     <PropertyCard key={property.id} property={property} />
                   ))}
