@@ -45,8 +45,8 @@ export default function OwnerOnboardingWelcomePage() {
     const router = useRouter()
 
     return (
-        <div className="mx-auto max-w-4xl px-4 py-10 lg:py-16">
-            <div className="space-y-12">
+        <div className="mx-auto max-w-4xl px-4 py-6 sm:py-10 lg:py-16">
+            <div className="space-y-8 sm:space-y-12">
                 {/* Header Section */}
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
@@ -64,7 +64,7 @@ export default function OwnerOnboardingWelcomePage() {
                     </p>
                 </div>
 
-                <div className="space-y-16">
+                <div className="space-y-10 sm:space-y-16">
                     {/* Hero Section */}
                     <div className="mx-auto max-w-2xl text-center space-y-12">
                         <div className="space-y-6">
@@ -73,9 +73,9 @@ export default function OwnerOnboardingWelcomePage() {
                             </p>
                         </div>
 
-                        <div className="grid gap-8 sm:grid-cols-2 text-left">
+                        <div className="grid gap-4 sm:gap-8 sm:grid-cols-2 text-left">
                             {features.map((feature, idx) => (
-                                <div key={idx} className="flex gap-4 p-4 rounded-2xl border border-border/50 bg-card/50 transition-all hover:border-primary/20 hover:bg-primary/[0.01]">
+                                <div key={idx} className="flex gap-3 sm:gap-4 p-3.5 sm:p-4 rounded-2xl border border-border/50 bg-card/50 transition-all hover:border-primary/20 hover:bg-primary/[0.01]">
                                     <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${feature.color}`}>
                                         <feature.icon className="h-5 w-5" />
                                     </div>
@@ -89,7 +89,7 @@ export default function OwnerOnboardingWelcomePage() {
                     </div>
 
                     {/* Footer Actions */}
-                    <div className="flex items-center justify-between pt-10 border-t border-border/50">
+                    <div className="flex items-center justify-between pt-6 sm:pt-10 border-t border-border/50">
                         <button
                             type="button"
                             onClick={() => router.push("/")}
@@ -100,7 +100,7 @@ export default function OwnerOnboardingWelcomePage() {
                         </button>
                         <Button
                             asChild
-                            className="h-12 rounded-xl bg-primary px-12 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98]"
+                            className="h-12 rounded-xl bg-primary px-8 sm:px-12 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98]"
                         >
                             <Link href="/onboarding/owner/details">
                                 <span>Get Started</span>

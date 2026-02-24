@@ -60,8 +60,8 @@ export default function OwnerProfileOnboardingPage() {
     }
 
     return (
-        <div className="mx-auto max-w-4xl px-4 py-6 lg:py-10">
-            <div className="space-y-8">
+        <div className="mx-auto max-w-4xl px-4 py-4 sm:py-6 lg:py-10">
+            <div className="space-y-6 sm:space-y-8">
                 {/* Header Section */}
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
@@ -76,10 +76,10 @@ export default function OwnerProfileOnboardingPage() {
                     </div>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="grid gap-8 lg:grid-cols-[1fr,2fr]">
+                <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
+                    <div className="grid gap-6 sm:gap-8 lg:grid-cols-[1fr,2fr]">
                         {/* Left Column: Media & Role */}
-                        <div className="space-y-8">
+                        <div className="space-y-6 sm:space-y-8">
                             {/* Profile Photo */}
                             <div className="flex flex-col items-center">
                                 <div
@@ -117,12 +117,12 @@ export default function OwnerProfileOnboardingPage() {
 
                             {/* Account Type */}
                             <div className="space-y-4">
-                                <div className="grid grid-cols-2 gap-3">
+                                <div className="grid grid-cols-2 gap-2 sm:gap-3">
                                     <button
                                         type="button"
                                         onClick={() => setRole("individual")}
                                         className={cn(
-                                            "flex items-center gap-3 rounded-2xl border-2 p-3 transition-all text-left",
+                                            "flex items-center gap-3 rounded-2xl border-2 p-2.5 sm:p-3 transition-all text-left",
                                             role === "individual" ? "border-primary bg-primary/[0.02]" : "border-muted/40 bg-card hover:border-muted/60"
                                         )}
                                     >
@@ -137,7 +137,7 @@ export default function OwnerProfileOnboardingPage() {
                                         type="button"
                                         onClick={() => setRole("company")}
                                         className={cn(
-                                            "flex items-center gap-3 rounded-2xl border-2 p-3 transition-all text-left",
+                                            "flex items-center gap-3 rounded-2xl border-2 p-2.5 sm:p-3 transition-all text-left",
                                             role === "company" ? "border-primary bg-primary/[0.02]" : "border-muted/40 bg-card hover:border-muted/60"
                                         )}
                                     >
@@ -154,7 +154,7 @@ export default function OwnerProfileOnboardingPage() {
 
                         {/* Right Column: Information Form */}
                         <div className="space-y-6">
-                            <div className="grid gap-5">
+                            <div className="grid gap-4 sm:gap-5">
                                 <div className="space-y-2">
                                     <Label htmlFor="companyName" className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground ml-1">Company Name (Optional)</Label>
                                     <Input
@@ -166,7 +166,7 @@ export default function OwnerProfileOnboardingPage() {
                                     />
                                 </div>
 
-                                <div className="grid gap-5 sm:grid-cols-2">
+                                <div className="grid gap-4 sm:gap-5 sm:grid-cols-2">
                                     <div className="space-y-2">
                                         <Label htmlFor="phone" className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground ml-1">Phone Number</Label>
                                         <div className="relative">
@@ -228,7 +228,7 @@ export default function OwnerProfileOnboardingPage() {
                     </div>
 
                     {/* Footer Actions */}
-                    <div className="flex items-center justify-between pt-6 border-t border-border/50">
+                    <div className="flex items-center justify-between pt-4 sm:pt-6 border-t border-border/50">
                         <button
                             type="button"
                             onClick={() => router.back()}
@@ -240,7 +240,7 @@ export default function OwnerProfileOnboardingPage() {
                         <Button
                             type="submit"
                             disabled={isLoading}
-                            className="h-12 rounded-xl bg-primary px-12 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98]"
+                            className="h-12 rounded-xl bg-primary px-6 sm:px-12 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98]"
                         >
                             {isLoading ? "Saving..." : "Save & Continue"}
                         </Button>

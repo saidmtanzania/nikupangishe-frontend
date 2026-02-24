@@ -74,8 +74,8 @@ export default function IdentityVerificationPage() {
     }
 
     return (
-        <div className="mx-auto max-w-4xl px-4 py-10 lg:py-16">
-            <div className="space-y-12">
+        <div className="mx-auto max-w-4xl px-4 py-6 sm:py-10 lg:py-16">
+            <div className="space-y-8 sm:space-y-12">
                 {/* Header Section */}
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
@@ -93,9 +93,9 @@ export default function IdentityVerificationPage() {
                     </p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-10">
+                <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-10">
                     {/* Form Fields Section */}
-                    <div className="grid gap-8">
+                    <div className="grid gap-6 sm:gap-8">
                         <div className="space-y-2">
                             <Label htmlFor="fullName" className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground ml-1">Full Name</Label>
                             <Input
@@ -114,7 +114,7 @@ export default function IdentityVerificationPage() {
                             {errors.fullName && <p className="text-[10px] font-medium text-destructive ml-1">{errors.fullName}</p>}
                         </div>
 
-                        <div className="grid gap-6 sm:grid-cols-2">
+                        <div className="grid gap-4 sm:gap-6 sm:grid-cols-2">
                             <div className="space-y-2">
                                 <Label htmlFor="idType" className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground ml-1">ID Type</Label>
                                 <Select
@@ -161,7 +161,7 @@ export default function IdentityVerificationPage() {
                         {/* Document Uploads Grid */}
                         <div className="space-y-4">
                             <Label className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground ml-1">Document Attachments</Label>
-                            <div className="grid gap-4 sm:grid-cols-3">
+                            <div className="grid gap-3 sm:gap-4 sm:grid-cols-3">
                                 <UploadBox
                                     icon={FileText}
                                     label="ID Front"
@@ -190,7 +190,7 @@ export default function IdentityVerificationPage() {
                         </div>
 
                         {/* Security Privacy Notice */}
-                        <div className="rounded-[24px] border border-primary/10 bg-primary/[0.02] p-5">
+                        <div className="rounded-2xl sm:rounded-[24px] border border-primary/10 bg-primary/[0.02] p-5">
                             <div className="flex gap-4">
                                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
                                     <Shield className="h-4 w-4 text-primary" />
@@ -203,7 +203,7 @@ export default function IdentityVerificationPage() {
                     </div>
 
                     {/* Footer Actions */}
-                    <div className="flex items-center justify-between pt-10 border-t border-border/50">
+                    <div className="flex items-center justify-between pt-6 sm:pt-10 border-t border-border/50">
                         <button
                             type="button"
                             onClick={() => router.back()}
@@ -215,7 +215,7 @@ export default function IdentityVerificationPage() {
                         <Button
                             type="submit"
                             disabled={isLoading}
-                            className="h-12 rounded-xl bg-primary px-12 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98]"
+                            className="h-12 rounded-xl bg-primary px-8 sm:px-12 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98]"
                         >
                             {isLoading ? "Saving..." : "Save & Continue"}
                         </Button>
@@ -272,7 +272,7 @@ function UploadBox({
             <div
                 onClick={handleBoxClick}
                 className={cn(
-                    "group relative flex flex-col items-center justify-center gap-4 rounded-[24px] border-2 border-dashed bg-card p-4 transition-all cursor-pointer overflow-hidden min-h-[140px]",
+                    "group relative flex flex-col items-center justify-center gap-4 rounded-[24px] border-2 border-dashed bg-card p-4 transition-all cursor-pointer overflow-hidden min-h-[120px] sm:min-h-[140px]",
                     file ? "border-primary/40 bg-primary/[0.01]" : "border-muted hover:border-primary/20 hover:bg-primary/[0.01]",
                     error && "border-destructive/50 bg-destructive/[0.02]"
                 )}

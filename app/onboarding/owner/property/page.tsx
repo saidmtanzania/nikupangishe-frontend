@@ -25,8 +25,8 @@ export default function AddFirstHousePage() {
     }
 
     return (
-        <div className="mx-auto max-w-4xl px-4 py-10 lg:py-16">
-            <div className="space-y-12">
+        <div className="mx-auto max-w-4xl px-4 py-6 sm:py-10 lg:py-16">
+            <div className="space-y-8 sm:space-y-12">
                 {/* Header Section */}
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
@@ -45,13 +45,13 @@ export default function AddFirstHousePage() {
                 </div>
 
                 {/* Main Content Card */}
-                <div className="space-y-10 text-center">
+                <div className="space-y-8 sm:space-y-10 text-center">
                     {/* Dotted Upload Area */}
-                    <div className="relative overflow-hidden rounded-[32px] border-2 border-dashed border-muted bg-card px-8 py-20 transition-all hover:border-primary/20 hover:bg-primary/[0.01]">
-                        <div className="flex flex-col items-center gap-6">
-                            <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-primary/5">
+                    <div className="relative overflow-hidden rounded-3xl sm:rounded-[32px] border-2 border-dashed border-muted bg-card px-4 py-12 sm:px-8 sm:py-20 transition-all hover:border-primary/20 hover:bg-primary/[0.01]">
+                        <div className="flex flex-col items-center gap-4 sm:gap-6">
+                            <div className="flex h-16 w-16 sm:h-20 w-20 items-center justify-center rounded-2xl sm:rounded-3xl bg-primary/5">
                                 <div className="relative">
-                                    <Home className="h-10 w-10 text-primary" />
+                                    <Home className="h-8 w-8 sm:h-10 w-10 text-primary" />
                                     <div className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-white shadow-lg border-2 border-white">
                                         <Plus className="h-3 w-3" />
                                     </div>
@@ -59,14 +59,14 @@ export default function AddFirstHousePage() {
                             </div>
 
                             <div className="space-y-2">
-                                <h2 className="text-xl font-bold text-foreground">+ Add first house</h2>
+                                <h2 className="text-lg sm:text-xl font-bold text-foreground">+ Add first house</h2>
                                 <p className="mx-auto max-w-md text-xs leading-relaxed text-muted-foreground">
                                     Click here to start listing your first property. You'll need photos, location details, and pricing info.
                                 </p>
                             </div>
 
                             <Button
-                                className="h-12 rounded-xl bg-primary px-10 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98]"
+                                className="h-12 rounded-xl bg-primary px-8 sm:px-10 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98]"
                             >
                                 Start Adding
                             </Button>
@@ -83,7 +83,7 @@ export default function AddFirstHousePage() {
                 </div>
 
                 {/* Footer Actions */}
-                <div className="flex items-center justify-between pt-10 border-t border-border/50">
+                <div className="flex items-center justify-between pt-6 sm:pt-10 border-t border-border/50">
                     <button
                         type="button"
                         onClick={() => router.back()}
@@ -95,7 +95,7 @@ export default function AddFirstHousePage() {
                     <Button
                         onClick={handleContinue}
                         disabled={isLoading}
-                        className="h-12 rounded-xl bg-primary px-12 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98]"
+                        className="h-12 rounded-xl bg-primary px-8 sm:px-12 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98]"
                     >
                         {isLoading ? "Saving..." : "Save & Continue"}
                     </Button>

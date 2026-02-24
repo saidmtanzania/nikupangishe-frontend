@@ -40,8 +40,8 @@ export default function OnboardingCompletionPage() {
     ]
 
     return (
-        <div className="mx-auto max-w-4xl px-4 py-6 lg:py-10">
-            <div className="space-y-8">
+        <div className="mx-auto max-w-4xl px-4 py-4 sm:py-6 lg:py-10">
+            <div className="space-y-6 sm:space-y-8">
                 {/* Header Section */}
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
@@ -56,7 +56,7 @@ export default function OnboardingCompletionPage() {
                 </div>
 
                 {/* Main Content Area - Open Layout */}
-                <div className="flex flex-col items-center text-center space-y-8 py-2">
+                <div className="flex flex-col items-center text-center space-y-6 sm:space-y-8 py-0 sm:py-2">
                     {/* Hero Illustration */}
                     <div className="relative">
                         <div className="flex h-24 w-24 items-center justify-center rounded-full bg-emerald-50 text-emerald-500 shadow-inner ring-1 ring-emerald-100">
@@ -88,7 +88,7 @@ export default function OnboardingCompletionPage() {
                         <div className="space-y-4">
                             {summaryItems.map((item, idx) => (
                                 <div key={idx} className="flex items-center justify-between">
-                                    <div className="flex items-center gap-4">
+                                    <div className="flex items-center gap-3 sm:gap-4">
                                         <div className={cn(
                                             "flex h-9 w-9 items-center justify-center rounded-xl transition-colors",
                                             item.done ? "bg-emerald-50 text-emerald-600" : "bg-muted text-muted-foreground/40"
@@ -117,7 +117,7 @@ export default function OnboardingCompletionPage() {
                 </div>
 
                 {/* Standard Footer Actions */}
-                <div className="flex items-center justify-between pt-6 border-t border-border/50">
+                <div className="flex items-center justify-between pt-4 sm:pt-6 border-t border-border/50">
                     <button
                         type="button"
                         onClick={() => router.back()}
@@ -128,7 +128,7 @@ export default function OnboardingCompletionPage() {
                     </button>
                     <Button
                         onClick={() => router.push("/dashboard")}
-                        className="h-12 rounded-xl bg-primary px-12 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] group"
+                        className="h-12 rounded-xl bg-primary px-6 sm:px-12 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] group"
                     >
                         <span>Go to Owner Dashboard</span>
                         <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:-translate-x-1" />
@@ -137,7 +137,7 @@ export default function OnboardingCompletionPage() {
             </div>
 
             {/* Global Footer Copyright */}
-            <p className="mt-12 text-center text-[10px] text-muted-foreground/40 tracking-tight">
+            <p className="mt-6 sm:mt-12 text-center text-[10px] text-muted-foreground/40 tracking-tight">
                 © 2024 Nikupangishe. All rights reserved. Professional Property Management Simplified.
             </p>
         </div>
