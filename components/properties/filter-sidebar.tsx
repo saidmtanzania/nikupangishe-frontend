@@ -195,14 +195,15 @@ export function FilterSidebar({ filters, onFilterChange, search, onSearchChange 
       <Button
         variant="outline"
         size="sm"
-        onClick={() =>
+        onClick={() => {
           onFilterChange({
             priceRange: [100000, 6000000],
             propertyTypes: [],
             verifiedOnly: false,
             amenities: [],
           })
-        }
+          onSearchChange("")
+        }}
       >
         Reset Filters
       </Button>
