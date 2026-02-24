@@ -3,7 +3,7 @@
 import { useState, useRef, Suspense, useEffect } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
-import { Lock, Smartphone, ChevronLeft } from "lucide-react"
+import { Lock, Smartphone, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -84,28 +84,28 @@ function VerifyContent() {
                 {/* Top Color Accent */}
                 <div className="h-1.5 w-full bg-primary" />
 
-                <div className="relative p-6 sm:p-10 lg:p-12">
+                <div className="relative p-6 lg:p-10">
                     {/* Back Button */}
                     <Link
                         href="/auth/register"
-                        className="absolute left-6 top-6 flex h-10 w-10 items-center justify-center rounded-xl bg-muted/50 text-muted-foreground transition-all hover:bg-muted hover:text-foreground active:scale-95 sm:left-8 sm:top-8 lg:left-10 lg:top-10"
+                        className="absolute left-4 top-4 flex h-9 w-9 items-center justify-center rounded-xl bg-muted/50 text-muted-foreground transition-all hover:bg-muted hover:text-foreground active:scale-95 lg:left-6 lg:top-6"
                     >
-                        <ChevronLeft className="h-5 w-5" />
+                        <ChevronLeft className="h-4 w-4" />
                     </Link>
 
-                    <div className="flex flex-col items-center text-center">
+                    <div className="flex flex-col items-center text-center pt-2">
                         {/* Phone Icon */}
-                        <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 sm:mb-8 sm:h-20 sm:w-20">
-                            <Smartphone className="h-8 w-8 text-primary sm:h-10 sm:w-10" />
+                        <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+                            <Smartphone className="h-7 w-7 text-primary" />
                         </div>
 
-                        <h1 className="mb-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+                        <h1 className="mb-1.5 text-xl font-medium tracking-tight text-foreground lg:text-2xl">
                             Verify your number
                         </h1>
 
-                        <div className="mb-8 text-muted-foreground sm:mb-10">
+                        <div className="mb-8 text-muted-foreground">
                             <p className="text-sm">We&apos;ve sent a 4-digit verification code to</p>
-                            <p className="mt-1 text-base font-bold text-foreground">{displayPhone}</p>
+                            <p className="mt-1 text-sm font-bold text-foreground">{displayPhone}</p>
                         </div>
 
                         <form onSubmit={handleVerify} className="w-full space-y-6 sm:space-y-8">
@@ -123,7 +123,7 @@ function VerifyContent() {
                                         onChange={(e) => handleInput(i, e.target.value)}
                                         onKeyDown={(e) => handleKeyDown(i, e)}
                                         className={cn(
-                                            "h-12 w-full rounded-xl border border-slate-200 bg-white text-center text-xl font-bold transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10 sm:h-14 sm:text-2xl",
+                                            "h-12 w-full rounded-xl border border-slate-200 bg-white text-center text-xl font-bold transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10",
                                             digit ? "border-primary" : "border-slate-200"
                                         )}
                                     />
@@ -132,10 +132,11 @@ function VerifyContent() {
 
                             <Button
                                 disabled={isLoading || code.some(d => !d)}
-                                className="h-14 w-full rounded-2xl bg-[#ef5413] text-base font-bold text-white shadow-[0_10px_20px_rgba(239,84,19,0.2)] transition-all hover:bg-[#ef5413]/90 active:scale-[0.98]"
+                                className="relative h-11 w-full rounded-xl bg-[#ef5413] text-sm font-semibold text-white transition-all hover:bg-[#ef5413]/90 active:scale-[0.98]"
                                 type="submit"
                             >
                                 {isLoading ? "Verifying..." : "Verify & Continue"}
+                                {!isLoading && <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4" />}
                             </Button>
 
                             <div className="text-center">

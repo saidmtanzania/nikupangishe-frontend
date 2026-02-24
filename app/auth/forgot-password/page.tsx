@@ -67,21 +67,19 @@ export default function ForgotPasswordPage() {
                     {/* Back Button */}
                     <Link
                         href="/auth/login"
-                        className="absolute left-6 top-6 flex h-10 w-10 items-center justify-center rounded-xl bg-muted/50 text-muted-foreground transition-all hover:bg-muted hover:text-foreground active:scale-95 lg:left-10 lg:top-10"
+                        className="absolute left-4 top-4 flex h-9 w-9 items-center justify-center rounded-xl bg-muted/50 text-muted-foreground transition-all hover:bg-muted hover:text-foreground active:scale-95 lg:left-6 lg:top-6"
                     >
-                        <ChevronLeft className="h-5 w-5" />
+                        <ChevronLeft className="h-4 w-4" />
                     </Link>
 
                     {!isSent ? (
                         <div className="flex flex-col gap-6 pt-8">
-                            <div className="flex flex-col items-center gap-2 text-center">
-                                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-                                    <Shield className="h-8 w-8 text-primary" />
+                            <div className="mb-8">
+                                <div className="flex items-center gap-2 mb-1.5">
+                                    <div className="h-4 w-1 bg-primary rounded-full" />
+                                    <h2 className="text-xl font-medium text-foreground lg:text-xl">Forgot Password?</h2>
                                 </div>
-                                <h1 className="text-2xl font-bold tracking-tight text-foreground">Forgot Password?</h1>
-                                <p className="text-sm text-muted-foreground">
-                                    No worries! Enter your details and we&apos;ll send you instructions to reset your password.
-                                </p>
+                                <p className="text-sm text-muted-foreground">Enter your details and we&apos;ll send you instructions to reset your password.</p>
                             </div>
 
                             <form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
@@ -107,9 +105,9 @@ export default function ForgotPasswordPage() {
                                     {error && <p className="text-[11px] font-medium text-destructive ml-1">{error}</p>}
                                 </div>
 
-                                <Button type="submit" className="h-11 w-full rounded-xl text-sm font-semibold transition-transform active:scale-[0.98]" disabled={isLoading}>
+                                <Button type="submit" className="relative h-11 w-full rounded-xl text-sm font-semibold transition-transform active:scale-[0.98]" disabled={isLoading}>
                                     {isLoading ? "Sending..." : "Reset Password"}
-                                    {!isLoading && <ArrowRight className="ml-2 h-4 w-4" />}
+                                    {!isLoading && <ArrowRight className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4" />}
                                 </Button>
                             </form>
                         </div>
@@ -135,12 +133,19 @@ export default function ForgotPasswordPage() {
                                     {countdown > 0 ? `Resend in ${countdown}s` : "Didn't receive it? Resend"}
                                 </Button>
 
-                                <Link href={`/auth/reset-password?token=demo&id=${encodeURIComponent(identifier)}`} className="text-sm font-semibold text-primary/80 hover:text-primary transition-colors">
+                                <Link
+                                    href={`/auth/reset-password?token=demo&id=${encodeURIComponent(identifier)}`}
+                                    className="flex h-11 w-full items-center justify-center rounded-xl bg-primary/5 text-sm font-semibold text-primary/80 hover:bg-primary/10 transition-colors"
+                                >
                                     Simulate Email Link (Demo)
                                 </Link>
 
-                                <Link href="/auth/login" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-                                    Back to Log In
+                                <Link
+                                    href="/auth/login"
+                                    className="relative flex h-11 w-full items-center justify-center rounded-xl border border-muted/20 text-sm font-medium text-muted-foreground hover:bg-muted/50 transition-colors"
+                                >
+                                    <ChevronLeft className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                    <span>Back to Log In</span>
                                 </Link>
                             </div>
                         </div>

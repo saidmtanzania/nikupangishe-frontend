@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Eye, EyeOff, Shield, User } from "lucide-react"
+import { Eye, EyeOff, Shield, User, ArrowRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export function LoginForm() {
@@ -47,7 +47,7 @@ export function LoginForm() {
       if (password.toLowerCase() === 'verify') {
         const phone = identifier.startsWith('+') || /^\d+$/.test(identifier)
           ? identifier
-          : "7XX XXX XXX" // Fallback placeholder
+          : "7XX XXX XXX"
 
         const formattedPhone = phone.startsWith('+255') ? phone : `+255 ${phone.startsWith('0') ? phone.slice(1) : phone}`
         router.push(`/auth/verify?phone=${encodeURIComponent(formattedPhone)}`)
@@ -59,28 +59,25 @@ export function LoginForm() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col items-center gap-2 text-center">
-        <Link href="/" className="flex items-center gap-2 mb-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary shadow-lg shadow-primary/20">
-            <span className="text-xl font-bold text-primary-foreground">N</span>
-          </div>
-        </Link>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">Welcome back</h1>
-        <p className="text-sm text-muted-foreground">
-          Sign in to access your Nikupangishe account
-        </p>
+    <div className="flex flex-col">
+      {/* Header - Unified with Register Page */}
+      <div className="mb-8">
+        <div className="flex items-center gap-2 mb-1.5">
+          <div className="h-4 w-1 bg-primary rounded-full" />
+          <h2 className="text-xl font-medium text-foreground lg:text-xl">Welcome back</h2>
+        </div>
+        <p className="text-sm text-muted-foreground">Sign in to your Nikupangishe account</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-6" noValidate>
         <div className="flex flex-col gap-2">
-          <Label htmlFor="identifier" className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground ml-1">Email or Phone Number</Label>
+          <Label htmlFor="identifier" className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Email or Phone Number</Label>
           <div className="relative">
             <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               id="identifier"
               type="text"
-              placeholder="+255... or name@email.com"
+              placeholder="+255... or email"
               className={cn(
                 "pl-10 h-11 bg-muted/20 border-border focus-visible:ring-primary/20 transition-all font-normal",
                 errors.identifier && "border-destructive focus-visible:ring-destructive/20"
@@ -96,10 +93,10 @@ export function LoginForm() {
         </div>
 
         <div className="flex flex-col gap-2">
-          <div className="flex items-center justify-between ml-1">
+          <div className="flex items-center justify-between">
             <Label htmlFor="password" className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Password</Label>
             <Link href="/auth/forgot-password" university-transition-colors className="text-[11px] font-medium text-primary">
-              Forgot?
+              Forgot Password?
             </Link>
           </div>
           <div className="relative">
@@ -128,22 +125,26 @@ export function LoginForm() {
           {errors.password && <p className="text-[11px] font-medium text-destructive ml-1">{errors.password}</p>}
         </div>
 
-        <Button type="submit" className="h-11 w-full rounded-xl text-sm font-semibold transition-transform active:scale-[0.98]" disabled={isLoading}>
+        <Button type="submit" className="relative h-11 w-full rounded-xl text-sm font-medium transition-transform active:scale-[0.98]" disabled={isLoading}>
           {isLoading ? "Signing in..." : "Sign In"}
+          {!isLoading && <ArrowRight className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2" />}
         </Button>
       </form>
 
-      <div className="flex items-center gap-2 justify-center py-2 px-4 rounded-lg bg-muted/30 border border-muted/20 text-[10px] font-medium uppercase tracking-[0.05em] text-muted-foreground">
+      {/* Footer Links */}
+      <div className="mt-8 text-center border-t border-muted/10 pt-6">
+        <p className="text-sm text-muted-foreground">
+          Don&apos;t have an account?{" "}
+          <Link href="/auth/register" className="font-medium text-primary">
+            Create account
+          </Link>
+        </p>
+      </div>
+
+      <div className="mt-6 flex items-center gap-2 justify-center py-2 px-4 rounded-lg bg-muted/30 border border-muted/20 text-[10px] font-medium uppercase tracking-[0.05em] text-muted-foreground">
         <Shield className="h-3 w-3 text-primary/70" />
         <span>Secure & Encrypted Session</span>
       </div>
-
-      <p className="text-center text-sm text-muted-foreground">
-        Don&apos;t have an account?{" "}
-        <Link href="/auth/register" className="font-semibold text-primary">
-          Create account
-        </Link>
-      </p>
     </div>
   )
 }

@@ -3,7 +3,7 @@
 import { useState, Suspense } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
-import { Eye, EyeOff, Shield, ArrowRight, CheckCircle2, Lock } from "lucide-react"
+import { Eye, EyeOff, Shield, ArrowRight, CheckCircle2, Lock, ChevronLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -65,16 +65,22 @@ function ResetPasswordContent() {
                 <div className="h-1.5 w-full bg-primary" />
 
                 <div className="relative p-6 lg:p-10">
+                    {/* Back Button */}
+                    <Link
+                        href="/auth/forgot-password"
+                        className="absolute left-4 top-4 flex h-9 w-9 items-center justify-center rounded-xl bg-muted/50 text-muted-foreground transition-all hover:bg-muted hover:text-foreground active:scale-95 lg:left-6 lg:top-6"
+                    >
+                        <ChevronLeft className="h-4 w-4" />
+                    </Link>
+
                     {!isSuccess ? (
                         <div className="flex flex-col gap-6 pt-4">
-                            <div className="flex flex-col items-center gap-2 text-center">
-                                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-                                    <Lock className="h-8 w-8 text-primary" />
+                            <div className="mb-8">
+                                <div className="flex items-center gap-2 mb-1.5">
+                                    <div className="h-4 w-1 bg-primary rounded-full" />
+                                    <h2 className="text-xl font-medium text-foreground lg:text-xl">Reset Password</h2>
                                 </div>
-                                <h1 className="text-2xl font-bold tracking-tight text-foreground">Reset Password</h1>
-                                <p className="text-sm text-muted-foreground">
-                                    Create a new, strong password for your account.
-                                </p>
+                                <p className="text-sm text-muted-foreground">Create a new, strong password for your account.</p>
                             </div>
 
                             {!token && (
@@ -142,9 +148,9 @@ function ResetPasswordContent() {
                                     {errors.confirmPassword && <p className="text-[11px] font-medium text-destructive ml-1">{errors.confirmPassword}</p>}
                                 </div>
 
-                                <Button type="submit" className="h-11 w-full rounded-xl text-sm font-semibold transition-transform active:scale-[0.98]" disabled={isLoading}>
+                                <Button type="submit" className="relative h-11 w-full rounded-xl text-sm font-semibold transition-transform active:scale-[0.98]" disabled={isLoading}>
                                     {isLoading ? "Updating..." : "Update Password"}
-                                    {!isLoading && <ArrowRight className="ml-2 h-4 w-4" />}
+                                    {!isLoading && <ArrowRight className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4" />}
                                 </Button>
                             </form>
                         </div>
@@ -160,8 +166,12 @@ function ResetPasswordContent() {
                                 </p>
                             </div>
                             <div className="pt-4">
-                                <Link href="/auth/login" className="text-sm font-semibold text-primary hover:underline">
-                                    Click here if you aren&apos;t redirected
+                                <Link
+                                    href="/auth/login"
+                                    className="relative flex h-11 w-full items-center justify-center rounded-xl border border-muted/20 text-sm font-medium text-muted-foreground hover:bg-muted/50 transition-colors"
+                                >
+                                    <ChevronLeft className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                    <span>Back to Log In</span>
                                 </Link>
                             </div>
                         </div>

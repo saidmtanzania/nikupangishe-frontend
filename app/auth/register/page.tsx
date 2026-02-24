@@ -194,11 +194,11 @@ export default function RegisterPage() {
             <div className="pt-2">
               <Button
                 disabled={isLoading}
-                className="h-11 w-full gap-2 rounded-xl text-sm font-medium transition-transform active:scale-[0.98]"
+                className="relative h-11 w-full rounded-xl text-sm font-medium transition-transform active:scale-[0.98]"
                 type="submit"
               >
                 {isLoading ? "Creating account..." : "Sign Up"}
-                {!isLoading && <ChevronRight className="h-4 w-4" />}
+                {!isLoading && <ChevronRight className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2" />}
               </Button>
             </div>
 
