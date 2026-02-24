@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
-import { Search, Menu, X, User, MessageSquare } from "lucide-react"
+import { Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -38,7 +38,7 @@ export function Header() {
         </Link>
 
         {/* Desktop Nav */}
-        <nav className="hidden items-center gap-1 lg:flex">
+        <nav className="hidden ml-auto items-center gap-1 lg:flex">
           {navLinks.map((link) => (
             <Link
               key={link.href}
@@ -56,24 +56,9 @@ export function Header() {
         </nav>
 
         {/* Desktop Actions */}
-        <div className="hidden items-center gap-2 lg:flex">
-          <Button variant="ghost" size="icon" asChild>
-            <Link href="/browse">
-              <Search className="h-5 w-5" />
-              <span className="sr-only">Search</span>
-            </Link>
-          </Button>
-          <Button variant="ghost" size="icon" asChild>
-            <Link href="/chat">
-              <MessageSquare className="h-5 w-5" />
-              <span className="sr-only">Messages</span>
-            </Link>
-          </Button>
-          <Button variant="ghost" size="icon" asChild>
-            <Link href="/auth/login">
-              <User className="h-5 w-5" />
-              <span className="sr-only">Account</span>
-            </Link>
+        <div className="hidden items-center gap-2 ml-4 lg:flex">
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/auth/login">Login</Link>
           </Button>
           <Button asChild size="sm">
             <Link href="/auth/register">Get Started</Link>
