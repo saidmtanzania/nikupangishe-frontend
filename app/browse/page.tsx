@@ -121,8 +121,8 @@ export default function BrowsePage() {
                 aria-label="Grid view"
                 onClick={() => setViewMode("grid")}
                 className={`flex h-8 w-8 items-center justify-center rounded-md transition-all ${viewMode === "grid"
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
                   }`}
               >
                 <LayoutGrid className="h-4 w-4" />
@@ -132,8 +132,8 @@ export default function BrowsePage() {
                 aria-label="List view"
                 onClick={() => setViewMode("list")}
                 className={`flex h-8 w-8 items-center justify-center rounded-md transition-all ${viewMode === "list"
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
                   }`}
               >
                 <AlignJustify className="h-4 w-4" />
@@ -199,8 +199,8 @@ export default function BrowsePage() {
                   aria-label="Grid view"
                   onClick={() => setViewMode("grid")}
                   className={`flex h-7 w-7 items-center justify-center rounded-md transition-all ${viewMode === "grid"
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
                     }`}
                 >
                   <LayoutGrid className="h-3.5 w-3.5" />
@@ -209,8 +209,8 @@ export default function BrowsePage() {
                   aria-label="List view"
                   onClick={() => setViewMode("list")}
                   className={`flex h-7 w-7 items-center justify-center rounded-md transition-all ${viewMode === "list"
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
                     }`}
                 >
                   <AlignJustify className="h-3.5 w-3.5" />
