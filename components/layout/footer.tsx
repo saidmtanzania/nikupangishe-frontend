@@ -1,4 +1,7 @@
+"use client"
+
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { Home, Search, ArrowLeftRight, MessageSquare, Shield } from "lucide-react"
 
 const footerLinks = {
@@ -21,6 +24,12 @@ const footerLinks = {
 }
 
 export function Footer() {
+  const pathname = usePathname()
+  const isDashboard = pathname.startsWith("/dashboard")
+  const isChat = pathname.startsWith("/chat")
+
+  if (isDashboard || isChat) return null
+
   return (
     <footer className="border-t border-border bg-card">
       <div className="mx-auto max-w-7xl px-4 py-12 lg:px-6">

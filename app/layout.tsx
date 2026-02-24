@@ -44,6 +44,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&display=swap" rel="stylesheet" />
+      </head>
       <body className="font-sans antialiased flex flex-col min-h-screen pb-16 lg:pb-0">
         <Header />
         <main className="flex-1">{children}</main>
