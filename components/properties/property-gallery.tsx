@@ -62,7 +62,7 @@ export function PropertyGallery({ images, title }: { images: string[]; title: st
           <Button
             variant="secondary"
             size="icon"
-            className="absolute left-3 top-1/2 h-9 w-9 -translate-y-1/2 rounded-full border-none bg-white/80 shadow-lg backdrop-blur-sm transition-all hover:bg-white md:opacity-0 md:group-hover:opacity-100"
+            className="absolute left-3 top-1/2 hidden h-9 w-9 -translate-y-1/2 rounded-full border-none bg-white/80 shadow-lg backdrop-blur-sm transition-all hover:bg-white md:flex md:opacity-0 md:group-hover:opacity-100"
             onClick={goPrev}
             aria-label="Previous image"
           >
@@ -71,7 +71,7 @@ export function PropertyGallery({ images, title }: { images: string[]; title: st
           <Button
             variant="secondary"
             size="icon"
-            className="absolute right-3 top-1/2 h-9 w-9 -translate-y-1/2 rounded-full border-none bg-white/80 shadow-lg backdrop-blur-sm transition-all hover:bg-white md:opacity-0 md:group-hover:opacity-100"
+            className="absolute right-3 top-1/2 hidden h-9 w-9 -translate-y-1/2 rounded-full border-none bg-white/80 shadow-lg backdrop-blur-sm transition-all hover:bg-white md:flex md:opacity-0 md:group-hover:opacity-100"
             onClick={goNext}
             aria-label="Next image"
           >
