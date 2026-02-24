@@ -5,13 +5,13 @@ import Link from "next/link"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import {
-    ArrowRight,
+    ArrowLeft,
     FileText,
     CreditCard,
     Camera,
     Shield,
-    UserCheck,
-    X
+    X,
+    UserCheck
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -74,107 +74,106 @@ export default function IdentityVerificationPage() {
     }
 
     return (
-        <div className="mx-auto max-w-2xl px-4 py-4 lg:py-8">
-            <div className="overflow-hidden rounded-[24px] border border-border bg-card shadow-lg shadow-primary/5">
-                {/* Step Progress Header */}
-                <div className="border-b border-border/50 bg-muted/20 px-6 py-4">
-                    <div className="mb-3 flex items-center justify-between text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/80">
-                        <span>Step 2: Verify Identity</span>
-                        <span className="text-primary">2 / 5</span>
+        <div className="mx-auto max-w-4xl px-4 py-10 lg:py-16">
+            <div className="space-y-12">
+                {/* Header Section */}
+                <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                        <div className="space-y-1">
+                            <h3 className="text-sm font-bold text-primary uppercase tracking-tight">Verify Identity</h3>
+                            <p className="text-[11px] text-muted-foreground">Step 2 of 5</p>
+                        </div>
+                        <span className="text-sm font-bold text-primary">40%</span>
                     </div>
-                    <div className="h-1 w-full overflow-hidden rounded-full bg-muted">
+                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
                         <div className="h-full w-[40%] rounded-full bg-primary transition-all duration-500" />
                     </div>
+                    <p className="text-[12px] italic text-muted-foreground/80">
+                        "Your security is our priority. Please provide valid documents."
+                    </p>
                 </div>
 
-                <div className="p-6 lg:p-10">
-                    {/* Intro Section
-                    <div className="mb-8 flex items-start gap-3">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/5">
-                            <UserCheck className="h-5 w-5 text-primary" />
-                        </div>
-                        <div className="space-y-1">
-                            <h2 className="text-xl font-medium text-foreground tracking-tight">Verify your identity</h2>
-                            <p className="text-sm leading-relaxed text-muted-foreground">
-                                Please provide your legal identification details.
-                            </p>
-                        </div>
-                    </div> */}
+                <form onSubmit={handleSubmit} className="space-y-10">
+                    {/* Title Section */}
+                    <div className="space-y-3">
+                        <h1 className="text-4xl font-bold tracking-tight text-foreground lg:text-5xl">Identify Verification</h1>
+                        <p className="max-w-xl text-sm text-muted-foreground leading-relaxed">
+                            Please provide your legal identification details as they appear on your documents.
+                        </p>
+                    </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-8">
-                        {/* Form Fields */}
-                        <div className="grid gap-6">
+                    {/* Form Fields Section */}
+                    <div className="grid gap-8">
+                        <div className="space-y-2">
+                            <Label htmlFor="fullName" className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground ml-1">Full Name</Label>
+                            <Input
+                                id="fullName"
+                                placeholder="Enter your full legal name"
+                                className={cn(
+                                    "h-12 border-muted/50 bg-muted/5 focus-visible:ring-primary/20 font-normal transition-all rounded-xl",
+                                    errors.fullName && "border-destructive focus-visible:ring-destructive/20"
+                                )}
+                                value={formData.fullName}
+                                onChange={(e) => {
+                                    setFormData({ ...formData, fullName: e.target.value })
+                                    if (errors.fullName) setErrors({ ...errors, fullName: "" })
+                                }}
+                            />
+                            {errors.fullName && <p className="text-[10px] font-medium text-destructive ml-1">{errors.fullName}</p>}
+                        </div>
+
+                        <div className="grid gap-6 sm:grid-cols-2">
                             <div className="space-y-2">
-                                <Label htmlFor="fullName" className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground ml-1">Full Name</Label>
+                                <Label htmlFor="idType" className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground ml-1">ID Type</Label>
+                                <Select
+                                    value={formData.idType}
+                                    onValueChange={(val) => {
+                                        setFormData({ ...formData, idType: val })
+                                        if (errors.idType) setErrors({ ...errors, idType: "" })
+                                    }}
+                                >
+                                    <SelectTrigger id="idType" className={cn(
+                                        "h-12 border-muted/50 bg-muted/5 focus-visible:ring-primary/20 font-normal transition-all rounded-xl",
+                                        errors.idType && "border-destructive focus-visible:ring-destructive/20"
+                                    )}>
+                                        <SelectValue placeholder="Select ID type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="nida">NIDA (National ID)</SelectItem>
+                                        <SelectItem value="passport">Passport</SelectItem>
+                                        <SelectItem value="driving">Driving License</SelectItem>
+                                        <SelectItem value="voter">Voter ID</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                {errors.idType && <p className="text-[10px] font-medium text-destructive ml-1">{errors.idType}</p>}
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="idNumber" className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground ml-1">ID Number</Label>
                                 <Input
-                                    id="fullName"
-                                    placeholder="Enter your full legal name"
+                                    id="idNumber"
+                                    placeholder="Enter ID number"
                                     className={cn(
-                                        "h-11 border-muted/50 bg-muted/5 focus-visible:ring-primary/20 font-normal transition-all",
-                                        errors.fullName && "border-destructive focus-visible:ring-destructive/20"
+                                        "h-12 border-muted/50 bg-muted/5 focus-visible:ring-primary/20 font-normal transition-all rounded-xl",
+                                        errors.idNumber && "border-destructive focus-visible:ring-destructive/20"
                                     )}
-                                    value={formData.fullName}
+                                    value={formData.idNumber}
                                     onChange={(e) => {
-                                        setFormData({ ...formData, fullName: e.target.value })
-                                        if (errors.fullName) setErrors({ ...errors, fullName: "" })
+                                        setFormData({ ...formData, idNumber: e.target.value })
+                                        if (errors.idNumber) setErrors({ ...errors, idNumber: "" })
                                     }}
                                 />
-                                {errors.fullName && <p className="text-[10px] font-medium text-destructive ml-1">{errors.fullName}</p>}
-                            </div>
-
-                            <div className="grid gap-6 sm:grid-cols-2">
-                                <div className="space-y-2">
-                                    <Label htmlFor="idType" className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground ml-1">ID Type</Label>
-                                    <Select
-                                        value={formData.idType}
-                                        onValueChange={(val) => {
-                                            setFormData({ ...formData, idType: val })
-                                            if (errors.idType) setErrors({ ...errors, idType: "" })
-                                        }}
-                                    >
-                                        <SelectTrigger id="idType" className={cn(
-                                            "h-11 border-muted/50 bg-muted/5 focus-visible:ring-primary/20 font-normal transition-all",
-                                            errors.idType && "border-destructive focus-visible:ring-destructive/20"
-                                        )}>
-                                            <SelectValue placeholder="Select ID type" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="nida">NIDA (National ID)</SelectItem>
-                                            <SelectItem value="passport">Passport</SelectItem>
-                                            <SelectItem value="driving">Driving License</SelectItem>
-                                            <SelectItem value="voter">Voter ID</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    {errors.idType && <p className="text-[10px] font-medium text-destructive ml-1">{errors.idType}</p>}
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="idNumber" className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground ml-1">ID Number</Label>
-                                    <Input
-                                        id="idNumber"
-                                        placeholder="Enter ID number"
-                                        className={cn(
-                                            "h-11 border-muted/50 bg-muted/5 focus-visible:ring-primary/20 font-normal transition-all",
-                                            errors.idNumber && "border-destructive focus-visible:ring-destructive/20"
-                                        )}
-                                        value={formData.idNumber}
-                                        onChange={(e) => {
-                                            setFormData({ ...formData, idNumber: e.target.value })
-                                            if (errors.idNumber) setErrors({ ...errors, idNumber: "" })
-                                        }}
-                                    />
-                                    {errors.idNumber && <p className="text-[10px] font-medium text-destructive ml-1">{errors.idNumber}</p>}
-                                </div>
+                                {errors.idNumber && <p className="text-[10px] font-medium text-destructive ml-1">{errors.idNumber}</p>}
                             </div>
                         </div>
 
-                        {/* Document Uploads */}
+                        {/* Document Uploads Grid */}
                         <div className="space-y-4">
-                            <Label className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground ml-1">Document Uploads</Label>
+                            <Label className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground ml-1">Document Attachments</Label>
                             <div className="grid gap-4 sm:grid-cols-3">
                                 <UploadBox
                                     icon={FileText}
                                     label="ID Front"
-                                    info="PNG, JPG up to 5MB"
+                                    info="PNG, JPG (5MB)"
                                     file={formData.idFront}
                                     error={errors.idFront}
                                     onFileSelect={(file) => handleFileChange("idFront", file)}
@@ -182,7 +181,7 @@ export default function IdentityVerificationPage() {
                                 <UploadBox
                                     icon={CreditCard}
                                     label="ID Back"
-                                    info="PNG, JPG up to 5MB"
+                                    info="PNG, JPG (5MB)"
                                     file={formData.idBack}
                                     error={errors.idBack}
                                     onFileSelect={(file) => handleFileChange("idBack", file)}
@@ -190,7 +189,7 @@ export default function IdentityVerificationPage() {
                                 <UploadBox
                                     icon={Camera}
                                     label="Take Selfie"
-                                    info="Live capture or upload"
+                                    info="Live Capture"
                                     file={formData.selfie}
                                     error={errors.selfie}
                                     onFileSelect={(file) => handleFileChange("selfie", file)}
@@ -198,46 +197,38 @@ export default function IdentityVerificationPage() {
                             </div>
                         </div>
 
-                        {/* Security Notice */}
-                        <div className="rounded-2xl border border-primary/10 bg-primary/[0.02] p-4 sm:p-5">
-                            <div className="flex gap-3">
-                                <Shield className="h-4 w-4 shrink-0 text-primary mt-0.5" />
+                        {/* Security Privacy Notice */}
+                        <div className="rounded-[24px] border border-primary/10 bg-primary/[0.02] p-5">
+                            <div className="flex gap-4">
+                                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                                    <Shield className="h-4 w-4 text-primary" />
+                                </div>
                                 <p className="text-[11px] leading-relaxed text-muted-foreground">
-                                    This verification protects <span className="font-medium text-foreground">owners and tenants</span> and prevents duplicate listings. Your data is encrypted and used only for security purposes.
+                                    We protect your data with end-to-end encryption. Identification is required by Tanzanian law for real estate transactions to prevent fraud and ensure the safety of all parties.
                                 </p>
                             </div>
                         </div>
+                    </div>
 
-                        {/* Card Footer Actions */}
-                        <div className="flex items-center justify-between pt-4 border-t border-border/50 mt-8">
-                            <Button
-                                type="button"
-                                variant="outline"
-                                className="h-11 rounded-xl border-border bg-white px-8 text-sm font-medium text-muted-foreground hover:bg-muted/50 hover:text-foreground active:scale-95 transition-all"
-                                onClick={() => router.back()}
-                            >
-                                Back
-                            </Button>
-                            <Button
-                                type="submit"
-                                disabled={isLoading}
-                                className="relative h-11 rounded-xl bg-primary px-10 text-sm font-medium text-white shadow-lg transition-all hover:bg-primary/90 active:scale-95 group"
-                            >
-                                {isLoading ? "Saving..." : (
-                                    <>
-                                        <span>Save & Continue</span>
-                                        <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                                    </>
-                                )}
-                            </Button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            {/* Bottom Support Link */}
-            <div className="mt-8 text-center text-[12px] font-medium text-muted-foreground">
-                Having trouble? <Link href="#" className="text-primary hover:underline transition-colors">Contact Support</Link>
+                    {/* Footer Actions */}
+                    <div className="flex items-center justify-between pt-10 border-t border-border/50">
+                        <button
+                            type="button"
+                            onClick={() => router.back()}
+                            className="flex items-center gap-2 text-sm font-bold text-muted-foreground hover:text-foreground transition-colors group"
+                        >
+                            <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+                            <span>Back</span>
+                        </button>
+                        <Button
+                            type="submit"
+                            disabled={isLoading}
+                            className="h-12 rounded-xl bg-primary px-12 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98]"
+                        >
+                            {isLoading ? "Saving..." : "Save & Continue"}
+                        </Button>
+                    </div>
+                </form>
             </div>
         </div>
     )
@@ -266,16 +257,12 @@ function UploadBox({
             setPreviewUrl(null)
             return
         }
-
         const url = URL.createObjectURL(file)
         setPreviewUrl(url)
-
         return () => URL.revokeObjectURL(url)
     }, [file])
 
-    const handleBoxClick = () => {
-        fileInputRef.current?.click()
-    }
+    const handleBoxClick = () => fileInputRef.current?.click()
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFile = e.target.files?.[0] || null
@@ -293,8 +280,8 @@ function UploadBox({
             <div
                 onClick={handleBoxClick}
                 className={cn(
-                    "group relative flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed bg-white p-2 transition-all cursor-pointer overflow-hidden min-h-[120px]",
-                    file ? "border-primary/50 bg-primary/[0.02]" : "border-muted hover:border-primary/40 hover:bg-primary/5",
+                    "group relative flex flex-col items-center justify-center gap-4 rounded-[24px] border-2 border-dashed bg-card p-4 transition-all cursor-pointer overflow-hidden min-h-[140px]",
+                    file ? "border-primary/40 bg-primary/[0.01]" : "border-muted hover:border-primary/20 hover:bg-primary/[0.01]",
                     error && "border-destructive/50 bg-destructive/[0.02]"
                 )}
             >
@@ -308,7 +295,7 @@ function UploadBox({
 
                 {previewUrl ? (
                     <div className="relative h-full w-full group/preview">
-                        <div className="relative aspect-video w-full overflow-hidden rounded-lg">
+                        <div className="relative aspect-video w-full overflow-hidden rounded-xl border border-border">
                             <Image
                                 src={previewUrl}
                                 alt="Preview"
@@ -316,24 +303,24 @@ function UploadBox({
                                 className="object-cover"
                             />
                         </div>
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover/preview:opacity-100">
-                            <p className="text-[10px] font-bold text-white uppercase tracking-wider">Change Image</p>
+                        <div className="absolute inset-x-0 bottom-0 flex h-8 items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover/preview:opacity-100">
+                            <p className="text-[9px] font-bold text-white uppercase tracking-wider">Change</p>
                         </div>
                         <button
                             type="button"
                             onClick={removeFile}
-                            className="absolute -top-1 -right-1 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-white text-destructive shadow-md hover:scale-110 active:scale-95 transition-all border border-border"
+                            className="absolute -top-1 -right-1 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-white text-destructive shadow-lg hover:scale-110 transition-all border border-border"
                         >
-                            <X className="h-3 w-3" />
+                            <X className="h-3.5 w-3.5" />
                         </button>
                     </div>
                 ) : (
-                    <div className="flex flex-col items-center gap-2 py-4">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted/50 transition-colors group-hover:bg-primary/10">
-                            <Icon className="h-5 w-5 text-muted-foreground transition-colors group-hover:text-primary" />
+                    <div className="flex flex-col items-center gap-3">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/5 transition-colors group-hover:bg-primary/10">
+                            <Icon className="h-6 w-6 text-primary/80 transition-colors group-hover:text-primary" />
                         </div>
-                        <div className="text-center px-4">
-                            <p className="text-[11px] font-bold text-foreground uppercase tracking-tight leading-tight">{label}</p>
+                        <div className="text-center">
+                            <p className="text-[11px] font-bold text-foreground uppercase tracking-tight">{label}</p>
                             <p className="text-[10px] text-muted-foreground mt-1">{info}</p>
                         </div>
                     </div>

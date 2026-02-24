@@ -1,107 +1,137 @@
 "use client"
 
 import Link from "next/link"
-import { Shield, Users, Home, Settings, ArrowRight, MessageCircle } from "lucide-react"
+import Image from "next/image"
+import { useRouter } from "next/navigation"
+import {
+    CheckCircle2,
+    ArrowRight,
+    Shield,
+    Users,
+    Zap,
+    LayoutDashboard,
+    ArrowLeft
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+
+const features = [
+    {
+        title: "Verified Tenants",
+        description: "Review comprehensive tenant profiles and background checks.",
+        icon: Shield,
+        color: "bg-blue-500/10 text-blue-600",
+    },
+    {
+        title: "Smart Management",
+        description: "Handle rents, maintenance, and contracts in one place.",
+        icon: LayoutDashboard,
+        color: "bg-emerald-500/10 text-emerald-600",
+    },
+    {
+        title: "Reach More People",
+        description: "Your listings are showcased to thousands of verified renters.",
+        icon: Users,
+        color: "bg-purple-500/10 text-purple-600",
+    },
+    {
+        title: "Fast Onboarding",
+        description: "Set up your profile and list your first house in minutes.",
+        icon: Zap,
+        color: "bg-amber-500/10 text-amber-600",
+    }
+]
 
 export default function OwnerOnboardingWelcomePage() {
-    const features = [
-        {
-            icon: Shield,
-            title: "Verified Houses",
-            description: "All property listings must pass our physical verification standards.",
-            iconColor: "text-orange-500",
-            bgColor: "bg-orange-50",
-        },
-        {
-            icon: Settings,
-            title: "Owner Control",
-            description: "You maintain full authority over your property management dashboard.",
-            iconColor: "text-blue-500",
-            bgColor: "bg-blue-50",
-        },
-        {
-            icon: Users,
-            title: "Agent Hierarchy",
-            description: "Agents work specifically under owner-defined guidelines and tasks.",
-            iconColor: "text-orange-600",
-            bgColor: "bg-orange-100/50",
-        },
-        {
-            icon: Home,
-            title: "One House Listing",
-            description: "Single listing per physical property for data integrity and clarity.",
-            iconColor: "text-[#ef5413]",
-            bgColor: "bg-[#ef5413]/5",
-        },
-    ]
+    const router = useRouter()
 
     return (
-        <div className="mx-auto max-w-2xl px-4 py-4 lg:py-8">
-            <div className="overflow-hidden rounded-[24px] border border-border bg-card shadow-lg shadow-primary/5">
-                {/* Step Progress Header */}
-                <div className="border-b border-border/50 bg-muted/20 px-6 py-4">
-                    <div className="mb-3 flex items-center justify-between text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/80">
-                        <span>Step 1: Welcome</span>
-                        <span className="text-primary">1 / 5</span>
+        <div className="mx-auto max-w-4xl px-4 py-10 lg:py-16">
+            <div className="space-y-12">
+                {/* Header Section */}
+                <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                        <div className="space-y-1">
+                            <h3 className="text-sm font-bold text-primary uppercase tracking-tight">Onboarding</h3>
+                            <p className="text-[11px] text-muted-foreground">Step 1 of 5</p>
+                        </div>
+                        <span className="text-sm font-bold text-primary">20%</span>
                     </div>
-                    <div className="h-1 w-full overflow-hidden rounded-full bg-muted">
+                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
                         <div className="h-full w-[20%] rounded-full bg-primary transition-all duration-500" />
                     </div>
+                    <p className="text-[12px] italic text-muted-foreground/80">
+                        "Welcome to the community of premium property owners."
+                    </p>
                 </div>
 
-                <div className="p-6 lg:p-8">
-                    {/* Hero Content */}
-                    <div className="flex flex-col items-center text-center">
-                        <h1 className="mb-2 text-xl font-medium tracking-tight text-foreground lg:text-xl">
-                            Welcome, Owner
-                        </h1>
-                        <p className="mb-8 max-w-md text-balance text-sm text-muted-foreground leading-relaxed">
-                            Let&apos;s set up your profile and properties on Tanzania&apos;s most trusted rental platform.
-                        </p>
+                <div className="space-y-10">
+                    {/* Hero Section */}
+                    <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+                        <div className="space-y-8">
+                            <div className="space-y-4">
+                                <h1 className="text-4xl font-bold tracking-tight text-foreground lg:text-5xl">
+                                    Manage your property with confidence.
+                                </h1>
+                                <p className="text-sm leading-relaxed text-muted-foreground">
+                                    Nikupangishe provides you with the professional tools you need to list, manage, and grow your rental business seamlessly.
+                                </p>
+                            </div>
 
-                        {/* Feature Grid */}
-                        <div className="grid w-full gap-3 sm:grid-cols-2 mb-8">
-                            {features.map((feature, idx) => (
-                                <div
-                                    key={idx}
-                                    className="flex items-start gap-3 rounded-xl border border-border/40 bg-muted/5 p-4 text-left transition-all hover:bg-muted/10"
-                                >
-                                    <div className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-lg", feature.bgColor)}>
-                                        <feature.icon className={cn("h-4 w-4", feature.iconColor)} />
+                            <div className="grid gap-6">
+                                {features.map((feature, idx) => (
+                                    <div key={idx} className="flex gap-4">
+                                        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${feature.color}`}>
+                                            <feature.icon className="h-5 w-5" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <h3 className="text-[13px] font-bold text-foreground uppercase tracking-tight">{feature.title}</h3>
+                                            <p className="text-[11px] text-muted-foreground leading-relaxed">{feature.description}</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h3 className="mb-0.5 text-[11px] font-bold text-foreground uppercase tracking-tight">{feature.title}</h3>
-                                        <p className="text-[10px] leading-snug text-muted-foreground line-clamp-2">
-                                            {feature.description}
-                                        </p>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="relative aspect-square overflow-hidden rounded-[32px] border border-border bg-muted shadow-2xl">
+                            <Image
+                                src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=1000&auto=format&fit=crop"
+                                alt="Modern Property"
+                                fill
+                                className="object-cover transition-transform duration-700 hover:scale-110"
+                            />
+                            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-8">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white">
+                                        <CheckCircle2 className="h-5 w-5" />
+                                    </div>
+                                    <div className="text-white">
+                                        <p className="text-xs font-bold uppercase tracking-widest">Premium Partner</p>
+                                        <p className="text-[10px] opacity-80">Join 500+ Top Owners</p>
                                     </div>
                                 </div>
-                            ))}
+                            </div>
                         </div>
+                    </div>
 
-                        {/* Main Action Component */}
-                        <div className="relative w-full max-w-[280px]">
-                            <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-primary/30 to-primary/10 opacity-40 blur-lg" />
-                            <Button
-                                asChild
-                                className="relative h-11 w-full rounded-xl bg-primary text-sm font-medium text-white shadow-lg transition-all hover:bg-primary/90 active:scale-[0.98] group"
-                            >
-                                <Link href="/onboarding/owner/details">
-                                    <span>Get Started</span>
-                                    <ArrowRight className="absolute right-5 top-1/2 -translate-y-1/2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                                </Link>
-                            </Button>
-                        </div>
-
-                        <div className="mt-6 flex items-center gap-2 text-[11px] font-medium text-muted-foreground">
-                            <span>Need help?</span>
-                            <Link href="#" className="flex items-center gap-1 text-primary hover:underline transition-colors">
-                                <MessageCircle className="h-3 w-3" />
-                                Support
+                    {/* Footer Actions */}
+                    <div className="flex items-center justify-between pt-10 border-t border-border/50">
+                        <button
+                            type="button"
+                            onClick={() => router.push("/")}
+                            className="flex items-center gap-2 text-sm font-bold text-muted-foreground hover:text-foreground transition-colors group"
+                        >
+                            <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+                            <span>Exit</span>
+                        </button>
+                        <Button
+                            asChild
+                            className="h-12 rounded-xl bg-primary px-12 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98]"
+                        >
+                            <Link href="/onboarding/owner/details">
+                                <span>Get Started</span>
+                                <ArrowRight className="ml-2 h-4 w-4" />
                             </Link>
-                        </div>
+                        </Button>
                     </div>
                 </div>
             </div>
