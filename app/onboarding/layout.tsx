@@ -24,13 +24,6 @@ export default function OnboardingLayout({
                     </Link>
 
                     <div className="flex items-center gap-4">
-                        <div className="hidden items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-bold text-amber-700 sm:flex">
-                            <Info className="h-3 w-3" />
-                            <span>Not submitted</span>
-                        </div>
-                        <Button variant="outline" size="sm" className="rounded-xl border-muted/20 text-muted-foreground hover:bg-muted/50 hover:text-foreground">
-                            Save & Finish Later
-                        </Button>
                     </div>
                 </div>
             </header>
