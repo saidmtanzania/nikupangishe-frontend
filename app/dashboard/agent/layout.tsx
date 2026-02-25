@@ -19,7 +19,7 @@ export default function AgentDashboardLayout({
                 <DashboardSidebar role="agent" userName={userName} />
 
                 {/* Dynamic Content Container */}
-                <main className="flex-1 pl-[260px] h-screen overflow-y-auto custom-scrollbar">
+                <main className="flex-1 h-screen overflow-y-auto custom-scrollbar">
                     {children}
                 </main>
             </div>

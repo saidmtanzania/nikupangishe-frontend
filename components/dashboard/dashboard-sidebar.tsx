@@ -6,7 +6,10 @@ import { cn } from "@/lib/utils"
 import {
   LayoutDashboard,
   Home,
+  PlusCircle,
   Users,
+  Calendar,
+  ClipboardList,
   FileText,
   Shield,
   Settings
@@ -19,10 +22,13 @@ interface NavItem {
 }
 
 const ownerNav: NavItem[] = [
-  { href: "/dashboard/owner", label: "Overview", icon: LayoutDashboard },
+  { href: "/dashboard/owner", label: "Dashboard", icon: LayoutDashboard },
   { href: "/dashboard/owner/houses", label: "My Houses", icon: Home },
+  { href: "/dashboard/owner/houses/new", label: "Add House", icon: PlusCircle },
   { href: "/dashboard/owner/agents", label: "Agents", icon: Users },
-  { href: "/dashboard/owner/verification", label: "Verification", icon: Shield },
+  { href: "/dashboard/owner/viewings", label: "Viewings", icon: Calendar },
+  { href: "/dashboard/owner/tenancies", label: "Tenancies", icon: ClipboardList },
+  { href: "/dashboard/owner/verification", label: "Trust Center", icon: Shield },
 ]
 
 const agentNav: NavItem[] = [
@@ -51,7 +57,7 @@ export function DashboardSidebar({ role, userName }: DashboardSidebarProps) {
   const badgeLabel = role === "owner" ? "Premium Owner" : role === "agent" ? "Verified Agent" : "Gold Tenant"
 
   return (
-    <aside className="fixed h-full w-[260px] flex flex-col border-r border-primary/10 bg-white dark:bg-slate-900">
+    <aside className="sticky top-0 h-screen w-[260px] shrink-0 flex flex-col border-r border-primary/10 bg-white dark:bg-slate-900 shadow-sm">
       {/* Logo Section */}
       <div className="p-6">
         <Link href="/" className="flex items-center gap-3">
