@@ -42,7 +42,7 @@ export default function OwnerDashboard() {
           <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10 px-4">
             <div>
               <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Karibu Tena, Samuel</h2>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage your Kenyan and Nigerian property portfolio.</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage your Tanzanian property portfolio.</p>
             </div>
             <div className="flex items-center gap-3">
               <button className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all hover:bg-slate-50">
@@ -81,7 +81,7 @@ export default function OwnerDashboard() {
                 <div className="flex justify-between items-center mb-6">
                   <div>
                     <p className="text-[10px] text-slate-400 uppercase tracking-tight font-bold">Total Rent Collected</p>
-                    <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-0.5">KSh 450,000 <span className="text-xs font-bold text-emerald-500 ml-2">+12% vs last month</span></h3>
+                    <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-0.5">TZS 4,500,000 <span className="text-xs font-bold text-emerald-500 ml-2">+12% vs last month</span></h3>
                   </div>
                   <div className="flex gap-2">
                     <button className="size-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-400 hover:text-primary hover:border-primary/30 hover:bg-primary/5 transition-all active:scale-90">
@@ -113,27 +113,27 @@ export default function OwnerDashboard() {
                 <PropertyCardV3
                   image="https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=1000"
                   name="The Palms Apartments - Unit 4B"
-                  location="Kilimani, Nairobi"
-                  price="KSh 85,000"
+                  location="Masaki, Dar es Salaam"
+                  price="TZS 850,000"
                   period="/mo"
                   status="Rented"
                   statusColor="bg-emerald-500"
                 />
                 <PropertyCardV3
                   image="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1000"
-                  name="Lekki Gardens Phase II"
-                  location="Lekki, Lagos"
-                  price="₦ 2,500,000"
-                  period="/yr"
+                  name="Mount Meru View Estate"
+                  location="Sakina, Arusha"
+                  price="TZS 1,200,000"
+                  period="/mo"
                   status="Listed"
                   statusColor="bg-primary"
                   editable
                 />
                 <PropertyCardV3
                   image="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1000"
-                  name="Nyali Breezes - Penthouse"
-                  location="Mombasa, Kenya"
-                  price="KSh 120,000"
+                  name="Dodoma Capital Heights"
+                  location="Area D, Dodoma"
+                  price="TZS 750,000"
                   period="/mo"
                   status="Under Review"
                   statusColor="bg-amber-500"
