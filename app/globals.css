@@ -139,7 +139,7 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #ffbd9d;
+  background: #ffeadc;
   border-radius: 10px;
 }
 
@@ -150,7 +150,7 @@
 /* Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #ffbd9d transparent;
+  scrollbar-color: #ffeadc transparent;
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
