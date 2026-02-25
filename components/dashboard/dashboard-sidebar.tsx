@@ -51,7 +51,7 @@ export function DashboardSidebar({ role, userName }: DashboardSidebarProps) {
   const supportItems = sidebarSupport
 
   return (
-    <aside className="sticky top-0 flex h-screen w-[260px] flex-col border-r border-border/40 bg-white transition-all">
+    <aside className="fixed h-full w-[260px] flex flex-col border-r border-border/40 bg-white">
       {/* Logo Section */}
       <div className="flex h-20 items-center px-6">
         <Link href="/" className="flex items-center gap-3">

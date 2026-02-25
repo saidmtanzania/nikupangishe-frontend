@@ -33,10 +33,10 @@ export default function OwnerDashboard() {
 
   return (
     <div className="min-h-screen w-full bg-[#f8fbff] flex justify-center">
-      <div className="flex w-full max-w-[1540px] px-4 sm:px-6 lg:px-8">
+      <div className="relative flex w-full max-w-[1540px] px-4 sm:px-6 lg:px-8">
         <DashboardSidebar role="owner" userName={userName} />
 
-        <main className="flex-1 min-w-0">
+        <main className="flex-1 pl-[260px]">
           <Header minimal={true} title="Owner Dashboard" />
 
           <div className="max-w-6xl mx-auto space-y-8 px-8 pb-12 mt-8">
