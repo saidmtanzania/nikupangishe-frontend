@@ -115,7 +115,7 @@ export default function TenantDashboard() {
               {/* Exchange Requests */}
               <section className="bg-white dark:bg-slate-900 rounded-xl p-6 border border-slate-100 shadow-sm">
                 <h3 className="text-lg font-bold mb-6">Exchange Requests</h3>
-                <div className="space-y-3">
+                <div className="space-y-3 max-h-[360px] overflow-y-auto pr-2 custom-scrollbar">
                   {tenantExchanges.map(ex => (
                     <div key={ex.id} className="p-4 bg-slate-50/30 rounded-xl border border-border flex items-center justify-between">
                       <div className="flex items-center gap-3">

@@ -82,7 +82,7 @@ export default function AgentDashboard() {
               {/* Upcoming Viewings */}
               <section className="bg-white dark:bg-slate-900 rounded-xl p-6 border border-slate-100 shadow-sm">
                 <h3 className="text-lg font-bold mb-6">Upcoming Viewings</h3>
-                <div className="space-y-4">
+                <div className="space-y-4 max-h-[320px] overflow-y-auto pr-2 custom-scrollbar">
                   {agentViewings.map((viewing) => (
                     <ViewingItem
                       key={viewing.id}
@@ -101,7 +101,7 @@ export default function AgentDashboard() {
                   <h3 className="text-lg font-bold">Commission History</h3>
                   <button className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-1 rounded-md uppercase tracking-wider">View Ledger</button>
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-3 max-h-[320px] overflow-y-auto pr-2 custom-scrollbar">
                   {agentCommissions.map((commission) => (
                     <CommissionEntry
                       key={commission.id}

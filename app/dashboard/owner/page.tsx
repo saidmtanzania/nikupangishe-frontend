@@ -131,7 +131,7 @@ export default function OwnerDashboard() {
                     </select>
                   </div>
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-3 max-h-[420px] overflow-y-auto pr-2 custom-scrollbar">
                   {mockUsers.filter(u => u.role === "agent").map(agent => (
                     <AgentItem
                       key={agent.id}
@@ -146,7 +146,7 @@ export default function OwnerDashboard() {
               {/* Tenant Approval Queue */}
               <section className="bg-white dark:bg-slate-900 rounded-xl p-6 border border-slate-100 shadow-sm">
                 <h3 className="text-lg font-bold mb-6">Tenant Approval Queue</h3>
-                <div className="space-y-4">
+                <div className="space-y-4 max-h-[420px] overflow-y-auto pr-2 custom-scrollbar">
                   {mockExchangeRequests.map(req => (
                     <TenantApplicant
                       key={req.id}
