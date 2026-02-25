@@ -97,7 +97,7 @@ export default function OwnerDashboard() {
             <section>
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-bold tracking-tight text-slate-900">My Properties</h3>
-                <Link className="text-primary text-xs font-bold hover:underline" href="#">View All</Link>
+                <Link className="text-primary text-xs font-bold hover:underline" href="/dashboard/owner/houses">View All</Link>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {ownerProperties.map((property) => (

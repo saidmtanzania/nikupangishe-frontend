@@ -51,16 +51,16 @@ export function DashboardSidebar({ role, userName }: DashboardSidebarProps) {
   const badgeLabel = role === "owner" ? "Premium Owner" : role === "agent" ? "Verified Agent" : "Gold Tenant"
 
   return (
-    <aside className="fixed h-full w-[260px] flex flex-col border-r border-primary/10 bg-white dark:bg-slate-900 transition-all">
+    <aside className="fixed h-full w-[260px] flex flex-col border-r border-primary/10 bg-white dark:bg-slate-900">
       {/* Logo Section */}
       <div className="p-6">
         <Link href="/" className="flex items-center gap-3">
-          <div className="size-10 bg-primary rounded-lg flex items-center justify-center text-white shadow-lg shadow-primary/20">
-            <Home className="h-6 w-6" />
+          <div className="size-9 bg-primary rounded-lg flex items-center justify-center text-white">
+            <span className="font-bold italic">N</span>
           </div>
           <div>
             <h1 className="text-lg font-bold leading-none text-slate-900 dark:text-white">Nikupangishe</h1>
-            <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-tight">{roleLabel} Panel</p>
+            <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-tight">Rental Platform</p>
           </div>
         </Link>
       </div>
