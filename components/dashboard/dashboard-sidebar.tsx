@@ -25,17 +25,11 @@ interface NavItem {
 }
 
 const ownerNav: NavItem[] = [
-  { href: "/dashboard/owner", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/dashboard/owner/houses", label: "Houses", icon: Home },
-  { href: "/dashboard/owner/add", label: "Add House", icon: PlusCircle },
-  { href: "/dashboard/owner/agents", label: "Agents", icon: Users },
-  { href: "/dashboard/owner/viewings", label: "Viewings", icon: Eye },
-  { href: "/dashboard/owner/tenancies", label: "Tenancies", icon: FileText },
-]
-
-const sidebarSupport: NavItem[] = [
-  { href: "/dashboard/owner/trust", label: "Trust Center", icon: Shield },
-  { href: "/dashboard/owner/settings", label: "Settings", icon: Settings },
+  { href: "/dashboard/owner", label: "Overview", icon: LayoutDashboard },
+  { href: "/dashboard/owner/houses", label: "My Houses", icon: Home },
+  { href: "/dashboard/owner/agents", label: "Agent Management", icon: Users },
+  { href: "/dashboard/owner/payments", label: "Rent Payments", icon: FileText },
+  { href: "/dashboard/owner/verification", label: "Verification", icon: Shield },
 ]
 
 interface DashboardSidebarProps {
@@ -48,92 +42,58 @@ export function DashboardSidebar({ role, userName }: DashboardSidebarProps) {
 
   // For now, we only have the owner design specific
   const navItems = role === "owner" ? ownerNav : ownerNav // Fallback for demo
-  const supportItems = sidebarSupport
 
   return (
-    <aside className="fixed h-full w-[260px] flex flex-col border-r border-border/40 bg-white">
+    <aside className="fixed h-full w-[260px] flex flex-col border-r border-primary/10 bg-white dark:bg-slate-900 transition-all">
       {/* Logo Section */}
-      <div className="flex h-20 items-center px-6">
+      <div className="p-6">
         <Link href="/" className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-primary shadow-lg shadow-primary/20">
-            <span className="text-xl font-black text-white italic">N</span>
+          <div className="size-10 bg-primary rounded-lg flex items-center justify-center text-white shadow-lg shadow-primary/20">
+            <Home className="h-6 w-6" />
           </div>
-          <div className="flex flex-col">
-            <span className="text-sm font-bold tracking-tight text-foreground uppercase">Nikupangishe</span>
-            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.1em]">Owner Portal</span>
+          <div>
+            <h1 className="text-lg font-bold leading-none text-slate-900 dark:text-white">Nikupangishe</h1>
+            <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-tight">Owner Dashboard</p>
           </div>
         </Link>
       </div>
 
       {/* Navigation Content */}
-      <div className="flex flex-1 flex-col justify-between p-4 overflow-y-auto">
-        <div className="space-y-8">
-          {/* Main Nav */}
-          <nav className="space-y-1">
-            {navItems.map((item) => {
-              const isActive = pathname === item.href
-              const Icon = item.icon
-              return (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className={cn(
-                    "group flex items-center gap-3 rounded-[14px] px-4 py-3 text-[13px] font-bold transition-all duration-200",
-                    isActive
-                      ? "bg-primary/[0.04] text-primary"
-                      : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
-                  )}
-                >
-                  <Icon className={cn("h-[18px] w-[18px]", isActive ? "text-primary" : "text-muted-foreground/60 transition-colors group-hover:text-foreground")} />
-                  <span>{item.label}</span>
-                  {isActive && <div className="ml-auto h-1.5 w-1.5 rounded-full bg-primary" />}
-                </Link>
-              )
-            })}
-          </nav>
+      <nav className="flex-1 px-4 space-y-1 overflow-y-auto mt-2">
+        {navItems.map((item) => {
+          const isActive = pathname === item.href
+          const Icon = item.icon
+          return (
+            <Link
+              key={item.label}
+              href={item.href}
+              className={cn(
+                "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
+                isActive
+                  ? "bg-primary/10 text-primary"
+                  : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-foreground"
+              )}
+            >
+              <Icon className={cn("h-5 w-5", isActive ? "text-primary" : "text-slate-400 group-hover:text-foreground")} />
+              <span>{item.label}</span>
+            </Link>
+          )
+        })}
+      </nav>
 
-          {/* Support Section */}
-          <div className="space-y-3">
-            <p className="px-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/40">Support</p>
-            <nav className="space-y-1">
-              {supportItems.map((item) => {
-                const isActive = pathname === item.href
-                const Icon = item.icon
-                return (
-                  <Link
-                    key={item.label}
-                    href={item.href}
-                    className={cn(
-                      "group flex items-center gap-3 rounded-[14px] px-4 py-3 text-[13px] font-bold transition-all duration-200",
-                      isActive
-                        ? "bg-primary/[0.04] text-primary"
-                        : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
-                    )}
-                  >
-                    <Icon className={cn("h-[18px] w-[18px]", isActive ? "text-primary" : "text-muted-foreground/60 transition-colors group-hover:text-foreground")} />
-                    <span>{item.label}</span>
-                  </Link>
-                )
-              })}
-            </nav>
-          </div>
-        </div>
-
-        {/* User Profile Footer */}
-        <div className="mt-8 border-t border-border/40 pt-6 px-2">
-          <div className="flex items-center gap-3 p-2 rounded-2xl hover:bg-muted/30 transition-colors cursor-pointer group">
-            <div className="relative h-10 w-10 shrink-0">
-              <div className="h-full w-full rounded-full bg-amber-100 flex items-center justify-center overflow-hidden border-2 border-white shadow-sm">
-                <span className="text-sm font-bold text-amber-700">JM</span>
-              </div>
-              <div className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-white bg-emerald-500 shadow-sm" />
+      {/* User Profile Footer */}
+      <div className="p-4 border-t border-slate-100 dark:border-slate-800">
+        <div className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer group">
+          <div className="relative h-8 w-8 shrink-0">
+            <div className="h-full w-full rounded-full bg-slate-200 flex items-center justify-center overflow-hidden border border-white shadow-sm">
+              <span className="text-[10px] font-bold text-slate-600">SO</span>
             </div>
-            <div className="flex flex-col min-w-0">
-              <p className="text-[13px] font-bold text-foreground truncate">{userName}</p>
-              <span className="text-[10px] font-medium text-muted-foreground">Premium Owner</span>
-            </div>
-            <MoreVertical className="ml-auto h-4 w-4 text-muted-foreground/40 transition-colors group-hover:text-foreground" />
           </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-slate-900 dark:text-white truncate">Samuel Okoro</p>
+            <p className="text-[10px] font-medium text-slate-500 truncate">Premium Owner</p>
+          </div>
+          <Settings className="h-4 w-4 text-slate-400 transition-colors group-hover:text-slate-900" />
         </div>
       </div>
     </aside>

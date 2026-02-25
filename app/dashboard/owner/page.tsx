@@ -17,287 +17,280 @@ import {
   CheckCircle2,
   Calendar,
   ChevronRight,
+  ChevronLeft,
   ArrowRight,
   Star,
   DollarSign,
   FileText,
-  Wrench
+  Wrench,
+  Download
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 
-import { Header } from "@/components/layout/header"
 
 export default function OwnerDashboard() {
-  const userName = "James Mckinsey"
+  const userName = "Samuel Okoro"
 
   return (
-    <div className="min-h-screen w-full bg-[#f8fbff] flex justify-center">
+    <div className="min-h-screen w-full bg-[#f8f6f6] dark:bg-slate-950 flex justify-center">
       <div className="relative flex w-full max-w-[1540px] px-4 sm:px-6 lg:px-8">
         <DashboardSidebar role="owner" userName={userName} />
 
-        <main className="flex-1 pl-[260px]">
-          <Header minimal={true} title="Owner Dashboard" />
+        <main className="flex-1 pl-[260px] py-12">
+          {/* Dashboard Header */}
+          <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10 px-4">
+            <div>
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Karibu Tena, Samuel</h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage your Kenyan and Nigerian property portfolio.</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <button className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all hover:bg-slate-50">
+                <Download className="h-4 w-4" /> Export Data
+              </button>
+              <button className="bg-primary text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm transition-all hover:bg-primary/90 active:scale-95">
+                <Plus className="h-4 w-4" /> List New Property
+              </button>
+            </div>
+          </header>
 
-          <div className="max-w-6xl mx-auto space-y-8 px-8 pb-12 mt-8">
-            {/* Verification Alert Banner */}
-            <div className="group relative overflow-hidden rounded-[24px] border border-amber-100 bg-white p-6 shadow-sm transition-all hover:shadow-md">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-500">
-                    <Clock className="h-6 w-6" />
+          <div className="space-y-8 px-4 pb-20">
+            {/* Top Grid: Verification & Revenue */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Profile Verification Card */}
+              <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-primary/5 shadow-sm lg:col-span-1">
+                <div className="flex justify-between items-start mb-4">
+                  <h3 className="font-bold text-slate-900 dark:text-white">Profile Verification</h3>
+                  <span className="bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded-full">75% Complete</span>
+                </div>
+                <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full mb-4">
+                  <div className="bg-primary h-1.5 rounded-full transition-all duration-1000" style={{ width: '75%' }}></div>
+                </div>
+                <ul className="space-y-3">
+                  <VerificationStep icon={CheckCircle2} label="Phone & Email Verified" completed />
+                  <VerificationStep icon={CheckCircle2} label="Bank Account Linked" completed />
+                  <VerificationStep icon={Clock} label="Complete Identity Check (KYC)" />
+                </ul>
+                <button className="w-full mt-6 py-2.5 border border-primary text-primary text-xs font-bold rounded-lg hover:bg-primary/5 transition-all">
+                  Finish Verification
+                </button>
+              </div>
+
+              {/* Revenue Tracker Card */}
+              <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-primary/5 shadow-sm lg:col-span-2">
+                <div className="flex justify-between items-center mb-6">
+                  <div>
+                    <p className="text-[10px] text-slate-400 uppercase tracking-tight font-bold">Total Rent Collected</p>
+                    <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-0.5">KSh 450,000 <span className="text-xs font-bold text-emerald-500 ml-2">+12% vs last month</span></h3>
                   </div>
-                  <div className="space-y-1">
-                    <h3 className="text-sm font-bold text-foreground">Verification under review</h3>
-                    <p className="text-xs font-medium text-muted-foreground">Our team is reviewing your documents. You will be notified when approved.</p>
+                  <div className="flex gap-2">
+                    <button className="size-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-400 hover:text-slate-900 transition-colors">
+                      <ChevronLeft className="h-4 w-4" />
+                    </button>
+                    <button className="size-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-400 hover:text-slate-900 transition-colors">
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1.5">
-                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-500" />
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600">Pending</span>
+                <div className="flex items-end justify-between h-32 gap-3 mt-4">
+                  <RevenueBar label="JAN" height="40%" />
+                  <RevenueBar label="FEB" height="60%" />
+                  <RevenueBar label="MAR" height="55%" />
+                  <RevenueBar label="APR" height="85%" />
+                  <RevenueBar label="MAY" height="70%" />
+                  <RevenueBar label="JUN" height="100%" active />
                 </div>
               </div>
             </div>
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-4 gap-6">
-              <StatsCard
-                icon={Home}
-                label="Total Houses"
-                value="3"
-                color="blue"
-                details={
-                  <div className="flex gap-4 pt-1">
-                    <div className="flex flex-col">
-                      <span className="text-[10px] font-bold text-foreground">1</span>
-                      <span className="text-[8px] font-bold uppercase text-emerald-500">Published</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-[10px] font-bold text-foreground">1</span>
-                      <span className="text-[8px] font-bold uppercase text-muted-foreground/60">Pending</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-[10px] font-bold text-foreground">1</span>
-                      <span className="text-[8px] font-bold uppercase text-muted-foreground/60">Draft</span>
-                    </div>
-                  </div>
-                }
-              />
-              <StatsCard
-                icon={Eye}
-                label="Upcoming Viewings"
-                value="2"
-                color="purple"
-                tag="Active"
-              />
-              <StatsCard
-                icon={Key}
-                label="Active Tenancies"
-                value="1"
-                color="emerald"
-                tag="Current"
-              />
-              <StatsCard
-                icon={AlertCircle}
-                label="Pending Actions"
-                value="4"
-                color="rose"
-                tag="Urgent"
-              />
-            </div>
-
-            {/* Main Content Grid: Houses & Viewings */}
-            <div className="grid grid-cols-[1fr,320px] gap-8">
-              {/* My Houses Table Section */}
-              <div className="space-y-6">
-                <div className="flex items-center justify-between px-2">
-                  <h2 className="text-lg font-bold tracking-tight text-foreground">My Houses</h2>
-                  <Link href="#" className="text-xs font-bold text-primary hover:underline">View All</Link>
-                </div>
-                <div className="rounded-[28px] border border-border/40 bg-white p-2 shadow-sm">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-border/40 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/40">
-                        <th className="px-6 py-4 text-left">Property</th>
-                        <th className="px-6 py-4 text-left">Location</th>
-                        <th className="px-6 py-4 text-left">Status</th>
-                        <th className="px-4 py-4 text-left">Verification</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-border/40">
-                      <PropertyRow
-                        image="https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=2071&auto=format&fit=crop"
-                        name="Zanzibar Heights Villa"
-                        type="Luxury Rental"
-                        location="Westlands"
-                        status="Published"
-                        gps={true}
-                        ownerVerified={true}
-                      />
-                      <PropertyRow
-                        image="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2070&auto=format&fit=crop"
-                        name="Kilimani Oasis Condo"
-                        type="2BR Apartment"
-                        location="Kilimani"
-                        status="Pending Verification"
-                        gps={true}
-                        ownerVerified={false}
-                      />
-                    </tbody>
-                  </table>
-                </div>
+            {/* Property Grid */}
+            <section>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold tracking-tight text-slate-900">My Properties</h3>
+                <Link className="text-primary text-xs font-bold hover:underline" href="#">View All</Link>
               </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <PropertyCardV3
+                  image="https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=1000"
+                  name="The Palms Apartments - Unit 4B"
+                  location="Kilimani, Nairobi"
+                  price="KSh 85,000"
+                  period="/mo"
+                  status="Rented"
+                  statusColor="bg-emerald-500"
+                />
+                <PropertyCardV3
+                  image="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1000"
+                  name="Lekki Gardens Phase II"
+                  location="Lekki, Lagos"
+                  price="₦ 2,500,000"
+                  period="/yr"
+                  status="Listed"
+                  statusColor="bg-primary"
+                  editable
+                />
+                <PropertyCardV3
+                  image="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1000"
+                  name="Nyali Breezes - Penthouse"
+                  location="Mombasa, Kenya"
+                  price="KSh 120,000"
+                  period="/mo"
+                  status="Under Review"
+                  statusColor="bg-amber-500"
+                  subtitle="Pending inspection"
+                />
+              </div>
+            </section>
 
-              {/* Upcoming Viewings Section */}
-              <div className="space-y-6">
-                <h2 className="text-lg font-bold tracking-tight text-foreground px-2">Upcoming Viewings</h2>
+            {/* Bottom Grid: Agent & Tenant Queue */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+              {/* Assign Agent Feature */}
+              <section className="bg-white dark:bg-slate-900 rounded-xl p-6 border border-slate-100 shadow-sm relative overflow-hidden">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-lg font-bold">Assign Verified Agents</h3>
+                  <div className="relative">
+                    <select className="bg-slate-50 dark:bg-slate-800 border-none rounded-lg text-[10px] font-bold focus:ring-primary py-1.5 px-3 shadow-sm transition-all">
+                      <option>Lekki Gardens II</option>
+                      <option>The Palms Units</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <AgentItem name="Babatunde Adeniyi" stats="⭐ 4.9 (124 properties)" initials="BA" />
+                  <AgentItem name="Sarah Mwangi" stats="⭐ 4.8 (89 properties)" initials="SM" />
+                  <AgentItem name="Chinedu Okafor" stats="⭐ 4.7 (212 properties)" initials="CO" />
+                </div>
+              </section>
+
+              {/* Tenant Approval Queue */}
+              <section className="bg-white dark:bg-slate-900 rounded-xl p-6 border border-slate-100 shadow-sm">
+                <h3 className="text-lg font-bold mb-6">Tenant Approval Queue</h3>
                 <div className="space-y-4">
-                  <ViewingCard
-                    date="Oct 12"
-                    name="Alice Thompson"
-                    property="Zanzibar Heights • 10:30 AM"
+                  <TenantApplicant
+                    name="Fatima Yusuf"
+                    role="Software Engineer"
+                    property="Unit 4B"
+                    time="2 hours ago"
+                    initials="FY"
                   />
-                  <ViewingCard
-                    date="Oct 14"
-                    name="Mark Omondi"
-                    property="Kilimani Oasis • 02:15 PM"
-                    bg="white"
-                  />
-                  <ViewingCard
-                    date="Oct 15"
-                    name="Sarah Jenkins"
-                    property="Zanzibar Heights • 09:00 AM"
-                    bg="white"
+                  <TenantApplicant
+                    name="Kofi Mensah"
+                    role="Consultant"
+                    property="Lekki Gardens II"
+                    time="1 day ago"
+                    initials="KM"
                   />
                 </div>
-              </div>
+              </section>
             </div>
-
           </div>
         </main>
       </div>
     </div>
   )
 }
-
-function StatsCard({ icon: Icon, label, value, color, tag, details }: any) {
-  const colors = {
-    blue: "bg-blue-50 text-blue-500",
-    purple: "bg-purple-50 text-purple-500",
-    rose: "bg-rose-50 text-rose-500",
-    emerald: "bg-emerald-50 text-emerald-500",
-    amber: "bg-amber-50 text-amber-500",
-  }
-
+function VerificationStep({ icon: Icon, label, completed }: any) {
   return (
-    <Card className="overflow-hidden rounded-[26px] border border-border/40 bg-white shadow-sm transition-all hover:shadow-md">
-      <CardContent className="p-6">
-        <div className="flex items-start justify-between mb-4">
-          <div className={cn("flex h-10 w-10 items-center justify-center rounded-xl", colors[color as keyof typeof colors])}>
-            <Icon className="h-5 w-5" />
-          </div>
-          {tag && (
-            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">{tag}</span>
-          )}
-        </div>
-        <p className="text-[11px] font-bold uppercase tracking-tight text-muted-foreground/60">{label}</p>
-        <div className="flex items-baseline gap-2">
-          <h3 className="text-2xl font-black tracking-tight text-foreground">{value}</h3>
-        </div>
-        {details}
-      </CardContent>
-    </Card>
+    <li className="flex items-center gap-3 text-xs font-medium text-slate-600 dark:text-slate-400">
+      <Icon className={cn("h-4 w-4", completed ? "text-emerald-500" : "text-primary")} />
+      <span>{label}</span>
+    </li>
   )
 }
 
-function PropertyRow({ image, name, type, location, status, gps, ownerVerified }: any) {
+function RevenueBar({ label, height, active }: any) {
   return (
-    <tr className="group transition-colors hover:bg-muted/30">
-      <td className="px-6 py-5">
-        <div className="flex items-center gap-4">
-          <div className="relative h-12 w-12 overflow-hidden rounded-xl shadow-sm">
-            <Image src={image} alt={name} fill className="object-cover" />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-[13px] font-bold text-foreground leading-tight">{name}</span>
-            <span className="text-[10px] font-medium text-muted-foreground">{type}</span>
-          </div>
-        </div>
-      </td>
-      <td className="px-6 py-5">
-        <span className="text-[12px] font-medium text-muted-foreground">{location}</span>
-      </td>
-      <td className="px-6 py-5">
-        <Badge className={cn(
-          "rounded-full px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider",
-          status === "Published" ? "bg-emerald-50 text-emerald-600 hover:bg-emerald-50" : "bg-amber-50 text-amber-600 hover:bg-amber-50"
-        )}>
+    <div className="flex flex-col items-center flex-1 gap-2 h-full justify-end group">
+      <div
+        className={cn(
+          "w-full rounded-t-lg transition-all duration-1000 cursor-pointer",
+          active ? "bg-primary shadow-sm shadow-primary/10" : "bg-primary/20 dark:bg-primary/10"
+        )}
+        style={{ height }}
+      ></div>
+      <span className={cn("text-[10px] font-bold tracking-tight", active ? "text-primary" : "text-slate-400")}>{label}</span>
+    </div>
+  )
+}
+
+function PropertyCardV3({ image, name, location, price, period, status, statusColor, editable, subtitle }: any) {
+  return (
+    <div className="group bg-white dark:bg-slate-900 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm transition-all hover:shadow-md">
+      <div className="h-40 relative overflow-hidden">
+        <Image src={image} alt={name} fill className="object-cover transition-transform duration-500 group-hover:scale-105" />
+        <div className={cn("absolute top-3 right-3 text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tight shadow-sm", statusColor)}>
           {status}
-        </Badge>
-      </td>
-      <td className="px-4 py-5">
-        <div className="flex flex-col gap-1.5">
-          {gps && (
-            <div className="flex items-center gap-1.5">
-              <MapPin className="h-2.5 w-2.5 text-emerald-500 fill-emerald-500/20" />
-              <span className="text-[8px] font-black uppercase tracking-widest text-emerald-600">GPS Confirmed</span>
+        </div>
+      </div>
+      <div className="p-4">
+        <h4 className="font-bold text-slate-900 dark:text-white truncate text-base group-hover:text-primary transition-colors">{name}</h4>
+        <p className="text-xs text-slate-500 font-medium flex items-center gap-1.5 mt-1.5">
+          <MapPin className="h-3.5 w-3.5 text-slate-400" /> {location}
+        </p>
+        <div className="mt-4 flex items-center justify-between border-t border-slate-50/50 pt-3">
+          <div className="flex flex-col">
+            <span className="text-primary font-bold text-base">{price}</span>
+            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tight leading-none">{period}</span>
+          </div>
+          {editable ? (
+            <button className="text-[10px] font-bold text-slate-400 hover:text-primary transition-colors py-1.5 px-3 rounded-lg hover:bg-slate-50">Edit</button>
+          ) : subtitle ? (
+            <span className="text-[9px] font-bold italic text-amber-600 uppercase tracking-tight">{subtitle}</span>
+          ) : (
+            <div className="flex -space-x-1.5">
+              <div className="size-7 rounded-full border-2 border-white bg-slate-200 flex items-center justify-center text-[9px] font-bold text-slate-600 shadow-sm">JD</div>
+              <div className="size-7 rounded-full border-2 border-white bg-primary text-white flex items-center justify-center text-[9px] font-bold shadow-sm">+2</div>
             </div>
           )}
-          <div className="flex items-center gap-1.5">
-            <CheckCircle2 className={cn("h-2.5 w-2.5", ownerVerified ? "text-emerald-500 fill-emerald-500/20" : "text-amber-500")} />
-            <span className={cn("text-[8px] font-black uppercase tracking-widest leading-none", ownerVerified ? "text-emerald-600" : "text-amber-600")}>
-              {ownerVerified ? "Owner Verified" : "Owner Pending"}
-            </span>
-          </div>
         </div>
-      </td>
-    </tr>
-  )
-}
-
-function ViewingCard({ date, name, property, bg = "white" }: any) {
-  return (
-    <Link href="#" className={cn(
-      "flex items-center justify-between rounded-[24px] border border-border/30 p-4 transition-all hover:border-primary/20 hover:shadow-md",
-      bg === "white" ? "bg-white" : "bg-slate-50/50"
-    )}>
-      <div className="flex items-center gap-4">
-        <div className="flex flex-col items-center justify-center rounded-xl bg-[#f8fbff] border border-border/20 px-3 py-2 text-center">
-          <span className="text-[8px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 leading-tight">Oct</span>
-          <span className="text-sm font-black text-foreground">{date.split(" ")[1]}</span>
-        </div>
-        <div className="flex flex-col">
-          <span className="text-[13px] font-bold text-foreground">{name}</span>
-          <span className="text-[10px] font-bold text-muted-foreground/60 leading-tight">{property}</span>
-        </div>
-      </div>
-      <ChevronRight className="h-4 w-4 text-muted-foreground/30" />
-    </Link>
-  )
-}
-
-function ActivityItem({ icon: Icon, color, title, desc, time }: any) {
-  const colors = {
-    emerald: "bg-emerald-50 text-emerald-600",
-    blue: "bg-blue-50 text-blue-600",
-    amber: "bg-amber-50 text-amber-600",
-  }
-
-  return (
-    <div className="relative flex items-start gap-5">
-      <div className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl shadow-sm transition-transform hover:scale-110">
-        <div className={cn("absolute inset-0 rounded-xl opacity-100", colors[color as keyof typeof colors])} />
-        <Icon className="relative z-10 h-4.5 w-4.5" />
-      </div>
-      <div className="flex-1 space-y-1">
-        <div className="flex items-center justify-between">
-          <h4 className="text-[13px] font-bold text-foreground">{title}</h4>
-          <span className="text-[9px] font-bold tracking-widest text-muted-foreground/40">{time}</span>
-        </div>
-        <p className="text-[12px] font-medium leading-relaxed text-muted-foreground/70">{desc}</p>
       </div>
     </div>
   )
 }
 
+function AgentItem({ name, stats, initials }: any) {
+  return (
+    <div className="flex items-center justify-between p-3 rounded-xl border border-slate-50 dark:border-slate-800 hover:border-primary/20 hover:bg-slate-50/30 transition-all cursor-pointer group">
+      <div className="flex items-center gap-3">
+        <div className="size-9 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white flex items-center justify-center text-xs font-bold shadow-sm transition-transform group-hover:scale-105">
+          {initials}
+        </div>
+        <div>
+          <p className="text-sm font-bold text-slate-900 group-hover:text-primary transition-colors">{name}</p>
+          <p className="text-[10px] font-medium text-slate-400">{stats}</p>
+        </div>
+      </div>
+      <button className="bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase hover:bg-primary hover:text-white transition-all">Assign</button>
+    </div>
+  )
+}
+
+function TenantApplicant({ name, role, property, time, initials }: any) {
+  return (
+    <div className="p-4 bg-slate-50/30 dark:bg-slate-800/50 rounded-xl border border-slate-100/30">
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex gap-3">
+          <div className="size-11 rounded-lg bg-white dark:bg-slate-800 border border-slate-100 shadow-sm flex items-center justify-center text-sm font-bold text-slate-900 overflow-hidden shrink-0">
+            {initials}
+          </div>
+          <div>
+            <p className="text-sm font-bold text-slate-900">{name}</p>
+            <p className="text-[11px] font-medium text-slate-500">{role}</p>
+            <p className="text-[10px] font-bold text-primary mt-1 uppercase tracking-tight">Applied: {property}</p>
+          </div>
+        </div>
+        <div className="text-right">
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">{time}</span>
+        </div>
+      </div>
+      <div className="flex gap-2">
+        <button className="flex-1 py-2 bg-emerald-600 text-white text-[10px] font-bold rounded-lg uppercase tracking-tight hover:opacity-90 active:scale-95 transition-all">Approve</button>
+        <button className="flex-1 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-[10px] font-bold rounded-lg uppercase tracking-tight hover:bg-slate-50 active:scale-95 transition-all">Reject</button>
+        <button className="size-9 flex items-center justify-center border border-slate-200 dark:border-slate-600 rounded-lg hover:bg-white transition-all text-slate-400 hover:text-slate-900 shadow-sm">
+          <Eye className="h-4 w-4" />
+        </button>
+      </div>
+    </div>
+  )
+}
 
