@@ -84,10 +84,10 @@ export default function OwnerDashboard() {
                     <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-0.5">KSh 450,000 <span className="text-xs font-bold text-emerald-500 ml-2">+12% vs last month</span></h3>
                   </div>
                   <div className="flex gap-2">
-                    <button className="size-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-400 hover:text-slate-900 transition-colors">
+                    <button className="size-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-400 hover:text-primary hover:border-primary/30 hover:bg-primary/5 transition-all active:scale-90">
                       <ChevronLeft className="h-4 w-4" />
                     </button>
-                    <button className="size-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-400 hover:text-slate-900 transition-colors">
+                    <button className="size-8 flex items-center justify-center rounded-lg bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 hover:bg-primary hover:text-white transition-all shadow-sm active:scale-90">
                       <ChevronRight className="h-4 w-4" />
                     </button>
                   </div>
@@ -200,15 +200,28 @@ function VerificationStep({ icon: Icon, label, completed }: any) {
 
 function RevenueBar({ label, height, active }: any) {
   return (
-    <div className="flex flex-col items-center flex-1 gap-2 h-full justify-end group">
+    <div className="flex flex-col items-center flex-1 gap-3 h-full justify-end group">
       <div
         className={cn(
-          "w-full rounded-t-lg transition-all duration-1000 cursor-pointer",
-          active ? "bg-primary shadow-sm shadow-primary/10" : "bg-primary/20 dark:bg-primary/10"
+          "w-full rounded-lg transition-all duration-700 cursor-pointer relative overflow-hidden",
+          active
+            ? "bg-primary shadow-[0_8px_16px_-4px_rgba(236,84,19,0.3)]"
+            : "bg-slate-100 dark:bg-slate-800 hover:bg-slate-200"
         )}
         style={{ height }}
-      ></div>
-      <span className={cn("text-[10px] font-bold tracking-tight", active ? "text-primary" : "text-slate-400")}>{label}</span>
+      >
+        {active && (
+          <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
+        )}
+      </div>
+      <div className={cn(
+        "px-2.5 py-1 rounded-md text-[9px] font-bold transition-all shadow-sm border",
+        active
+          ? "bg-primary text-white border-primary shadow-primary/10"
+          : "bg-white text-slate-500 border-slate-100 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-400"
+      )}>
+        {label}
+      </div>
     </div>
   )
 }
