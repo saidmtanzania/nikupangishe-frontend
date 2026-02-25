@@ -83,3 +83,21 @@ export interface DashboardStats {
   change?: string
   changeType?: "positive" | "negative" | "neutral"
 }
+
+export interface Viewing {
+  id: string
+  agentId: string
+  tenantName: string
+  propertyTitle: string
+  time: string
+  status: "upcoming" | "completed" | "cancelled"
+}
+
+export interface Commission {
+  id: string
+  agentId: string
+  propertyTitle: string
+  amount: number
+  date: string
+  status: "paid" | "pending"
+}

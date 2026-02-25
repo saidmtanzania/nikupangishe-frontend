@@ -29,20 +29,20 @@ export function PropertyCard({
           {...(priority ? { priority: true } : { loading: "lazy" })}
         />
         {/* Badges */}
-        <div className="absolute left-3 top-3 flex gap-2">
+        <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
           {badge}
           {property.isOpenToExchange && (
-            <span className="inline-flex items-center rounded-full bg-primary px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-primary-foreground shadow-sm">
+            <span className="inline-flex items-center rounded-md bg-primary px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white shadow-sm">
               Swap
             </span>
           )}
           {property.isVerified && (
-            <span className="inline-flex items-center rounded-full bg-[#059669] px-2.5 py-1 text-xs font-medium text-[#ffffff]">
+            <span className="inline-flex items-center rounded-md bg-emerald-500 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-white shadow-sm">
               Verified
             </span>
           )}
           {property.isUnique && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-1 text-xs font-medium text-primary-foreground">
+            <span className="inline-flex items-center gap-1 rounded-md bg-indigo-600 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-white shadow-sm">
               <Star className="h-3 w-3" />
               Unique
             </span>

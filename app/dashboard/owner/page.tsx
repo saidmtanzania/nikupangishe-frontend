@@ -14,10 +14,13 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import { mockProperties, mockUsers, mockTenancies, mockExchangeRequests } from "@/lib/mock-data"
 
 
 export default function OwnerDashboard() {
-  const userName = "Samuel Okoro"
+  const owner = mockUsers.find((u) => u.id === "user-3")!
+  const userName = owner.name
+  const ownerProperties = mockProperties.filter(p => p.ownerId === owner.id)
 
   return (
     <div className="min-h-screen w-full bg-[#f8f6f6] dark:bg-slate-950 flex justify-center">
@@ -28,7 +31,7 @@ export default function OwnerDashboard() {
           {/* Dashboard Header */}
           <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10 px-4">
             <div>
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Karibu Tena, Samuel</h2>
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Karibu Tena, {userName.split(' ')[0]}</h2>
               <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage your Tanzanian property portfolio.</p>
             </div>
             <div className="flex items-center gap-3">
@@ -67,8 +70,8 @@ export default function OwnerDashboard() {
               <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-primary/5 shadow-sm lg:col-span-2">
                 <div className="flex justify-between items-center mb-6">
                   <div>
-                    <p className="text-[10px] text-slate-400 uppercase tracking-tight font-bold">Total Rent Collected</p>
-                    <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-0.5">TZS 4,500,000 <span className="text-xs font-bold text-emerald-500 ml-2">+12% vs last month</span></h3>
+                    <p className="text-[10px] text-slate-400 uppercase tracking-tight font-bold">Total Portfolio Value</p>
+                    <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-0.5">TZS {(ownerProperties.reduce((acc, p) => acc + p.price, 0)).toLocaleString()} <span className="text-xs font-bold text-emerald-500 ml-2">+12% vs last month</span></h3>
                   </div>
                   <div className="flex gap-2">
                     <button className="size-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-400 hover:text-primary hover:border-primary/30 hover:bg-primary/5 transition-all active:scale-90">
@@ -97,44 +100,19 @@ export default function OwnerDashboard() {
                 <Link className="text-primary text-xs font-bold hover:underline" href="#">View All</Link>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                <PropertyCardV3
-                  image="https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=1000"
-                  name="The Palms Apartments - Unit 4B"
-                  location="Masaki, Dar es Salaam"
-                  price="TZS 850,000"
-                  period="/mo"
-                  status="Rented"
-                  statusColor="bg-emerald-500"
-                />
-                <PropertyCardV3
-                  image="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1000"
-                  name="Mount Meru View Estate"
-                  location="Sakina, Arusha"
-                  price="TZS 1,200,000"
-                  period="/mo"
-                  status="Listed"
-                  statusColor="bg-primary"
-                  editable
-                />
-                <PropertyCardV3
-                  image="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1000"
-                  name="Dodoma Capital Heights"
-                  location="Area D, Dodoma"
-                  price="TZS 750,000"
-                  period="/mo"
-                  status="Under Review"
-                  statusColor="bg-amber-500"
-                  subtitle="Pending inspection"
-                />
-                <PropertyCardV3
-                  image="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=1000"
-                  name="Mbezi Beach Shoreline Villa"
-                  location="Mbezi Beach, Dar es Salaam"
-                  price="TZS 1,500,000"
-                  period="/mo"
-                  status="Rented"
-                  statusColor="bg-emerald-500"
-                />
+                {ownerProperties.map((property) => (
+                  <PropertyCardV3
+                    key={property.id}
+                    image={property.images[0]}
+                    name={property.title}
+                    location={`${property.location.neighborhood}, ${property.location.city}`}
+                    price={`TZS ${property.price.toLocaleString()}`}
+                    period="/mo"
+                    status={property.status.charAt(0).toUpperCase() + property.status.slice(1)}
+                    statusColor={property.status === "available" ? "bg-primary" : "bg-emerald-500"}
+                    editable={property.status === "available"}
+                  />
+                ))}
               </div>
             </section>
 
@@ -146,17 +124,22 @@ export default function OwnerDashboard() {
                   <h3 className="text-lg font-bold">Assign Verified Agents</h3>
                   <div className="relative">
                     <select className="bg-slate-50 dark:bg-slate-800 border-none rounded-lg text-[10px] font-bold focus:ring-primary py-1.5 px-3 shadow-sm transition-all outline-none cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700">
-                      <option>The Palms - Masaki</option>
-                      <option>Mount Meru Estate</option>
-                      <option>Capital Heights</option>
-                      <option>Shoreline Villa</option>
+                      <option>Select Property...</option>
+                      {ownerProperties.map(p => (
+                        <option key={p.id}>{p.title}</option>
+                      ))}
                     </select>
                   </div>
                 </div>
                 <div className="space-y-3">
-                  <AgentItem name="Babatunde Adeniyi" stats="⭐ 4.9 (124 properties)" initials="BA" />
-                  <AgentItem name="Sarah Mwangi" stats="⭐ 4.8 (89 properties)" initials="SM" />
-                  <AgentItem name="Chinedu Okafor" stats="⭐ 4.7 (212 properties)" initials="CO" />
+                  {mockUsers.filter(u => u.role === "agent").map(agent => (
+                    <AgentItem
+                      key={agent.id}
+                      name={agent.name}
+                      stats="⭐ 4.9 (Local Expert)"
+                      initials={agent.name.split(' ').map(n => n[0]).join('')}
+                    />
+                  ))}
                 </div>
               </section>
 
@@ -164,20 +147,16 @@ export default function OwnerDashboard() {
               <section className="bg-white dark:bg-slate-900 rounded-xl p-6 border border-slate-100 shadow-sm">
                 <h3 className="text-lg font-bold mb-6">Tenant Approval Queue</h3>
                 <div className="space-y-4">
-                  <TenantApplicant
-                    name="Fatima Yusuf"
-                    role="Software Engineer"
-                    property="Unit 4B"
-                    time="2 hours ago"
-                    initials="FY"
-                  />
-                  <TenantApplicant
-                    name="Kofi Mensah"
-                    role="Consultant"
-                    property="Lekki Gardens II"
-                    time="1 day ago"
-                    initials="KM"
-                  />
+                  {mockExchangeRequests.map(req => (
+                    <TenantApplicant
+                      key={req.id}
+                      name={req.fromTenantName}
+                      role="Verified Tenant"
+                      property={req.toPropertyTitle}
+                      time={req.createdAt}
+                      initials={req.fromTenantName.split(' ').map(n => n[0]).join('')}
+                    />
+                  ))}
                 </div>
               </section>
             </div>

@@ -21,9 +21,20 @@ interface NavItem {
 const ownerNav: NavItem[] = [
   { href: "/dashboard/owner", label: "Overview", icon: LayoutDashboard },
   { href: "/dashboard/owner/houses", label: "My Houses", icon: Home },
-  { href: "/dashboard/owner/agents", label: "Agent Management", icon: Users },
-  { href: "/dashboard/owner/payments", label: "Rent Payments", icon: FileText },
+  { href: "/dashboard/owner/agents", label: "Agents", icon: Users },
   { href: "/dashboard/owner/verification", label: "Verification", icon: Shield },
+]
+
+const agentNav: NavItem[] = [
+  { href: "/dashboard/agent", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard/agent/viewings", label: "Viewings", icon: Users },
+  { href: "/dashboard/agent/commissions", label: "Earnings", icon: FileText },
+]
+
+const tenantNav: NavItem[] = [
+  { href: "/dashboard/tenant", label: "Overview", icon: LayoutDashboard },
+  { href: "/dashboard/tenant/exchange", label: "Exchanges", icon: FileText },
+  { href: "/dashboard/tenant/verification", label: "Trust Score", icon: Shield },
 ]
 
 interface DashboardSidebarProps {
@@ -34,8 +45,10 @@ interface DashboardSidebarProps {
 export function DashboardSidebar({ role, userName }: DashboardSidebarProps) {
   const pathname = usePathname()
 
-  // For now, we only have the owner design specific
-  const navItems = role === "owner" ? ownerNav : ownerNav // Fallback for demo
+  const navItems = role === "owner" ? ownerNav : role === "agent" ? agentNav : tenantNav
+  const initials = userName.split(' ').map(n => n[0]).join('')
+  const roleLabel = role.charAt(0).toUpperCase() + role.slice(1)
+  const badgeLabel = role === "owner" ? "Premium Owner" : role === "agent" ? "Verified Agent" : "Gold Tenant"
 
   return (
     <aside className="fixed h-full w-[260px] flex flex-col border-r border-primary/10 bg-white dark:bg-slate-900 transition-all">
@@ -47,7 +60,7 @@ export function DashboardSidebar({ role, userName }: DashboardSidebarProps) {
           </div>
           <div>
             <h1 className="text-lg font-bold leading-none text-slate-900 dark:text-white">Nikupangishe</h1>
-            <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-tight">Owner Dashboard</p>
+            <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-tight">{roleLabel} Panel</p>
           </div>
         </Link>
       </div>
@@ -79,14 +92,14 @@ export function DashboardSidebar({ role, userName }: DashboardSidebarProps) {
       <div className="p-4 border-t border-slate-100 dark:border-slate-800">
         <div className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer group">
           <div className="relative h-8 w-8 shrink-0">
-            <div className="h-full w-full rounded-full bg-slate-200 flex items-center justify-center overflow-hidden border border-white shadow-sm">
-              <span className="text-[10px] font-bold text-slate-600">SO</span>
+            <div className="h-full w-full rounded-full bg-primary/10 flex items-center justify-center overflow-hidden border border-white shadow-sm">
+              <span className="text-[10px] font-bold text-primary">{initials}</span>
             </div>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-slate-900 dark:text-white truncate">Samuel Okoro</p>
+            <p className="text-sm font-bold text-slate-900 dark:text-white truncate">{userName}</p>
             <div className="mt-0.5">
-              <span className="text-[9px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded-md uppercase tracking-wider">Premium Owner</span>
+              <span className="text-[9px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded-md uppercase tracking-wider">{badgeLabel}</span>
             </div>
           </div>
           <Settings className="h-4 w-4 text-slate-400 transition-colors group-hover:text-slate-900" />

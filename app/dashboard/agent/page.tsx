@@ -1,179 +1,194 @@
 "use client"
 
 import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar"
-import { StatCard } from "@/components/dashboard/stat-card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { mockProperties, mockUsers } from "@/lib/mock-data"
-import { formatTZS } from "@/lib/utils"
+import { cn } from "@/lib/utils"
 import {
   Briefcase,
   Eye,
   DollarSign,
   Star,
   MapPin,
-  Shield,
-  Calendar,
   Clock,
+  Calendar,
+  ChevronRight,
+  ChevronLeft,
+  Plus,
+  Download
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
-
-const agent = mockUsers.find((u) => u.id === "user-5")!
-const assignedProperties = mockProperties.filter((p) => p.agentId === agent.id)
-
-const stats = [
-  { label: "Assigned Houses", value: assignedProperties.length, change: "+2 this month", changeType: "positive" as const },
-  { label: "Completed Viewings", value: 18, change: "+5 this week", changeType: "positive" as const },
-  { label: "Commission Earned", value: formatTZS(2400000), change: "+12%", changeType: "positive" as const },
-  { label: "Avg. Rating", value: "4.8", change: "from 23 reviews", changeType: "neutral" as const },
-]
-
-const statIcons = [
-  <Briefcase key="brief" className="h-5 w-5" />,
-  <Eye key="eye" className="h-5 w-5" />,
-  <DollarSign key="dollar" className="h-5 w-5" />,
-  <Star key="star" className="h-5 w-5" />,
-]
-
-const upcomingViewings = [
-  { id: 1, tenant: "Sarah Mbeki", property: "Modern 2BR in Masaki", date: "2026-02-25", time: "10:00 AM" },
-  { id: 2, tenant: "John Kamau", property: "3BR Villa in Mbezi Beach", date: "2026-02-25", time: "2:00 PM" },
-  { id: 3, tenant: "Fatima Hassan", property: "2BR Apartment in Upanga", date: "2026-02-26", time: "11:00 AM" },
-  { id: 4, tenant: "Peter Mushi", property: "3BR House in Mikocheni", date: "2026-02-27", time: "3:30 PM" },
-]
+import { mockProperties, mockUsers, mockViewings, mockCommissions } from "@/lib/mock-data"
 
 export default function AgentDashboard() {
+  const agent = mockUsers.find((u) => u.id === "user-5")!
+  const assignedProperties = mockProperties.filter((p) => p.agentId === agent.id)
+  const agentViewings = mockViewings.filter((v) => v.agentId === agent.id)
+  const agentCommissions = mockCommissions.filter((c) => c.agentId === agent.id)
+  const userName = agent.name
+
   return (
-    <>
-      <DashboardSidebar role="agent" userName={agent.name} />
-      <div className="flex-1 overflow-auto">
-        <div className="p-6 lg:p-8">
-          {/* Header */}
-          <div className="flex flex-col gap-1 mb-6">
-            <h1 className="text-2xl font-bold text-foreground">Agent Dashboard</h1>
-            <p className="text-sm text-muted-foreground">
-              Manage viewings, track commissions, and grow your portfolio
-            </p>
-          </div>
+    <div className="min-h-screen w-full bg-[#f8f6f6] dark:bg-slate-950 flex justify-center">
+      <div className="relative flex w-full max-w-[1540px] px-4 sm:px-6 lg:px-8">
+        <DashboardSidebar role="agent" userName={userName} />
 
-          {/* Stats */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 mb-8">
-            {stats.map((stat, i) => (
-              <StatCard key={stat.label} stat={stat} icon={statIcons[i]} />
-            ))}
-          </div>
+        <main className="flex-1 pl-[260px] py-12">
+          {/* Dashboard Header */}
+          <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10 px-4">
+            <div>
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Karibu Agent, {userName.split(' ')[0]}</h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage viewings, track commissions, and grow your portfolio.</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <button className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all hover:bg-slate-50">
+                <Download className="h-4 w-4" /> Export Report
+              </button>
+              <button className="bg-primary text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm transition-all hover:bg-primary/90 active:scale-95">
+                <Plus className="h-4 w-4" /> New Listing
+              </button>
+            </div>
+          </header>
 
-          {/* Assigned Properties */}
-          <div id="properties" className="mb-8">
-            <h2 className="text-lg font-semibold text-foreground mb-4">Assigned Properties</h2>
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-              {assignedProperties.map((property, idx) => (
-                <Card key={property.id} className="overflow-hidden border-border">
-                  <div className="flex">
-                    <div className="relative h-32 w-32 shrink-0">
-                      <Image
-                        src={property.images[0]}
-                        alt={property.title}
-                        fill
-                        className="object-cover"
-                        {...(idx === 0 ? { priority: true } : { loading: "lazy" as const })}
-                      />
-                    </div>
-                    <CardContent className="flex flex-1 flex-col justify-between p-4">
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="text-sm font-semibold text-foreground line-clamp-1">{property.title}</h3>
-                          {property.isVerified && <Shield className="h-3.5 w-3.5 text-primary" />}
-                        </div>
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
-                          <MapPin className="h-3 w-3" />
-                          {property.location.neighborhood}
-                        </div>
-                        <p className="text-sm font-bold text-primary">{formatTZS(property.price)}<span className="text-xs font-normal text-muted-foreground">/mo</span></p>
-                      </div>
-                      <div className="flex items-center gap-2 mt-2">
-                        <Badge variant="default" className="text-xs">{property.status}</Badge>
-                        <Link href={`/properties/${property.id}`} className="text-xs text-primary hover:underline ml-auto flex items-center gap-1">
-                          <Eye className="h-3 w-3" />
-                          Details
-                        </Link>
-                      </div>
-                    </CardContent>
-                  </div>
-                </Card>
-              ))}
+          <div className="space-y-8 px-4 pb-20">
+            {/* Top Grid: Agent Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <AgentStatCard icon={Briefcase} label="Assigned Houses" value={assignedProperties.length} subValue="+2 this month" />
+              <AgentStatCard icon={Calendar} label="Active Viewings" value="18" subValue="Next at 10:00 AM" />
+              <AgentStatCard icon={DollarSign} label="Commission" value="TZS 2.4M" subValue="+12% vs last month" />
+              <AgentStatCard icon={Star} label="Avg. Rating" value="4.8" subValue="From 23 reviews" />
+            </div>
+
+            {/* Assigned Properties Grid */}
+            <section>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold tracking-tight text-slate-900">Managed Properties</h3>
+                <Link className="text-primary text-xs font-bold hover:underline" href="#">Manage All</Link>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {assignedProperties.map((property) => (
+                  <PropertyCardCompact
+                    key={property.id}
+                    image={property.images[0]}
+                    name={property.title}
+                    location={property.location.neighborhood}
+                    price={`TZS ${property.price.toLocaleString()}`}
+                    status={property.status}
+                  />
+                ))}
+              </div>
+            </section>
+
+            {/* Bottom Grid: Viewings & History */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+              {/* Upcoming Viewings */}
+              <section className="bg-white dark:bg-slate-900 rounded-xl p-6 border border-slate-100 shadow-sm">
+                <h3 className="text-lg font-bold mb-6">Upcoming Viewings</h3>
+                <div className="space-y-4">
+                  {agentViewings.map((viewing) => (
+                    <ViewingItem
+                      key={viewing.id}
+                      tenant={viewing.tenantName}
+                      property={viewing.propertyTitle}
+                      time={viewing.time}
+                      initials={viewing.tenantName.split(' ').map(n => n[0]).join('')}
+                    />
+                  ))}
+                </div>
+              </section>
+
+              {/* Commission History */}
+              <section className="bg-white dark:bg-slate-900 rounded-xl p-6 border border-slate-100 shadow-sm">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-lg font-bold">Commission History</h3>
+                  <button className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-1 rounded-md uppercase tracking-wider">View Ledger</button>
+                </div>
+                <div className="space-y-3">
+                  {agentCommissions.map((commission) => (
+                    <CommissionEntry
+                      key={commission.id}
+                      property={commission.propertyTitle}
+                      amount={`TZS ${commission.amount.toLocaleString()}`}
+                      date={commission.date}
+                    />
+                  ))}
+                </div>
+              </section>
             </div>
           </div>
+        </main>
+      </div>
+    </div>
+  )
+}
 
-          {/* Upcoming Viewings */}
-          <div id="viewings" className="mb-8">
-            <h2 className="text-lg font-semibold text-foreground mb-4">Upcoming Viewings</h2>
-            <Card className="border-border">
-              <CardContent className="p-0">
-                <div className="divide-y divide-border">
-                  {upcomingViewings.map((viewing) => (
-                    <div key={viewing.id} className="flex items-center justify-between p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent text-primary">
-                          <Calendar className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-foreground">{viewing.tenant}</p>
-                          <p className="text-xs text-muted-foreground">{viewing.property}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="text-right">
-                          <p className="text-sm text-foreground">{viewing.date}</p>
-                          <div className="flex items-center gap-1 text-xs text-muted-foreground justify-end">
-                            <Clock className="h-3 w-3" />
-                            {viewing.time}
-                          </div>
-                        </div>
-                        <Button size="sm" variant="outline" className="text-xs h-8">
-                          Confirm
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+function AgentStatCard({ icon: Icon, label, value, subValue }: any) {
+  return (
+    <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-primary/5 shadow-sm transition-all hover:border-primary/20">
+      <div className="flex items-center gap-3 mb-3">
+        <div className="size-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+          <Icon className="h-4 w-4" />
+        </div>
+        <p className="text-[10px] text-slate-400 uppercase tracking-tight font-bold">{label}</p>
+      </div>
+      <h3 className="text-xl font-bold text-slate-900 dark:text-white">{value}</h3>
+      <p className="text-xs font-bold text-emerald-500 mt-1">{subValue}</p>
+    </div>
+  )
+}
 
-          {/* Commission History */}
-          <div id="commissions">
-            <h2 className="text-lg font-semibold text-foreground mb-4">Recent Commissions</h2>
-            <Card className="border-border">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm text-muted-foreground">Earned from successful tenancy placements</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-col gap-3">
-                  {[
-                    { property: "Modern 2BR in Masaki", tenant: "Sarah Mbeki", amount: 900000, date: "2026-02-15" },
-                    { property: "3BR Villa in Mbezi Beach", tenant: "John Kamau", amount: 1000000, date: "2026-02-01" },
-                    { property: "2BR in Upanga", tenant: "Fatima Hassan", amount: 500000, date: "2026-01-20" },
-                  ].map((c) => (
-                    <div key={c.property + c.date} className="flex items-center justify-between rounded-lg border border-border p-3">
-                      <div>
-                        <p className="text-sm font-medium text-foreground">{c.property}</p>
-                        <p className="text-xs text-muted-foreground">Placed: {c.tenant}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm font-bold text-chart-2">{formatTZS(c.amount)}</p>
-                        <p className="text-xs text-muted-foreground">{c.date}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+function PropertyCardCompact({ image, name, location, price, status }: any) {
+  return (
+    <div className="bg-white dark:bg-slate-900 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm transition-all">
+      <div className="group h-32 relative overflow-hidden">
+        <Image src={image} alt={name} fill className="object-cover transition-transform duration-500 group-hover:scale-105" />
+        <div className="absolute top-2.5 right-2.5 text-white text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tight shadow-sm bg-primary">
+          {status}
         </div>
       </div>
-    </>
+      <div className="p-3">
+        <h4 className="font-bold text-slate-900 dark:text-white truncate text-sm">{name}</h4>
+        <p className="text-[11px] text-slate-500 font-medium flex items-center gap-1 mt-1">
+          <MapPin className="h-3 w-3 text-slate-400" /> {location}
+        </p>
+        <div className="mt-3 flex items-center justify-between border-t border-slate-50/50 pt-2.5">
+          <span className="text-primary font-bold text-sm">{price}</span>
+          <button className="text-[9px] font-bold text-slate-400 hover:text-primary transition-colors">Details</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ViewingItem({ tenant, property, time, initials }: any) {
+  return (
+    <div className="flex items-center justify-between p-3 rounded-xl border border-slate-50 dark:border-slate-800 hover:border-primary/20 hover:bg-slate-50/30 transition-all cursor-pointer group">
+      <div className="flex items-center gap-3">
+        <div className="size-9 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white flex items-center justify-center text-xs font-bold shadow-sm">
+          {initials}
+        </div>
+        <div>
+          <p className="text-sm font-bold text-slate-900 group-hover:text-primary transition-colors">{tenant}</p>
+          <p className="text-[10px] font-medium text-slate-400">{property}</p>
+        </div>
+      </div>
+      <div className="text-right">
+        <p className="text-[10px] font-bold text-slate-900 uppercase tracking-tight">{time}</p>
+        <button className="text-[9px] font-bold text-primary hover:underline mt-1">Confirm</button>
+      </div>
+    </div>
+  )
+}
+
+function CommissionEntry({ property, amount, date }: any) {
+  return (
+    <div className="p-4 bg-slate-50/30 dark:bg-slate-800/50 rounded-xl border border-slate-100/30 flex items-center justify-between">
+      <div>
+        <p className="text-sm font-bold text-slate-900">{property}</p>
+        <p className="text-[10px] font-medium text-slate-400">{date}</p>
+      </div>
+      <div className="text-right">
+        <p className="text-sm font-bold text-emerald-600">{amount}</p>
+        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Paid</p>
+      </div>
+    </div>
   )
 }

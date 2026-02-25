@@ -1,4 +1,4 @@
-import type { Property, User, ExchangeRequest, ChatConversation, ChatMessage, Tenancy } from "./types"
+import type { Property, User, ExchangeRequest, ChatConversation, ChatMessage, Tenancy, Viewing, Commission } from "./types"
 
 export const mockProperties: Property[] = [
   {
@@ -163,7 +163,7 @@ export const mockProperties: Property[] = [
 export const mockUsers: User[] = [
   { id: "user-1", name: "Amina Juma", role: "tenant", phone: "+255 712 345 678", email: "amina@example.com", isVerified: true },
   { id: "user-2", name: "Baraka Mwangi", role: "tenant", phone: "+255 713 456 789", email: "baraka@example.com", isVerified: true },
-  { id: "user-3", name: "Catherine Makasi", role: "owner", phone: "+255 714 567 890", email: "catherine@example.com", isVerified: true },
+  { id: "user-3", name: "Samuel Okoro", role: "owner", phone: "+255 714 567 890", email: "samuel@example.com", isVerified: true },
   { id: "user-4", name: "David Kimaro", role: "owner", phone: "+255 715 678 901", email: "david@example.com", isVerified: true },
   { id: "user-5", name: "Emmanuel Ngowi", role: "agent", phone: "+255 716 789 012", email: "emmanuel@example.com", isVerified: true },
 ]
@@ -280,4 +280,16 @@ export const mockTenancies: Tenancy[] = [
     monthlyRent: 600000,
     status: "active",
   },
+]
+
+export const mockViewings: Viewing[] = [
+  { id: "view-1", agentId: "user-5", tenantName: "Sarah Mbeki", propertyTitle: "Modern 2BR in Masaki", time: "Today, 10:00 AM", status: "upcoming" },
+  { id: "view-2", agentId: "user-5", tenantName: "John Kamau", propertyTitle: "3BR Villa in Mbezi Beach", time: "Today, 2:00 PM", status: "upcoming" },
+  { id: "view-3", agentId: "user-5", tenantName: "Fatima Hassan", propertyTitle: "2BR Apartment in Upanga", time: "Tomorrow, 11:00 AM", status: "upcoming" },
+]
+
+export const mockCommissions: Commission[] = [
+  { id: "com-1", agentId: "user-5", propertyTitle: "Modern 2BR in Masaki", amount: 900000, date: "15 Feb 2026", status: "paid" },
+  { id: "com-2", agentId: "user-5", propertyTitle: "3BR Villa in Mbezi Beach", amount: 1000000, date: "01 Feb 2026", status: "paid" },
+  { id: "com-3", agentId: "user-5", propertyTitle: "2BR in Upanga", amount: 500000, date: "20 Jan 2026", status: "paid" },
 ]
