@@ -127,7 +127,7 @@ export default function OnboardingCompletionPage() {
                         <span>Back</span>
                     </button>
                     <Button
-                        onClick={() => router.push("/dashboard")}
+                        onClick={() => router.push("/dashboard/owner")}
                         className="h-12 rounded-xl bg-primary px-6 sm:px-12 text-sm font-bold text-white shadow-xl shadow-primary/20 transition-all hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] group"
                     >
                         <span>Go to Owner Dashboard</span>
