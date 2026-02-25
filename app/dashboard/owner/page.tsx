@@ -1,28 +1,15 @@
 "use client"
 
 import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import {
   Plus,
-  Shield,
   Clock,
-  Home,
   Eye,
-  Key,
-  AlertCircle,
   MapPin,
   CheckCircle2,
-  Calendar,
   ChevronRight,
   ChevronLeft,
-  ArrowRight,
-  Star,
-  DollarSign,
-  FileText,
-  Wrench,
   Download
 } from "lucide-react"
 import Link from "next/link"
@@ -109,7 +96,7 @@ export default function OwnerDashboard() {
                 <h3 className="text-xl font-bold tracking-tight text-slate-900">My Properties</h3>
                 <Link className="text-primary text-xs font-bold hover:underline" href="#">View All</Link>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 <PropertyCardV3
                   image="https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=1000"
                   name="The Palms Apartments - Unit 4B"
@@ -139,6 +126,15 @@ export default function OwnerDashboard() {
                   statusColor="bg-amber-500"
                   subtitle="Pending inspection"
                 />
+                <PropertyCardV3
+                  image="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=1000"
+                  name="Mbezi Beach Shoreline Villa"
+                  location="Mbezi Beach, Dar es Salaam"
+                  price="TZS 1,500,000"
+                  period="/mo"
+                  status="Rented"
+                  statusColor="bg-emerald-500"
+                />
               </div>
             </section>
 
@@ -149,9 +145,11 @@ export default function OwnerDashboard() {
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-lg font-bold">Assign Verified Agents</h3>
                   <div className="relative">
-                    <select className="bg-slate-50 dark:bg-slate-800 border-none rounded-lg text-[10px] font-bold focus:ring-primary py-1.5 px-3 shadow-sm transition-all">
-                      <option>Lekki Gardens II</option>
-                      <option>The Palms Units</option>
+                    <select className="bg-slate-50 dark:bg-slate-800 border-none rounded-lg text-[10px] font-bold focus:ring-primary py-1.5 px-3 shadow-sm transition-all outline-none cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700">
+                      <option>The Palms - Masaki</option>
+                      <option>Mount Meru Estate</option>
+                      <option>Capital Heights</option>
+                      <option>Shoreline Villa</option>
                     </select>
                   </div>
                 </div>
@@ -228,22 +226,22 @@ function RevenueBar({ label, height, active }: any) {
 
 function PropertyCardV3({ image, name, location, price, period, status, statusColor, editable, subtitle }: any) {
   return (
-    <div className="group bg-white dark:bg-slate-900 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm transition-all hover:shadow-md">
-      <div className="h-40 relative overflow-hidden">
+    <div className="bg-white dark:bg-slate-900 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm transition-all">
+      <div className="group h-32 relative overflow-hidden">
         <Image src={image} alt={name} fill className="object-cover transition-transform duration-500 group-hover:scale-105" />
-        <div className={cn("absolute top-3 right-3 text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tight shadow-sm", statusColor)}>
+        <div className={cn("absolute top-2.5 right-2.5 text-white text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tight shadow-sm", statusColor)}>
           {status}
         </div>
       </div>
-      <div className="p-4">
-        <h4 className="font-bold text-slate-900 dark:text-white truncate text-base group-hover:text-primary transition-colors">{name}</h4>
-        <p className="text-xs text-slate-500 font-medium flex items-center gap-1.5 mt-1.5">
-          <MapPin className="h-3.5 w-3.5 text-slate-400" /> {location}
+      <div className="p-3">
+        <h4 className="font-bold text-slate-900 dark:text-white truncate text-sm transition-colors">{name}</h4>
+        <p className="text-[11px] text-slate-500 font-medium flex items-center gap-1 mt-1">
+          <MapPin className="h-3 w-3 text-slate-400" /> {location}
         </p>
-        <div className="mt-4 flex items-center justify-between border-t border-slate-50/50 pt-3">
+        <div className="mt-3 flex items-center justify-between border-t border-slate-50/50 pt-2.5">
           <div className="flex flex-col">
-            <span className="text-primary font-bold text-base">{price}</span>
-            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tight leading-none">{period}</span>
+            <span className="text-primary font-bold text-sm">{price}</span>
+            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tight leading-none">{period}</span>
           </div>
           {editable ? (
             <button className="text-[10px] font-bold text-slate-400 hover:text-primary transition-colors py-1.5 px-3 rounded-lg hover:bg-slate-50">Edit</button>
