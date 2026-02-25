@@ -27,10 +27,10 @@ export default function TenantExchangePage() {
                     {requests.map((req) => {
                         const property = mockProperties.find(p => p.id === req.toPropertyId)
                         return (
-                            <div key={req.id} className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden group hover:border-slate-200 transition-all">
+                            <div key={req.id} className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
                                 <div className="h-48 relative">
                                     {property?.images[0] ? (
-                                        <Image src={property.images[0]} alt="Property" fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
+                                        <Image src={property.images[0]} alt="Property" fill className="object-cover transition-transform duration-500 hover:scale-110" />
                                     ) : (
                                         <div className="size-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-300">
                                             <Building2 className="size-12" />
@@ -46,7 +46,7 @@ export default function TenantExchangePage() {
                                     </div>
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent p-6 flex flex-col justify-end">
                                         <p className="text-[10px] font-medium text-white/70 uppercase tracking-widest mb-1">Target Home</p>
-                                        <h3 className="text-xl font-medium text-white">{req.toPropertyTitle}</h3>
+                                        <h3 className="text-xl font-bold text-white">{req.toPropertyTitle}</h3>
                                     </div>
                                 </div>
                                 <div className="p-6">

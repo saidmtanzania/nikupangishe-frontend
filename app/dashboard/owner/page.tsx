@@ -198,15 +198,15 @@ function RevenueBar({ label, height, active }: any) {
 
 function PropertyCardV3({ image, name, location, price, period, status, statusColor, editable, subtitle }: any) {
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm transition-all hover:shadow-xl hover:shadow-primary/5 group">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm transition-all">
       <div className="h-36 relative overflow-hidden">
-        <Image src={image} alt={name} fill className="object-cover transition-transform duration-700 group-hover:scale-110" />
+        <Image src={image} alt={name} fill className="object-cover transition-transform duration-500 hover:scale-110" />
         <div className={cn("absolute top-3 right-3 text-white text-[9px] font-medium px-2.5 py-1 rounded-full uppercase tracking-widest shadow-lg backdrop-blur-sm", statusColor)}>
           {status}
         </div>
       </div>
       <div className="p-4">
-        <h4 className="font-medium text-slate-800 dark:text-white truncate text-sm transition-colors group-hover:text-primary">{name}</h4>
+        <h4 className="font-bold text-slate-800 dark:text-white truncate text-sm">{name}</h4>
         <p className="text-[11px] text-slate-500 font-medium flex items-center gap-1.5 mt-1.5 uppercase tracking-tighter">
           <MapPin className="h-3 w-3 text-primary/40" /> {location}
         </p>

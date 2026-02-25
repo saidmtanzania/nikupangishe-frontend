@@ -55,7 +55,7 @@ export default function TenantDashboard() {
             {myTenancy ? (
               <div className="flex flex-col md:flex-row gap-8">
                 <div className="relative w-full md:w-64 h-40 rounded-2xl overflow-hidden shadow-sm">
-                  <Image src={mockProperties.find(p => p.id === myTenancy.propertyId)?.images[0] || ""} alt="Home" fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
+                  <Image src={mockProperties.find(p => p.id === myTenancy.propertyId)?.images[0] || ""} alt="Home" fill className="object-cover transition-transform duration-500 hover:scale-110" />
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-4">
                     <p className="text-white text-xs font-medium truncate">{myTenancy.propertyTitle}</p>
                   </div>

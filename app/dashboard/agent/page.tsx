@@ -164,15 +164,15 @@ function CheckCircle2({ className }: any) {
 
 function AgentPropertyCard({ property }: { property: any }) {
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm transition-all hover:shadow-xl hover:shadow-primary/5 group">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm transition-all">
       <div className="h-32 relative overflow-hidden">
-        <Image src={property.images[0]} alt={property.title} fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
+        <Image src={property.images[0]} alt={property.title} fill className="object-cover transition-transform duration-500 hover:scale-110" />
         <div className="absolute top-3 right-3 bg-emerald-50 text-emerald-600 border border-emerald-100 text-[9px] font-medium px-2.5 py-1 rounded-full uppercase tracking-widest shadow-sm">
           Verified House
         </div>
       </div>
       <div className="p-4">
-        <h4 className="font-medium text-slate-700 dark:text-white truncate text-sm uppercase tracking-tight group-hover:text-primary">{property.title}</h4>
+        <h4 className="font-bold text-slate-700 dark:text-white truncate text-sm uppercase tracking-tight">{property.title}</h4>
         <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-50 dark:border-slate-800">
           <div className="flex flex-col">
             <span className="text-primary font-medium text-sm">TZS {(property.price / 1e6).toFixed(1)}M</span>

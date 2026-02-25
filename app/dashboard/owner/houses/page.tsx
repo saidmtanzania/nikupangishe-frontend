@@ -142,10 +142,10 @@ export default function MyHousesPage() {
                                             <td className="px-8 py-6">
                                                 <div className="flex items-center gap-4">
                                                     <div className="w-14 h-14 rounded-xl bg-slate-100 relative overflow-hidden flex-shrink-0 border border-slate-200/50">
-                                                        <Image src={p.images[0]} alt={p.title} fill className="object-cover transition-transform group-hover:scale-105 duration-500" />
+                                                        <Image src={p.images[0]} alt={p.title} fill className="object-cover transition-transform duration-500 hover:scale-125" />
                                                     </div>
                                                     <div className="min-w-0">
-                                                        <p className="font-medium text-slate-800 dark:text-white truncate text-sm mb-0.5">{p.title}</p>
+                                                        <p className="font-bold text-slate-800 dark:text-white truncate text-sm mb-0.5">{p.title}</p>
                                                         <p className="text-[10px] text-slate-400 font-mono tracking-tight uppercase">#NKP-{p.id.split('-')[1]}</p>
                                                     </div>
                                                 </div>
