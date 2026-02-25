@@ -56,10 +56,10 @@ export function DashboardSidebar({ role, userName }: DashboardSidebarProps) {
       <div className="p-6">
         <Link href="/" className="flex items-center gap-3">
           <div className="size-9 bg-primary rounded-lg flex items-center justify-center text-white">
-            <span className="font-bold italic">N</span>
+            <span className="font-medium italic">N</span>
           </div>
           <div>
-            <h1 className="text-lg font-semibold leading-none text-slate-800 dark:text-white">Nikupangishe</h1>
+            <h1 className="text-base font-medium leading-none text-slate-800 dark:text-white uppercase tracking-tight">Nikupangishe</h1>
             <p className="text-[10px] font-medium text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-tight">Rental Platform</p>
           </div>
         </Link>
@@ -95,13 +95,13 @@ export function DashboardSidebar({ role, userName }: DashboardSidebarProps) {
         <div className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer group">
           <div className="relative h-8 w-8 shrink-0">
             <div className="h-full w-full rounded-full bg-primary/10 flex items-center justify-center overflow-hidden border border-white shadow-sm">
-              <span className="text-[10px] font-bold text-primary">{initials}</span>
+              <span className="text-[10px] font-medium text-primary uppercase">{initials}</span>
             </div>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-slate-900 dark:text-white truncate">{userName}</p>
+            <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{userName}</p>
             <div className="mt-0.5">
-              <span className="text-[9px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded-md uppercase tracking-wider">{badgeLabel}</span>
+              <span className="text-[9px] font-medium text-primary bg-primary/5 px-1.5 py-0.5 rounded-md uppercase tracking-wider">{badgeLabel}</span>
             </div>
           </div>
           <Settings className="h-4 w-4 text-slate-400 transition-colors group-hover:text-slate-900" />
@@ -110,4 +110,3 @@ export function DashboardSidebar({ role, userName }: DashboardSidebarProps) {
     </aside>
   )
 }
-

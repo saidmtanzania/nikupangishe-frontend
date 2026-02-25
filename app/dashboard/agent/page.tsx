@@ -30,14 +30,14 @@ export default function AgentDashboard() {
       {/* Dashboard Header */}
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10 px-4">
         <div>
-          <h2 className="text-2xl font-semibold text-slate-800 dark:text-white tracking-tight uppercase">Karibu Agent, {userName.split(' ')[0]}</h2>
+          <h2 className="text-xl font-medium text-slate-800 dark:text-white tracking-tight uppercase">Karibu Agent, {userName.split(' ')[0]}</h2>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage viewings, track commissions, and grow your portfolio.</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-widest flex items-center gap-2 transition-all hover:bg-slate-50 shadow-sm active:scale-95 text-slate-600 dark:text-slate-300">
+          <button className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-2 rounded-xl text-xs font-medium uppercase tracking-widest flex items-center gap-2 transition-all hover:bg-slate-50 shadow-sm active:scale-95 text-slate-600 dark:text-slate-300">
             <Download className="h-4 w-4" /> Export Report
           </button>
-          <button className="bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-xl text-xs font-semibold uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-primary/20 transition-all active:scale-95">
+          <button className="bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-xl text-xs font-medium uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-primary/20 transition-all active:scale-95">
             <Plus className="h-4 w-4" /> New Listing
           </button>
         </div>
@@ -57,8 +57,8 @@ export default function AgentDashboard() {
           {/* Upcoming Viewings */}
           <div className="lg:col-span-2 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold uppercase tracking-tight text-slate-800">Upcoming Viewings</h3>
-              <button className="text-xs font-bold text-primary hover:underline uppercase tracking-widest">View Calendar</button>
+              <h3 className="text-lg font-medium uppercase tracking-tight text-slate-800">Upcoming Viewings</h3>
+              <button className="text-xs font-medium text-primary hover:underline uppercase tracking-widest">View Calendar</button>
             </div>
             <div className="space-y-4 max-h-[320px] overflow-y-auto pr-2 custom-scrollbar">
               {agentViewings.map((viewing) => (
@@ -70,24 +70,24 @@ export default function AgentDashboard() {
           {/* Money tracker / Commissions */}
           <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm border-l-4 border-l-emerald-400">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold uppercase tracking-tight text-emerald-600">Earnings</h3>
-              <span className="text-[10px] font-bold bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-md uppercase tracking-widest border border-emerald-100">Last 30 Days</span>
+              <h3 className="text-lg font-medium uppercase tracking-tight text-emerald-600">Earnings</h3>
+              <span className="text-[10px] font-medium bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-md uppercase tracking-widest border border-emerald-100">Last 30 Days</span>
             </div>
             <div className="space-y-4 max-h-[320px] overflow-y-auto pr-2 custom-scrollbar">
               {agentCommissions.map((comm) => (
                 <div key={comm.id} className="flex flex-col gap-1.5 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all border border-transparent hover:border-slate-100 cursor-pointer">
                   <div className="flex items-center justify-between">
-                    <p className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 truncate uppercase tracking-tight">{comm.propertyTitle}</p>
-                    <span className="text-[10px] font-bold text-emerald-600 tracking-tight">TZS {comm.amount.toLocaleString()}</span>
+                    <p className="text-[11px] font-medium text-slate-700 dark:text-slate-300 truncate uppercase tracking-tight">{comm.propertyTitle}</p>
+                    <span className="text-[10px] font-medium text-emerald-600 tracking-tight">TZS {comm.amount.toLocaleString()}</span>
                   </div>
                   <div className="flex items-center justify-between text-[10px]">
                     <span className="text-slate-400 font-medium">{comm.date}</span>
-                    <span className="text-emerald-500 font-bold uppercase text-[8px] tracking-widest">Paid</span>
+                    <span className="text-emerald-500 font-medium uppercase text-[8px] tracking-widest">Paid</span>
                   </div>
                 </div>
               ))}
             </div>
-            <button className="w-full mt-6 py-3 bg-slate-900 dark:bg-slate-100 dark:text-slate-900 text-white text-xs font-semibold rounded-xl uppercase tracking-widest shadow-lg hover:bg-primary hover:text-white transition-all">
+            <button className="w-full mt-6 py-3 bg-slate-900 dark:bg-slate-100 dark:text-slate-900 text-white text-xs font-medium rounded-xl uppercase tracking-widest shadow-lg hover:bg-primary hover:text-white transition-all">
               Cash Out
             </button>
           </div>
@@ -96,8 +96,8 @@ export default function AgentDashboard() {
         {/* Managed Houses */}
         <section>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold tracking-tight text-slate-800 dark:text-white uppercase">Managed Houses</h3>
-            <button className="text-primary text-xs font-bold uppercase tracking-widest hover:underline">Manage All</button>
+            <h3 className="text-xl font-medium tracking-tight text-slate-800 dark:text-white uppercase">Managed Houses</h3>
+            <button className="text-primary text-xs font-medium uppercase tracking-widest hover:underline">Manage All</button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {assignedProperties.map((property) => (
@@ -119,8 +119,8 @@ function StatCard({ icon: Icon, label, value, color, bg }: any) {
       <div className={cn("size-10 rounded-xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110", bg)}>
         <Icon className={cn("h-5 w-5", color)} />
       </div>
-      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{label}</p>
-      <p className="text-2xl font-bold text-slate-700 dark:text-white mt-1">{value}</p>
+      <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest">{label}</p>
+      <p className="text-xl font-medium text-slate-700 dark:text-white mt-1">{value}</p>
     </div>
   )
 }
@@ -130,14 +130,14 @@ function ViewingItem({ viewing }: { viewing: any }) {
     <div className="p-4 rounded-xl border border-slate-50 dark:border-slate-800 hover:border-slate-100 hover:bg-slate-50/50 transition-all cursor-pointer group">
       <div className="flex items-start justify-between">
         <div className="flex gap-4">
-          <div className="size-10 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 font-bold text-[10px] uppercase shadow-sm group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+          <div className="size-10 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 font-medium text-[10px] uppercase shadow-sm group-hover:bg-primary/10 group-hover:text-primary transition-colors">
             {viewing.tenantName.split(' ')[0][0]}{viewing.tenantName.split(' ')[1][0]}
           </div>
           <div>
-            <p className="text-sm font-semibold text-slate-700 group-hover:text-primary transition-colors">{viewing.tenantName}</p>
+            <p className="text-sm font-medium text-slate-700 group-hover:text-primary transition-colors">{viewing.tenantName}</p>
             <p className="text-[11px] font-medium text-slate-400 uppercase tracking-tight">{viewing.propertyTitle}</p>
             <div className="flex items-center gap-2 mt-1.5">
-              <span className="flex items-center gap-1.5 text-[10px] font-bold text-slate-300 uppercase tracking-tighter">
+              <span className="flex items-center gap-1.5 text-[10px] font-medium text-slate-300 uppercase tracking-tighter">
                 <Clock className="h-3 w-3" /> {viewing.time}
               </span>
             </div>
@@ -167,18 +167,18 @@ function AgentPropertyCard({ property }: { property: any }) {
     <div className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm transition-all hover:shadow-xl hover:shadow-primary/5 group">
       <div className="h-32 relative overflow-hidden">
         <Image src={property.images[0]} alt={property.title} fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
-        <div className="absolute top-3 right-3 bg-emerald-50 text-emerald-600 border border-emerald-100 text-[9px] font-bold px-2.5 py-1 rounded-full uppercase tracking-widest shadow-sm">
+        <div className="absolute top-3 right-3 bg-emerald-50 text-emerald-600 border border-emerald-100 text-[9px] font-medium px-2.5 py-1 rounded-full uppercase tracking-widest shadow-sm">
           Verified House
         </div>
       </div>
       <div className="p-4">
-        <h4 className="font-semibold text-slate-700 dark:text-white truncate text-sm uppercase tracking-tight group-hover:text-primary">{property.title}</h4>
+        <h4 className="font-medium text-slate-700 dark:text-white truncate text-sm uppercase tracking-tight group-hover:text-primary">{property.title}</h4>
         <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-50 dark:border-slate-800">
           <div className="flex flex-col">
-            <span className="text-primary font-bold text-sm">TZS {(property.price / 1e6).toFixed(1)}M</span>
-            <span className="text-[9px] font-semibold text-slate-300 uppercase tracking-widest mt-0.5">/ Month</span>
+            <span className="text-primary font-medium text-sm">TZS {(property.price / 1e6).toFixed(1)}M</span>
+            <span className="text-[9px] font-medium text-slate-300 uppercase tracking-widest mt-0.5">/ Month</span>
           </div>
-          <button className="text-[10px] font-bold text-slate-400 hover:text-primary border-b border-transparent hover:border-primary uppercase tracking-widest transition-all">Listing</button>
+          <button className="text-[10px] font-medium text-slate-400 hover:text-primary border-b border-transparent hover:border-primary uppercase tracking-widest transition-all">Listing</button>
         </div>
       </div>
     </div>
