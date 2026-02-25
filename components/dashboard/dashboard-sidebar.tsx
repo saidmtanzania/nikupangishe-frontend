@@ -59,8 +59,8 @@ export function DashboardSidebar({ role, userName }: DashboardSidebarProps) {
             <span className="font-bold italic">N</span>
           </div>
           <div>
-            <h1 className="text-lg font-bold leading-none text-slate-900 dark:text-white">Nikupangishe</h1>
-            <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-tight">Rental Platform</p>
+            <h1 className="text-lg font-semibold leading-none text-slate-800 dark:text-white">Nikupangishe</h1>
+            <p className="text-[10px] font-medium text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-tight">Rental Platform</p>
           </div>
         </Link>
       </div>
@@ -68,7 +68,9 @@ export function DashboardSidebar({ role, userName }: DashboardSidebarProps) {
       {/* Navigation Content */}
       <nav className="flex-1 px-4 space-y-1 overflow-y-auto mt-2">
         {navItems.map((item) => {
-          const isActive = pathname === item.href
+          const isActive = item.href === "/dashboard/owner" || item.href === "/dashboard/agent" || item.href === "/dashboard/tenant"
+            ? pathname === item.href
+            : pathname.startsWith(item.href)
           const Icon = item.icon
           return (
             <Link

@@ -1,6 +1,5 @@
 "use client"
 
-import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar"
 import { cn } from "@/lib/utils"
 import {
   Briefcase,
@@ -27,167 +26,160 @@ export default function AgentDashboard() {
   const userName = agent.name
 
   return (
-    <div className="min-h-screen w-full bg-[#f8f6f6] dark:bg-slate-950 flex justify-center">
-      <div className="relative flex w-full max-w-[1540px] px-4 sm:px-6 lg:px-8">
-        <DashboardSidebar role="agent" userName={userName} />
+    <div className="py-12">
+      {/* Dashboard Header */}
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10 px-4">
+        <div>
+          <h2 className="text-2xl font-semibold text-slate-800 dark:text-white tracking-tight uppercase">Karibu Agent, {userName.split(' ')[0]}</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage viewings, track commissions, and grow your portfolio.</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <button className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-widest flex items-center gap-2 transition-all hover:bg-slate-50 shadow-sm active:scale-95 text-slate-600 dark:text-slate-300">
+            <Download className="h-4 w-4" /> Export Report
+          </button>
+          <button className="bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-xl text-xs font-semibold uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-primary/20 transition-all active:scale-95">
+            <Plus className="h-4 w-4" /> New Listing
+          </button>
+        </div>
+      </header>
 
-        <main className="flex-1 pl-[260px] py-12">
-          {/* Dashboard Header */}
-          <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10 px-4">
-            <div>
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Karibu Agent, {userName.split(' ')[0]}</h2>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage viewings, track commissions, and grow your portfolio.</p>
+      <div className="space-y-8 px-4 pb-20">
+        {/* Agent Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <StatCard icon={Briefcase} label="Active Listings" value={assignedProperties.length.toString()} color="text-slate-600" bg="bg-slate-50" />
+          <StatCard icon={Calendar} label="Booked Viewings" value={agentViewings.length.toString()} color="text-blue-500" bg="bg-blue-50/50" />
+          <StatCard icon={DollarSign} label="Total Earned" value={`TZS ${(agentCommissions.reduce((acc, c) => acc + c.amount, 0) / 1000000).toFixed(1)}M`} color="text-emerald-500" bg="bg-emerald-50/50" />
+          <StatCard icon={Star} label="Avg Rating" value="4.9 / 5" color="text-amber-500" bg="bg-amber-50/50" />
+        </div>
+
+        {/* Real-time Schedule & Money */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Upcoming Viewings */}
+          <div className="lg:col-span-2 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold uppercase tracking-tight text-slate-800">Upcoming Viewings</h3>
+              <button className="text-xs font-bold text-primary hover:underline uppercase tracking-widest">View Calendar</button>
             </div>
-            <div className="flex items-center gap-3">
-              <button className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all hover:bg-slate-50">
-                <Download className="h-4 w-4" /> Export Report
-              </button>
-              <button className="bg-primary text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm transition-all hover:bg-primary/90 active:scale-95">
-                <Plus className="h-4 w-4" /> New Listing
-              </button>
-            </div>
-          </header>
-
-          <div className="space-y-8 px-4 pb-20">
-            {/* Top Grid: Agent Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <AgentStatCard icon={Briefcase} label="Assigned Houses" value={assignedProperties.length} subValue="+2 this month" />
-              <AgentStatCard icon={Calendar} label="Active Viewings" value="18" subValue="Next at 10:00 AM" />
-              <AgentStatCard icon={DollarSign} label="Commission" value="TZS 2.4M" subValue="+12% vs last month" />
-              <AgentStatCard icon={Star} label="Avg. Rating" value="4.8" subValue="From 23 reviews" />
-            </div>
-
-            {/* Assigned Properties Grid */}
-            <section>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold tracking-tight text-slate-900">Managed Properties</h3>
-                <Link className="text-primary text-xs font-bold hover:underline" href="#">Manage All</Link>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {assignedProperties.map((property) => (
-                  <PropertyCardCompact
-                    key={property.id}
-                    image={property.images[0]}
-                    name={property.title}
-                    location={property.location.neighborhood}
-                    price={`TZS ${property.price.toLocaleString()}`}
-                    status={property.status}
-                  />
-                ))}
-              </div>
-            </section>
-
-            {/* Bottom Grid: Viewings & History */}
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-              {/* Upcoming Viewings */}
-              <section className="bg-white dark:bg-slate-900 rounded-xl p-6 border border-slate-100 shadow-sm">
-                <h3 className="text-lg font-bold mb-6">Upcoming Viewings</h3>
-                <div className="space-y-4 max-h-[320px] overflow-y-auto pr-2 custom-scrollbar">
-                  {agentViewings.map((viewing) => (
-                    <ViewingItem
-                      key={viewing.id}
-                      tenant={viewing.tenantName}
-                      property={viewing.propertyTitle}
-                      time={viewing.time}
-                      initials={viewing.tenantName.split(' ').map(n => n[0]).join('')}
-                    />
-                  ))}
-                </div>
-              </section>
-
-              {/* Commission History */}
-              <section className="bg-white dark:bg-slate-900 rounded-xl p-6 border border-slate-100 shadow-sm">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-bold">Commission History</h3>
-                  <button className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-1 rounded-md uppercase tracking-wider">View Ledger</button>
-                </div>
-                <div className="space-y-3 max-h-[320px] overflow-y-auto pr-2 custom-scrollbar">
-                  {agentCommissions.map((commission) => (
-                    <CommissionEntry
-                      key={commission.id}
-                      property={commission.propertyTitle}
-                      amount={`TZS ${commission.amount.toLocaleString()}`}
-                      date={commission.date}
-                    />
-                  ))}
-                </div>
-              </section>
+            <div className="space-y-4 max-h-[320px] overflow-y-auto pr-2 custom-scrollbar">
+              {agentViewings.map((viewing) => (
+                <ViewingItem key={viewing.id} viewing={viewing} />
+              ))}
             </div>
           </div>
-        </main>
+
+          {/* Money tracker / Commissions */}
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm border-l-4 border-l-emerald-400">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold uppercase tracking-tight text-emerald-600">Earnings</h3>
+              <span className="text-[10px] font-bold bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-md uppercase tracking-widest border border-emerald-100">Last 30 Days</span>
+            </div>
+            <div className="space-y-4 max-h-[320px] overflow-y-auto pr-2 custom-scrollbar">
+              {agentCommissions.map((comm) => (
+                <div key={comm.id} className="flex flex-col gap-1.5 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all border border-transparent hover:border-slate-100 cursor-pointer">
+                  <div className="flex items-center justify-between">
+                    <p className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 truncate uppercase tracking-tight">{comm.propertyTitle}</p>
+                    <span className="text-[10px] font-bold text-emerald-600 tracking-tight">TZS {comm.amount.toLocaleString()}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-[10px]">
+                    <span className="text-slate-400 font-medium">{comm.date}</span>
+                    <span className="text-emerald-500 font-bold uppercase text-[8px] tracking-widest">Paid</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <button className="w-full mt-6 py-3 bg-slate-900 dark:bg-slate-100 dark:text-slate-900 text-white text-xs font-semibold rounded-xl uppercase tracking-widest shadow-lg hover:bg-primary hover:text-white transition-all">
+              Cash Out
+            </button>
+          </div>
+        </div>
+
+        {/* Managed Houses */}
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-semibold tracking-tight text-slate-800 dark:text-white uppercase">Managed Houses</h3>
+            <button className="text-primary text-xs font-bold uppercase tracking-widest hover:underline">Manage All</button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {assignedProperties.map((property) => (
+              <AgentPropertyCard
+                key={property.id}
+                property={property}
+              />
+            ))}
+          </div>
+        </section>
       </div>
     </div>
   )
 }
 
-function AgentStatCard({ icon: Icon, label, value, subValue }: any) {
+function StatCard({ icon: Icon, label, value, color, bg }: any) {
   return (
-    <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-primary/5 shadow-sm transition-all hover:border-primary/20">
-      <div className="flex items-center gap-3 mb-3">
-        <div className="size-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-          <Icon className="h-4 w-4" />
-        </div>
-        <p className="text-[10px] text-slate-400 uppercase tracking-tight font-bold">{label}</p>
+    <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm transition-all hover:shadow-lg hover:shadow-primary/5 group">
+      <div className={cn("size-10 rounded-xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110", bg)}>
+        <Icon className={cn("h-5 w-5", color)} />
       </div>
-      <h3 className="text-xl font-bold text-slate-900 dark:text-white">{value}</h3>
-      <p className="text-xs font-bold text-emerald-500 mt-1">{subValue}</p>
+      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{label}</p>
+      <p className="text-2xl font-bold text-slate-700 dark:text-white mt-1">{value}</p>
     </div>
   )
 }
 
-function PropertyCardCompact({ image, name, location, price, status }: any) {
+function ViewingItem({ viewing }: { viewing: any }) {
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm transition-all">
-      <div className="group h-32 relative overflow-hidden">
-        <Image src={image} alt={name} fill className="object-cover transition-transform duration-500 group-hover:scale-105" />
-        <div className="absolute top-2.5 right-2.5 text-white text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tight shadow-sm bg-primary">
-          {status}
+    <div className="p-4 rounded-xl border border-slate-50 dark:border-slate-800 hover:border-slate-100 hover:bg-slate-50/50 transition-all cursor-pointer group">
+      <div className="flex items-start justify-between">
+        <div className="flex gap-4">
+          <div className="size-10 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 font-bold text-[10px] uppercase shadow-sm group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+            {viewing.tenantName.split(' ')[0][0]}{viewing.tenantName.split(' ')[1][0]}
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-slate-700 group-hover:text-primary transition-colors">{viewing.tenantName}</p>
+            <p className="text-[11px] font-medium text-slate-400 uppercase tracking-tight">{viewing.propertyTitle}</p>
+            <div className="flex items-center gap-2 mt-1.5">
+              <span className="flex items-center gap-1.5 text-[10px] font-bold text-slate-300 uppercase tracking-tighter">
+                <Clock className="h-3 w-3" /> {viewing.time}
+              </span>
+            </div>
+          </div>
         </div>
-      </div>
-      <div className="p-3">
-        <h4 className="font-bold text-slate-900 dark:text-white truncate text-sm">{name}</h4>
-        <p className="text-[11px] text-slate-500 font-medium flex items-center gap-1 mt-1">
-          <MapPin className="h-3 w-3 text-slate-400" /> {location}
-        </p>
-        <div className="mt-3 flex items-center justify-between border-t border-slate-50/50 pt-2.5">
-          <span className="text-primary font-bold text-sm">{price}</span>
-          <button className="text-[9px] font-bold text-slate-400 hover:text-primary transition-colors">Details</button>
+        <div className="flex gap-1">
+          <button className="p-2 text-slate-300 hover:text-emerald-500 transition-colors">
+            <CheckCircle2 className="h-4 w-4" />
+          </button>
+          <button className="p-2 text-slate-300 hover:text-primary transition-colors">
+            <ChevronRight className="h-4 w-4" />
+          </button>
         </div>
-      </div>
-    </div>
-  )
-}
-
-function ViewingItem({ tenant, property, time, initials }: any) {
-  return (
-    <div className="flex items-center justify-between p-3 rounded-xl border border-slate-50 dark:border-slate-800 hover:border-primary/20 hover:bg-slate-50/30 transition-all cursor-pointer group">
-      <div className="flex items-center gap-3">
-        <div className="size-9 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white flex items-center justify-center text-xs font-bold shadow-sm">
-          {initials}
-        </div>
-        <div>
-          <p className="text-sm font-bold text-slate-900 group-hover:text-primary transition-colors">{tenant}</p>
-          <p className="text-[10px] font-medium text-slate-400">{property}</p>
-        </div>
-      </div>
-      <div className="text-right">
-        <p className="text-[10px] font-bold text-slate-900 uppercase tracking-tight">{time}</p>
-        <button className="text-[9px] font-bold text-primary hover:underline mt-1">Confirm</button>
       </div>
     </div>
   )
 }
 
-function CommissionEntry({ property, amount, date }: any) {
+function CheckCircle2({ className }: any) {
   return (
-    <div className="p-4 bg-slate-50/30 dark:bg-slate-800/50 rounded-xl border border-slate-100/30 flex items-center justify-between">
-      <div>
-        <p className="text-sm font-bold text-slate-900">{property}</p>
-        <p className="text-[10px] font-medium text-slate-400">{date}</p>
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" /><path d="m9 12 2 2 4-4" /></svg>
+  )
+}
+
+function AgentPropertyCard({ property }: { property: any }) {
+  return (
+    <div className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm transition-all hover:shadow-xl hover:shadow-primary/5 group">
+      <div className="h-32 relative overflow-hidden">
+        <Image src={property.images[0]} alt={property.title} fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
+        <div className="absolute top-3 right-3 bg-emerald-50 text-emerald-600 border border-emerald-100 text-[9px] font-bold px-2.5 py-1 rounded-full uppercase tracking-widest shadow-sm">
+          Verified House
+        </div>
       </div>
-      <div className="text-right">
-        <p className="text-sm font-bold text-emerald-600">{amount}</p>
-        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Paid</p>
+      <div className="p-4">
+        <h4 className="font-semibold text-slate-700 dark:text-white truncate text-sm uppercase tracking-tight group-hover:text-primary">{property.title}</h4>
+        <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-50 dark:border-slate-800">
+          <div className="flex flex-col">
+            <span className="text-primary font-bold text-sm">TZS {(property.price / 1e6).toFixed(1)}M</span>
+            <span className="text-[9px] font-semibold text-slate-300 uppercase tracking-widest mt-0.5">/ Month</span>
+          </div>
+          <button className="text-[10px] font-bold text-slate-400 hover:text-primary border-b border-transparent hover:border-primary uppercase tracking-widest transition-all">Listing</button>
+        </div>
       </div>
     </div>
   )
