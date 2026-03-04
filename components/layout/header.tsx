@@ -10,8 +10,6 @@ import { useAuth } from "@/context/auth-context"
 
 const publicNavLinks = [
   { href: "/browse", label: "Browse" },
-  { href: "/exchange", label: "Exchange" },
-  { href: "/chat", label: "Chat" },
 ]
 
 interface HeaderProps {

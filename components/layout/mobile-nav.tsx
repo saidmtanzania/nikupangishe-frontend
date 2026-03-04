@@ -23,8 +23,6 @@ export function MobileNav() {
   const mobileNavItems = [
     { href: "/", label: "Home", icon: Home },
     { href: "/browse", label: "Browse", icon: Search },
-    { href: "/exchange", label: "Exchange", icon: ArrowLeftRight },
-    { href: "/chat", label: "Chat", icon: MessageSquare },
     accountItem,
   ]
 

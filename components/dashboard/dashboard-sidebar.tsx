@@ -18,6 +18,7 @@ import {
   LogOut,
   User,
   HelpCircle,
+  MessageSquare,
 } from "lucide-react"
 
 interface NavItem {
@@ -34,18 +35,21 @@ const ownerNav: NavItem[] = [
   { href: "/dashboard/owner/viewings", label: "Viewings", icon: Calendar },
   { href: "/dashboard/owner/tenancies", label: "Tenancies", icon: ClipboardList },
   { href: "/dashboard/owner/verification", label: "Trust Center", icon: Shield },
+  { href: "/chat", label: "Chat", icon: MessageSquare },
 ]
 
 const agentNav: NavItem[] = [
   { href: "/dashboard/agent", label: "Dashboard", icon: LayoutDashboard },
   { href: "/dashboard/agent/viewings", label: "Viewings", icon: Users },
   { href: "/dashboard/agent/commissions", label: "Earnings", icon: FileText },
+  { href: "/chat", label: "Chat", icon: MessageSquare },
 ]
 
 const tenantNav: NavItem[] = [
   { href: "/dashboard/tenant", label: "Overview", icon: LayoutDashboard },
   { href: "/dashboard/tenant/exchange", label: "Exchanges", icon: FileText },
   { href: "/dashboard/tenant/verification", label: "Trust Score", icon: Shield },
+  { href: "/chat", label: "Chat", icon: MessageSquare },
 ]
 
 interface DashboardSidebarProps {
