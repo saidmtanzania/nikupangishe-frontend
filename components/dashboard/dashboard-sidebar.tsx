@@ -1,8 +1,10 @@
 "use client"
 
+import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { useAuth } from "@/context/auth-context"
 import {
   LayoutDashboard,
   Home,
@@ -12,7 +14,10 @@ import {
   ClipboardList,
   FileText,
   Shield,
-  Settings
+  Settings,
+  LogOut,
+  User,
+  HelpCircle,
 } from "lucide-react"
 
 interface NavItem {
@@ -50,11 +55,33 @@ interface DashboardSidebarProps {
 
 export function DashboardSidebar({ role, userName }: DashboardSidebarProps) {
   const pathname = usePathname()
+  const router = useRouter()
+  const { logout } = useAuth()
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const panelRef = useRef<HTMLDivElement>(null)
 
   const navItems = role === "owner" ? ownerNav : role === "agent" ? agentNav : tenantNav
   const initials = userName.split(' ').map(n => n[0]).join('')
   const roleLabel = role.charAt(0).toUpperCase() + role.slice(1)
   const badgeLabel = role === "owner" ? "Premium Owner" : role === "agent" ? "Verified Agent" : "Gold Tenant"
+
+  const handleLogout = () => {
+    logout()
+    router.push("/")
+  }
+
+  // Close panel when clicking outside
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
+        setSettingsOpen(false)
+      }
+    }
+    if (settingsOpen) {
+      document.addEventListener("mousedown", handleClickOutside)
+      return () => document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [settingsOpen])
 
   return (
     <aside className="sticky top-0 h-screen w-[260px] shrink-0 flex flex-col border-r border-primary/10 bg-white dark:bg-slate-900 shadow-sm">
@@ -97,8 +124,41 @@ export function DashboardSidebar({ role, userName }: DashboardSidebarProps) {
       </nav>
 
       {/* User Profile Footer */}
-      <div className="p-4 border-t border-slate-100 dark:border-slate-800">
-        <div className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer group">
+      <div className="relative p-4 border-t border-slate-100 dark:border-slate-800" ref={panelRef}>
+        {/* Settings Panel (slides up) */}
+        {settingsOpen && (
+          <div className="absolute bottom-full left-3 right-3 mb-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-lg overflow-hidden animate-in slide-in-from-bottom-2 fade-in duration-200 z-50">
+            <div className="px-3 py-2.5 border-b border-slate-100 dark:border-slate-800">
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Settings</p>
+            </div>
+            <div className="py-1">
+              <button
+                onClick={() => { setSettingsOpen(false) }}
+                className="flex w-full items-center gap-3 px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+              >
+                <User className="h-4 w-4 text-slate-400" />
+                <span>Profile</span>
+              </button>
+              <button
+                onClick={() => { setSettingsOpen(false) }}
+                className="flex w-full items-center gap-3 px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+              >
+                <HelpCircle className="h-4 w-4 text-slate-400" />
+                <span>Help & Support</span>
+              </button>
+              <div className="mx-3 my-1 h-px bg-slate-100 dark:bg-slate-800" />
+              <button
+                onClick={handleLogout}
+                className="flex w-full items-center gap-3 px-3 py-2 text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
+              >
+                <LogOut className="h-4 w-4" />
+                <span>Sign Out</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div className="flex items-center gap-3 p-2 rounded-xl">
           <div className="relative h-8 w-8 shrink-0">
             <div className="h-full w-full rounded-full bg-primary/10 flex items-center justify-center overflow-hidden border border-white shadow-sm">
               <span className="text-[10px] font-medium text-primary uppercase">{initials}</span>
@@ -110,7 +170,18 @@ export function DashboardSidebar({ role, userName }: DashboardSidebarProps) {
               <span className="text-[9px] font-medium text-primary bg-primary/5 px-1.5 py-0.5 rounded-md uppercase tracking-wider">{badgeLabel}</span>
             </div>
           </div>
-          <Settings className="h-4 w-4 text-slate-400 transition-colors group-hover:text-slate-900" />
+          <button
+            onClick={() => setSettingsOpen(!settingsOpen)}
+            className={cn(
+              "rounded-lg p-1.5 transition-colors",
+              settingsOpen
+                ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white"
+                : "text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
+            )}
+            title="Settings"
+          >
+            <Settings className="h-4 w-4" />
+          </button>
         </div>
       </div>
     </aside>

@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -12,7 +12,8 @@ import { useAuth } from "@/context/auth-context"
 
 export function LoginForm() {
   const router = useRouter()
-  const { login } = useAuth()
+  const searchParams = useSearchParams()
+  const { login, isAuthenticated, user } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [identifier, setIdentifier] = useState("")
@@ -37,9 +38,14 @@ export function LoginForm() {
     setApiError("")
     try {
       const user = await login(identifier.trim(), password)
-      // Redirect to the dashboard matching the user's role
-      const role = user.role === "admin" ? "owner" : user.role
-      router.push(`/dashboard/${role}`)
+      // If there's a redirect param, go there; otherwise go to the user's dashboard
+      const redirectTo = searchParams.get("redirect")
+      if (redirectTo && redirectTo.startsWith("/")) {
+        router.push(redirectTo)
+      } else {
+        const role = user.role === "admin" ? "owner" : user.role
+        router.push(`/dashboard/${role}`)
+      }
     } catch (err: unknown) {
       setApiError(err instanceof Error ? err.message : "Invalid credentials. Please try again.")
     } finally {
