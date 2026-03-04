@@ -248,13 +248,30 @@ export const propertiesApi = {
     return [];
   },
 
-  async create(payload: FormData, token: string): Promise<ApiProperty> {
+  async create(payload: Record<string, unknown>, token: string): Promise<ApiProperty> {
     return apiFetch<ApiProperty>("/houses", {
       method: "POST",
-      body: payload,
+      body: JSON.stringify(payload),
       token,
-      headers: {},  // let browser set multipart boundary
     });
+  },
+
+  async uploadPhotos(houseId: string, files: File[], token: string): Promise<{ images: string[] }> {
+    const formData = new FormData();
+    files.forEach((f) => formData.append("images", f));
+
+    const url = `${API_BASE}/houses/${houseId}/images`;
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData,
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      const msg = (body as Record<string, unknown>)?.message ?? `Upload error ${res.status}`;
+      throw new Error(Array.isArray(msg) ? (msg as string[])[0] : String(msg));
+    }
+    return unwrap<{ images: string[] }>(body);
   },
 };
 

@@ -10,22 +10,28 @@ import {
   ChevronRight,
   Search,
   Building2,
-  Handshake
+  Handshake,
+  Lock
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
+import { useAuth } from "@/context/auth-context"
 
 export default function RegisterPage() {
   const router = useRouter()
+  const { register } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [selectedRole, setSelectedRole] = useState<string>("tenant")
+  const [apiError, setApiError] = useState("")
 
   const [formData, setFormData] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
     email: "",
-    phone: ""
+    phone: "",
+    password: "",
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -33,10 +39,16 @@ export default function RegisterPage() {
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
 
-    if (!formData.name.trim()) {
-      newErrors.name = "Full name is required"
-    } else if (formData.name.trim().length < 3) {
-      newErrors.name = "Name must be at least 3 characters"
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = "First name is required"
+    } else if (formData.firstName.trim().length < 2) {
+      newErrors.firstName = "First name must be at least 2 characters"
+    }
+
+    if (!formData.lastName.trim()) {
+      newErrors.lastName = "Last name is required"
+    } else if (formData.lastName.trim().length < 2) {
+      newErrors.lastName = "Last name must be at least 2 characters"
     }
 
     if (!formData.email.trim()) {
@@ -47,26 +59,41 @@ export default function RegisterPage() {
 
     if (!formData.phone.trim()) {
       newErrors.phone = "Phone number is required"
-    } else if (formData.phone.length !== 9) {
-      newErrors.phone = "Please enter all 9 digits"
+    } else if (formData.phone.replace(/\s+/g, "").length < 10) {
+      newErrors.phone = "Please enter a valid phone number"
+    }
+
+    if (!formData.password) {
+      newErrors.password = "Password is required"
+    } else if (formData.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters"
     }
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-
     if (!validateForm()) return
 
     setIsLoading(true)
-    setTimeout(() => {
+    setApiError("")
+    try {
+      await register({
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.replace(/\s+/g, ""),
+        password: formData.password,
+        role: selectedRole as "owner" | "agent" | "tenant",
+      })
+      router.push(`/auth/verify?phone=${encodeURIComponent(formData.phone.replace(/\s+/g, ""))}`)
+    } catch (err: unknown) {
+      setApiError(err instanceof Error ? err.message : "Registration failed. Please try again.")
+    } finally {
       setIsLoading(false)
-      const fullPhone = `+255 ${formData.phone}`
-      const encodedPhone = encodeURIComponent(fullPhone)
-      router.push(`/auth/verify?phone=${encodedPhone}`)
-    }, 1200)
+    }
   }
 
   return (
@@ -88,26 +115,48 @@ export default function RegisterPage() {
 
           <form onSubmit={handleSubmit} className="space-y-6" noValidate>
             <div className="space-y-4">
-              {/* Full Name */}
-              <div className="space-y-2">
-                <Label htmlFor="name" className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Full Name</Label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    id="name"
-                    placeholder="John Doe"
-                    className={cn(
-                      "pl-10 h-11 bg-muted/20 border-border focus-visible:ring-primary/20 transition-all font-normal",
-                      errors.name && "border-destructive focus-visible:ring-destructive/20"
-                    )}
-                    value={formData.name}
-                    onChange={(e) => {
-                      setFormData({ ...formData, name: e.target.value })
-                      if (errors.name) setErrors({ ...errors, name: "" })
-                    }}
-                  />
+              {/* First Name & Last Name */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="firstName" className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">First Name</Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      id="firstName"
+                      placeholder="John"
+                      className={cn(
+                        "pl-10 h-11 bg-muted/20 border-border focus-visible:ring-primary/20 transition-all font-normal",
+                        errors.firstName && "border-destructive focus-visible:ring-destructive/20"
+                      )}
+                      value={formData.firstName}
+                      onChange={(e) => {
+                        setFormData({ ...formData, firstName: e.target.value })
+                        if (errors.firstName) setErrors({ ...errors, firstName: "" })
+                      }}
+                    />
+                  </div>
+                  {errors.firstName && <p className="text-[11px] font-medium text-destructive ml-1">{errors.firstName}</p>}
                 </div>
-                {errors.name && <p className="text-[11px] font-medium text-destructive ml-1">{errors.name}</p>}
+                <div className="space-y-2">
+                  <Label htmlFor="lastName" className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Last Name</Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      id="lastName"
+                      placeholder="Doe"
+                      className={cn(
+                        "pl-10 h-11 bg-muted/20 border-border focus-visible:ring-primary/20 transition-all font-normal",
+                        errors.lastName && "border-destructive focus-visible:ring-destructive/20"
+                      )}
+                      value={formData.lastName}
+                      onChange={(e) => {
+                        setFormData({ ...formData, lastName: e.target.value })
+                        if (errors.lastName) setErrors({ ...errors, lastName: "" })
+                      }}
+                    />
+                  </div>
+                  {errors.lastName && <p className="text-[11px] font-medium text-destructive ml-1">{errors.lastName}</p>}
+                </div>
               </div>
 
               {/* Email */}
@@ -135,32 +184,47 @@ export default function RegisterPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="phone" className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Phone Number</Label>
-                <div className="flex gap-2">
-                  <div className="flex h-11 items-center rounded-xl border border-border bg-muted/30 px-3 text-sm font-semibold text-muted-foreground">
-                    +255
-                  </div>
-                  <div className="relative flex-1">
-                    <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      id="phone"
-                      type="tel"
-                      placeholder="7XX XXX XXX"
-                      className={cn(
-                        "pl-10 h-11 bg-muted/30 border-border focus-visible:ring-primary/20 transition-all font-normal",
-                        errors.phone && "border-destructive focus-visible:ring-destructive/20"
-                      )}
-                      value={formData.phone}
-                      onChange={(e) => {
-                        const val = e.target.value.replace(/\D/g, '')
-                        if (val.length <= 9) {
-                          setFormData({ ...formData, phone: val })
-                          if (errors.phone) setErrors({ ...errors, phone: "" })
-                        }
-                      }}
-                    />
-                  </div>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="phone"
+                    type="tel"
+                    placeholder="+255 7XX XXX XXX"
+                    className={cn(
+                      "pl-10 h-11 bg-muted/20 border-border focus-visible:ring-primary/20 transition-all font-normal",
+                      errors.phone && "border-destructive focus-visible:ring-destructive/20"
+                    )}
+                    value={formData.phone}
+                    onChange={(e) => {
+                      setFormData({ ...formData, phone: e.target.value })
+                      if (errors.phone) setErrors({ ...errors, phone: "" })
+                    }}
+                  />
                 </div>
                 {errors.phone && <p className="text-[11px] font-medium text-destructive ml-1">{errors.phone}</p>}
+              </div>
+
+              {/* Password */}
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Password</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="Create a strong password"
+                    className={cn(
+                      "pl-10 h-11 bg-muted/20 border-border focus-visible:ring-primary/20 transition-all font-normal",
+                      errors.password && "border-destructive focus-visible:ring-destructive/20"
+                    )}
+                    value={formData.password}
+                    onChange={(e) => {
+                      setFormData({ ...formData, password: e.target.value })
+                      if (errors.password) setErrors({ ...errors, password: "" })
+                    }}
+                  />
+                </div>
+                {errors.password && <p className="text-[11px] font-medium text-destructive ml-1">{errors.password}</p>}
               </div>
 
               {/* Role Switcher */}
@@ -201,6 +265,12 @@ export default function RegisterPage() {
                 {!isLoading && <ChevronRight className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2" />}
               </Button>
             </div>
+
+            {apiError && (
+              <p className="rounded-lg bg-destructive/10 px-3 py-2 text-center text-[12px] font-medium text-destructive">
+                {apiError}
+              </p>
+            )}
 
             <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
               By signing up, you agree to our
