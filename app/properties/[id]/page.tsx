@@ -20,7 +20,7 @@ import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { PropertyGallery } from "@/components/properties/property-gallery"
 import { PropertyCard } from "@/components/properties/property-card"
-import { mockProperties, mockUsers } from "@/lib/mock-data"
+import { propertiesApi, toProperty } from "@/lib/api"
 import { formatTZS } from "@/lib/utils"
 import { PropertyDetailsMap } from "@/components/properties/property-details-map"
 
@@ -30,17 +30,29 @@ export default async function PropertyDetailPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const property = mockProperties.find((p) => p.id === id)
 
-  if (!property) {
+  let apiProp
+  try {
+    apiProp = await propertiesApi.get(id)
+  } catch {
     notFound()
   }
 
-  const owner = mockUsers.find((u) => u.id === property.ownerId)
-  const agent = property.agentId ? mockUsers.find((u) => u.id === property.agentId) : null
-  const similar = mockProperties
-    .filter((p) => p.id !== property.id && p.propertyType === property.propertyType)
-    .slice(0, 3)
+  const property = toProperty(apiProp!)
+  const agent = null  // agent profile lookup not yet available
+  const owner = null  // owner profile lookup not yet available
+
+  let similar: ReturnType<typeof toProperty>[] = []
+  try {
+    const res = await propertiesApi.list({ houseType: property.propertyType, limit: 4 })
+    const items = Array.isArray(res) ? res : (res.data ?? [])
+    similar = items
+      .filter((p) => p.id !== property.id)
+      .slice(0, 3)
+      .map(toProperty)
+  } catch {
+    similar = []
+  }
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 lg:px-6 lg:py-8">

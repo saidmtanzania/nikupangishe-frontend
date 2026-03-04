@@ -10,13 +10,20 @@ import {
   ChevronRight,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { mockProperties } from "@/lib/mock-data"
+import { propertiesApi, toProperty } from "@/lib/api"
 import { formatTZS } from "@/lib/utils"
 import { HeroSearch } from "@/components/home/hero-search"
 import { PropertyCard } from "@/components/properties/property-card"
 
-export default function LandingPage() {
-  const featured = mockProperties.filter((p) => p.isUnique).slice(0, 3)
+export default async function LandingPage() {
+  let featured: ReturnType<typeof toProperty>[] = []
+  try {
+    const res = await propertiesApi.list({ limit: 6, isUnique: true })
+    const items = Array.isArray(res) ? res : (res.data ?? [])
+    featured = items.slice(0, 3).map(toProperty)
+  } catch {
+    featured = []
+  }
 
   return (
     <div className="flex flex-col">

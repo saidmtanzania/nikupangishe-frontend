@@ -1,16 +1,15 @@
 "use client"
 
 import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar"
-import { mockUsers } from "@/lib/mock-data"
+import { useAuth } from "@/context/auth-context"
 
 export default function TenantDashboardLayout({
     children,
 }: {
     children: React.ReactNode
 }) {
-    // Find primary tenant (Baraka Mwangi)
-    const tenant = mockUsers.find((u) => u.id === "user-2")!
-    const userName = tenant.name
+    const { user } = useAuth()
+    const userName = user ? `${user.firstName} ${user.lastName}` : "Tenant"
 
     return (
         <div className="min-h-screen w-full bg-[#f8f6f6] dark:bg-[#221610] flex justify-center">

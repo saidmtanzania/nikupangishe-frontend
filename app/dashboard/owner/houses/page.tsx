@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import {
     Search,
     Plus,
@@ -12,11 +12,23 @@ import {
 } from "lucide-react"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
-import { mockProperties, mockUsers } from "@/lib/mock-data"
+import { useAuth } from "@/context/auth-context"
+import { propertiesApi, toProperty } from "@/lib/api"
 
 export default function MyHousesPage() {
-    const owner = mockUsers.find((u) => u.id === "user-3")!
-    const ownerProperties = mockProperties.filter(p => p.ownerId === owner.id)
+    const { token } = useAuth()
+    const [ownerProperties, setOwnerProperties] = useState<ReturnType<typeof toProperty>[]>([])
+    const [isLoading, setIsLoading] = useState(true)
+
+    useEffect(() => {
+        if (!token) { setIsLoading(false); return }
+        let cancelled = false
+        propertiesApi.myHouses(token)
+            .then((res) => { if (!cancelled) setOwnerProperties(res.map(toProperty)) })
+            .catch(() => {})
+            .finally(() => { if (!cancelled) setIsLoading(false) })
+        return () => { cancelled = true }
+    }, [token])
 
     const [searchQuery, setSearchQuery] = useState("")
 
@@ -131,8 +143,7 @@ export default function MyHousesPage() {
                             </thead>
                             <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
                                 {filteredProperties.map((p, idx) => {
-                                    const agent = mockUsers.find(u => u.id === p.agentId)
-                                    const isLock = idx === 3; // Simulate "Masaki Apartment" logic
+                                    const isLock = idx === 3;
 
                                     return (
                                         <tr key={p.id} className={cn(
@@ -180,12 +191,12 @@ export default function MyHousesPage() {
                                                 </div>
                                             </td>
                                             <td className="px-6 py-6">
-                                                {agent ? (
+                                                {p.agentId ? (
                                                     <div className="flex items-center gap-2.5">
                                                         <div className="w-7 h-7 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center border border-slate-100 shadow-sm overflow-hidden text-slate-400">
-                                                            <span className="text-[9px] font-medium uppercase">{agent.name.split(' ').map(n => n[0]).join('')}</span>
+                                                            <span className="text-[9px] font-medium uppercase">{p.agentId.slice(0, 2).toUpperCase()}</span>
                                                         </div>
-                                                        <span className="text-[11px] font-medium text-slate-600 dark:text-slate-400 truncate max-w-[90px]">{agent.name}</span>
+                                                        <span className="text-[11px] font-medium text-slate-600 dark:text-slate-400 truncate max-w-[90px]">Assigned</span>
                                                     </div>
                                                 ) : (
                                                     <span className="text-[10px] font-medium text-slate-400 italic">Unassigned</span>

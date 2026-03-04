@@ -8,54 +8,43 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Eye, EyeOff, Shield, User, ArrowRight } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useAuth } from "@/context/auth-context"
 
 export function LoginForm() {
   const router = useRouter()
+  const { login } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [identifier, setIdentifier] = useState("")
   const [password, setPassword] = useState("")
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [apiError, setApiError] = useState("")
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
-
-    if (!identifier.trim()) {
-      newErrors.identifier = "Email or phone number is required"
-    }
-
-    if (!password) {
-      newErrors.password = "Password is required"
-    } else if (password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters"
-    }
-
+    if (!identifier.trim()) newErrors.identifier = "Email or phone number is required"
+    if (!password) newErrors.password = "Password is required"
+    else if (password.length < 6) newErrors.password = "Password must be at least 6 characters"
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-
     if (!validateForm()) return
 
     setIsLoading(true)
-    setTimeout(() => {
+    setApiError("")
+    try {
+      const user = await login(identifier.trim(), password)
+      // Redirect to the dashboard matching the user's role
+      const role = user.role === "admin" ? "owner" : user.role
+      router.push(`/dashboard/${role}`)
+    } catch (err: unknown) {
+      setApiError(err instanceof Error ? err.message : "Invalid credentials. Please try again.")
+    } finally {
       setIsLoading(false)
-
-      // Simulation: If password is 'verify', we pretend the account isn't verified yet
-      if (password.toLowerCase() === 'verify') {
-        const phone = identifier.startsWith('+') || /^\d+$/.test(identifier)
-          ? identifier
-          : "7XX XXX XXX"
-
-        const formattedPhone = phone.startsWith('+255') ? phone : `+255 ${phone.startsWith('0') ? phone.slice(1) : phone}`
-        router.push(`/auth/verify?phone=${encodeURIComponent(formattedPhone)}`)
-        return
-      }
-
-      router.push("/dashboard/tenant")
-    }, 1200)
+    }
   }
 
   return (
@@ -129,6 +118,12 @@ export function LoginForm() {
           {isLoading ? "Signing in..." : "Sign In"}
           {!isLoading && <ArrowRight className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2" />}
         </Button>
+
+        {apiError && (
+          <p className="rounded-lg bg-destructive/10 px-3 py-2 text-center text-[12px] font-medium text-destructive">
+            {apiError}
+          </p>
+        )}
       </form>
 
       {/* Footer Links */}
@@ -143,8 +138,13 @@ export function LoginForm() {
 
       <div className="mt-6 flex items-center gap-2 justify-center py-2 px-4 rounded-lg bg-muted/30 border border-muted/20 text-[10px] font-medium uppercase tracking-[0.05em] text-muted-foreground">
         <Shield className="h-3 w-3 text-primary/70" />
-        <span>Secure & Encrypted Session</span>
+        <span>Secure &amp; Encrypted Session</span>
       </div>
+
+      {/* Test credentials hint */}
+      <p className="mt-4 text-center text-[10px] text-muted-foreground">
+        Try: <code className="text-primary">amina.hassan@nikupangishe.co.tz</code> / <code className="text-primary">Owner@1234</code>
+      </p>
     </div>
   )
 }

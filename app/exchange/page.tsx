@@ -1,9 +1,7 @@
 import type { Metadata } from "next"
-import { mockExchangeRequests, mockProperties } from "@/lib/mock-data"
-import { formatTZS } from "@/lib/utils"
+import { propertiesApi, toProperty } from "@/lib/api"
 import { PropertyCard } from "@/components/properties/property-card"
 import { Button } from "@/components/ui/button"
-import { ExchangeCard } from "@/components/exchange/exchange-card"
 import {
   ArrowLeftRight,
   Shield,
@@ -30,7 +28,15 @@ const steps = [
   { icon: <Home className="h-5 w-5" />, title: "Move In", description: "Once approved, coordinate the move with the platform's support" },
 ]
 
-export default function ExchangePage() {
+export default async function ExchangePage() {
+  let exchangeableProperties: ReturnType<typeof toProperty>[] = []
+  try {
+    const res = await propertiesApi.list({ isOpenToExchange: true, limit: 8 })
+    const items = Array.isArray(res) ? res : (res.data ?? [])
+    exchangeableProperties = items.map(toProperty)
+  } catch {
+    exchangeableProperties = []
+  }
   return (
     <div className="min-h-screen">
       {/* Hero */}
@@ -94,7 +100,7 @@ export default function ExchangePage() {
             </Button>
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {exchangeableProperties.map((property) => (
+            {exchangeableProperties.length > 0 ? exchangeableProperties.map((property) => (
               <PropertyCard
                 key={property.id}
                 property={property}
@@ -104,21 +110,21 @@ export default function ExchangePage() {
                   </span>
                 }
               />
-            ))}
+            )) : (
+              <p className="col-span-4 py-12 text-center text-sm text-muted-foreground">No properties currently available for exchange. Check back soon.</p>
+            )}
           </div>
         </div>
       </section>
 
-      {/* Recent Exchange Requests */}
+      {/* Recent Exchange Requests - requires login */}
       <section>
         <div className="mx-auto max-w-7xl px-4 py-12 lg:px-6">
-          <h2 className="text-xl font-bold text-foreground mb-2">Recent Exchange Requests</h2>
-          <p className="text-sm text-muted-foreground mb-6">See what tenants are swapping across the platform</p>
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            {mockExchangeRequests.map((exchange) => (
-              <ExchangeCard key={exchange.id} exchange={exchange} />
-            ))}
-          </div>
+          <h2 className="text-xl font-bold text-foreground mb-2">Want to Start an Exchange?</h2>
+          <p className="text-sm text-muted-foreground mb-6">Log in to submit an exchange request and see pending swaps in your area.</p>
+          <Button asChild>
+            <Link href="/auth/login">Log In to Start</Link>
+          </Button>
         </div>
       </section>
 

@@ -1,12 +1,21 @@
 "use client"
 
-import { Calendar, Clock, MapPin, CheckCircle2, XCircle, Search, Filter } from "lucide-react"
-import { mockViewings, mockUsers } from "@/lib/mock-data"
+import { Calendar, Clock, CheckCircle2, XCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useState, useEffect } from "react"
+import { useAuth } from "@/context/auth-context"
+import { viewingsApi, type ViewingRequest } from "@/lib/api"
 
 export default function AgentViewingsPage() {
-    const agent = mockUsers.find(u => u.id === "user-5")!
-    const viewings = mockViewings.filter(v => v.agentId === agent.id)
+    const { token } = useAuth()
+    const [viewings, setViewings] = useState<ViewingRequest[]>([])
+
+    useEffect(() => {
+        if (!token) return
+        viewingsApi.list(token)
+            .then(setViewings)
+            .catch(() => {})
+    }, [token])
 
     return (
         <div className="py-12">
@@ -33,32 +42,31 @@ export default function AgentViewingsPage() {
                         <table className="w-full text-left">
                             <thead>
                                 <tr className="bg-slate-50/50 dark:bg-slate-800/20 text-[10px] font-medium uppercase tracking-widest text-slate-400 border-b border-slate-100 dark:border-slate-800">
-                                    <th className="px-6 py-4">Tenant Name</th>
                                     <th className="px-6 py-4">Property</th>
-                                    <th className="px-6 py-4">Time</th>
+                                    <th className="px-6 py-4">Scheduled At</th>
+                                    <th className="px-6 py-4">Notes</th>
                                     <th className="px-6 py-4">Status</th>
                                     <th className="px-6 py-4 text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
-                                {viewings.map((viewing) => (
+                                {viewings.length > 0 ? viewings.map((viewing) => (
                                     <tr key={viewing.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/10 transition-colors group">
-                                        <td className="px-6 py-5">
-                                            <div className="flex items-center gap-3">
-                                                <div className="size-8 rounded-full bg-slate-50 dark:bg-slate-800 border border-slate-100 flex items-center justify-center text-slate-400 font-medium text-[10px] group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                                                    {viewing.tenantName.split(' ').map((n: string) => n[0]).join('')}
-                                                </div>
-                                                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{viewing.tenantName}</span>
-                                            </div>
+                                        <td className="px-6 py-5 text-xs font-medium text-slate-500 dark:text-slate-400">
+                                            {viewing.houseTitle ?? viewing.houseId}
                                         </td>
-                                        <td className="px-6 py-5 text-xs font-medium text-slate-500 dark:text-slate-400">{viewing.propertyTitle}</td>
                                         <td className="px-6 py-5">
                                             <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
-                                                <Clock className="size-3.5" /> {viewing.time}
+                                                <Clock className="size-3.5" />
+                                                {new Date(viewing.scheduledAt).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })}
                                             </div>
                                         </td>
+                                        <td className="px-6 py-5 text-xs text-slate-400">{viewing.notes ?? "—"}</td>
                                         <td className="px-6 py-5">
-                                            <span className="bg-emerald-50 text-emerald-600 dark:bg-emerald-950/20 text-[9px] font-medium px-2 py-0.5 rounded-full uppercase tracking-widest shadow-sm border border-emerald-100">
+                                            <span className={cn(
+                                                "text-[9px] font-medium px-2 py-0.5 rounded-full uppercase tracking-widest shadow-sm border",
+                                                viewing.status === "confirmed" ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-amber-50 text-amber-500 border-amber-100"
+                                            )}>
                                                 {viewing.status}
                                             </span>
                                         </td>
@@ -73,7 +81,11 @@ export default function AgentViewingsPage() {
                                             </div>
                                         </td>
                                     </tr>
-                                ))}
+                                )) : (
+                                    <tr>
+                                        <td colSpan={5} className="px-6 py-12 text-center text-sm text-slate-400">No viewings scheduled.</td>
+                                    </tr>
+                                )}
                             </tbody>
                         </table>
                     </div>

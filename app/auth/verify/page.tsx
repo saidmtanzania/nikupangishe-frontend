@@ -6,11 +6,15 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { Lock, Smartphone, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { useAuth } from "@/context/auth-context"
+import { authApi } from "@/lib/api"
 
 function VerifyContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
+    const { verifyPhone } = useAuth()
     const rawPhone = searchParams.get("phone") || ""
+    const [apiError, setApiError] = useState("")
 
     const maskPhoneNumber = (phone: string) => {
         if (!phone) return "+255 ••• ••67"
@@ -38,13 +42,18 @@ function VerifyContent() {
         return () => clearInterval(timer)
     }, [countdown])
 
-    const handleResend = () => {
+    const handleResend = async () => {
         if (countdown > 0 || isResending) return
         setIsResending(true)
-        setTimeout(() => {
-            setIsResending(false)
+        setApiError("")
+        try {
+            await authApi.resendOtp(rawPhone)
             setCountdown(60)
-        }, 2000)
+        } catch (err: unknown) {
+            setApiError(err instanceof Error ? err.message : "Failed to resend OTP")
+        } finally {
+            setIsResending(false)
+        }
     }
 
     const handleInput = (index: number, value: string) => {
@@ -67,14 +76,20 @@ function VerifyContent() {
         }
     }
 
-    const handleVerify = (e: React.FormEvent) => {
+    const handleVerify = async (e: React.FormEvent) => {
         e.preventDefault()
         setIsLoading(true)
-        setTimeout(() => {
+        setApiError("")
+        try {
+            const otp = code.join("")
+            const user = await verifyPhone(rawPhone, otp)
+            // Redirect based on user role
+            router.push(`/dashboard/${user.role}`)
+        } catch (err: unknown) {
+            setApiError(err instanceof Error ? err.message : "Verification failed. Please try again.")
+        } finally {
             setIsLoading(false)
-            // Redirect to owner onboarding after verification
-            router.push("/onboarding/owner")
-        }, 1500)
+        }
     }
 
     return (
@@ -120,6 +135,12 @@ function VerifyContent() {
                                     />
                                 ))}
                             </div>
+
+                            {apiError && (
+                                <p className="rounded-lg bg-destructive/10 px-3 py-2 text-center text-[12px] font-medium text-destructive">
+                                    {apiError}
+                                </p>
+                            )}
 
                             <Button
                                 disabled={isLoading || code.some(d => !d)}

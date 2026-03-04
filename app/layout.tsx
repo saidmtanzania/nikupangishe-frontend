@@ -4,6 +4,7 @@ import { Analytics } from '@vercel/analytics/next'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { MobileNav } from '@/components/layout/mobile-nav'
+import { AuthProvider } from '@/context/auth-context'
 import './globals.css'
 
 const _workSans = Work_Sans({ subsets: ["latin"] })
@@ -48,10 +49,12 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&display=swap" rel="stylesheet" />
       </head>
       <body className="font-sans antialiased flex flex-col min-h-screen pb-16 lg:pb-0">
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
-        <MobileNav />
+        <AuthProvider>
+          <Header />
+          <main className="flex-1">{children}</main>
+          <Footer />
+          <MobileNav />
+        </AuthProvider>
         <Analytics />
       </body>
     </html>

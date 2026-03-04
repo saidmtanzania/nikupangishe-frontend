@@ -17,14 +17,33 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
-import { mockProperties, mockUsers, mockExchangeRequests, mockConversations, mockTenancies } from "@/lib/mock-data"
+import { useState, useEffect } from "react"
+import { useAuth } from "@/context/auth-context"
+import { exchangeApi, chatApi, type ExchangeRequest } from "@/lib/api"
 
 export default function TenantDashboard() {
-  const tenant = mockUsers.find((u) => u.id === "user-2")!
-  const myTenancy = mockTenancies.find((t) => t.tenantId === tenant.id)
-  const myExchangeRequests = mockExchangeRequests.filter((e) => e.fromTenantId === tenant.id)
-  const myMessages = mockConversations.filter((c) => c.participants.some(p => p.id === tenant.id))
-  const userName = tenant.name
+  const { user, token } = useAuth()
+  const userName = user ? `${user.firstName} ${user.lastName}` : "Tenant"
+  const myTenancy = null  // tenancy endpoint not yet implemented
+  const [myExchangeRequests, setMyExchangeRequests] = useState<ExchangeRequest[]>([])
+  const [myMessages, setMyMessages] = useState<unknown[]>([])
+
+  useEffect(() => {
+    if (!token) return
+    let cancelled = false
+    exchangeApi.list(token)
+      .then((res) => { if (!cancelled) setMyExchangeRequests(res) })
+      .catch(() => {})
+    chatApi.conversations(token)
+      .then((res) => {
+        if (!cancelled) {
+          const list = Array.isArray(res) ? res : ((res as Record<string, unknown>)?.data as unknown[] ?? [])
+          setMyMessages(list)
+        }
+      })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [token])
 
   return (
     <div className="py-12">
@@ -55,10 +74,7 @@ export default function TenantDashboard() {
             {myTenancy ? (
               <div className="flex flex-col md:flex-row gap-8">
                 <div className="relative w-full md:w-64 h-40 rounded-2xl overflow-hidden shadow-sm">
-                  <Image src={mockProperties.find(p => p.id === myTenancy.propertyId)?.images[0] || ""} alt="Home" fill className="object-cover transition-transform duration-500 hover:scale-110" />
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-4">
-                    <p className="text-white text-xs font-medium truncate">{myTenancy.propertyTitle}</p>
-                  </div>
+                  <div className="w-full h-full bg-muted flex items-center justify-center"><Home className="h-10 w-10 text-muted-foreground/30" /></div>
                 </div>
                 <div className="flex-1 space-y-4">
                   <div className="grid grid-cols-2 gap-4">
@@ -114,28 +130,33 @@ export default function TenantDashboard() {
               <button className="text-[10px] font-medium text-slate-400 uppercase tracking-widest hover:underline">View History</button>
             </div>
             <div className="space-y-4 max-h-[360px] overflow-y-auto pr-2 custom-scrollbar">
-              {myExchangeRequests.map(req => (
+            {myExchangeRequests.length > 0 ? myExchangeRequests.map(req => (
                 <div key={req.id} className="p-5 rounded-2xl border border-slate-50 dark:border-slate-800 hover:border-slate-100 hover:bg-slate-50/50 transition-all group">
                   <div className="flex items-center justify-between mb-4">
                     <span className={cn(
                       "text-[9px] font-medium px-2.5 py-1 rounded-full uppercase tracking-widest shadow-sm border",
-                      req.status === "pending" ? "bg-amber-50 text-amber-600 border-amber-100" : req.status === "approved" ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-red-50 text-red-600 border-red-100"
+                      req.status === "pending" ? "bg-amber-50 text-amber-600 border-amber-100" : req.status === "accepted" ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-red-50 text-red-600 border-red-100"
                     )}>
                       {req.status}
                     </span>
-                    <span className="text-[10px] font-medium text-slate-300">{req.createdAt}</span>
+                    <span className="text-[10px] font-medium text-slate-300">{new Date(req.createdAt).toLocaleDateString()}</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl text-slate-400 group-hover:text-primary transition-colors">
                       <ArrowLeftRight className="h-5 w-5" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-xs font-medium text-slate-700 dark:text-white truncate uppercase tracking-tight">{req.toPropertyTitle}</p>
-                      <p className="text-[10px] font-medium text-slate-400 mt-0.5 truncate">Requested from {req.fromPropertyTitle}</p>
+                      <p className="text-xs font-medium text-slate-700 dark:text-white truncate uppercase tracking-tight">{req.toHouseId}</p>
+                      <p className="text-[10px] font-medium text-slate-400 mt-0.5 truncate">From: {req.fromHouseId}</p>
                     </div>
                   </div>
                 </div>
-              ))}
+              )) : (
+                <div className="py-8 text-center">
+                  <p className="text-xs text-slate-400 mb-3">No exchange requests yet.</p>
+                  <Link href="/exchange" className="text-primary text-[10px] font-medium uppercase tracking-widest hover:underline">Browse Exchanges</Link>
+                </div>
+              )}
             </div>
           </section>
 
@@ -146,20 +167,22 @@ export default function TenantDashboard() {
               <Link href="/chat" className="text-[10px] font-medium text-slate-400 uppercase tracking-widest hover:underline">Messenger</Link>
             </div>
             <div className="space-y-4">
-              {myMessages.slice(0, 3).map(conv => (
-                <Link key={conv.id} href={`/chat/${conv.id}`} className="flex items-center gap-4 p-4 rounded-2xl border border-slate-50 dark:border-slate-800 hover:border-slate-100 hover:bg-slate-50/50 transition-all group">
+              {myMessages.length > 0 ? (myMessages as Record<string, unknown>[]).slice(0, 3).map((conv) => (
+                <Link key={conv.id as string} href={`/chat/${conv.id}`} className="flex items-center gap-4 p-4 rounded-2xl border border-slate-50 dark:border-slate-800 hover:border-slate-100 hover:bg-slate-50/50 transition-all group">
                   <div className="size-11 rounded-full bg-slate-50 flex items-center justify-center text-xs font-medium text-slate-400 uppercase shadow-sm border border-white">
-                    {conv.participants.find(p => p.id !== tenant.id)?.name.split(' ')[0][0]}
+                    <MessageSquare className="h-4 w-4" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex justify-between items-center mb-1">
-                      <p className="text-sm font-medium text-slate-700 dark:text-white truncate group-hover:text-primary transition-colors">{conv.participants.find(p => p.id !== tenant.id)?.name}</p>
-                      <span className="text-[9px] font-medium text-slate-300">{new Date(conv.lastMessageTime).toLocaleDateString()}</span>
-                    </div>
-                    <p className="text-[11px] text-slate-400 truncate font-medium">{conv.lastMessage}</p>
+                    <p className="text-sm font-medium text-slate-700 dark:text-white truncate group-hover:text-primary transition-colors">{conv.propertyTitle as string ?? "Conversation"}</p>
+                    <p className="text-[11px] text-slate-400 truncate font-medium">{conv.lastMessage as string ?? ""}</p>
                   </div>
                 </Link>
-              ))}
+              )) : (
+                <div className="py-8 text-center">
+                  <p className="text-xs text-slate-400 mb-3">No messages yet.</p>
+                  <Link href="/browse" className="text-primary text-[10px] font-medium uppercase tracking-widest hover:underline">Browse Properties</Link>
+                </div>
+              )}
             </div>
           </section>
         </div>

@@ -1,16 +1,15 @@
 "use client"
 
 import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar"
-import { mockUsers } from "@/lib/mock-data"
+import { useAuth } from "@/context/auth-context"
 
 export default function OwnerDashboardLayout({
     children,
 }: {
     children: React.ReactNode
 }) {
-    // Find the primary owner (Samuel Okoro)
-    const owner = mockUsers.find((u) => u.id === "user-3")!
-    const userName = owner.name
+    const { user } = useAuth()
+    const userName = user ? `${user.firstName} ${user.lastName}` : "Owner"
 
     return (
         <div className="min-h-screen w-full bg-[#f8f6f6] dark:bg-[#221610] flex justify-center">

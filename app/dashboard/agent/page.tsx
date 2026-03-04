@@ -16,14 +16,37 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
-import { mockProperties, mockUsers, mockViewings, mockCommissions } from "@/lib/mock-data"
+import { useState, useEffect } from "react"
+import { useAuth } from "@/context/auth-context"
+import { propertiesApi, viewingsApi, toProperty, type ViewingRequest } from "@/lib/api"
 
 export default function AgentDashboard() {
-  const agent = mockUsers.find((u) => u.id === "user-5")!
-  const assignedProperties = mockProperties.filter((p) => p.agentId === agent.id)
-  const agentViewings = mockViewings.filter((v) => v.agentId === agent.id)
-  const agentCommissions = mockCommissions.filter((c) => c.agentId === agent.id)
-  const userName = agent.name
+  const { user, token } = useAuth()
+  const userName = user ? `${user.firstName} ${user.lastName}` : "Agent"
+  const [assignedProperties, setAssignedProperties] = useState<ReturnType<typeof toProperty>[]>([])
+  const [agentViewings, setAgentViewings] = useState<ViewingRequest[]>([])
+
+  useEffect(() => {
+    if (!token || !user) return
+    let cancelled = false
+    // Fetch properties assigned to this agent
+    propertiesApi.list({ limit: 50 })
+      .then((res) => {
+        if (!cancelled) {
+          const items = Array.isArray(res) ? res : (res.data ?? [])
+          const mapped = items.map(toProperty).filter(p => p.agentId === user.id)
+          setAssignedProperties(mapped)
+        }
+      })
+      .catch(() => {})
+    // Fetch viewings
+    viewingsApi.list(token)
+      .then((res) => { if (!cancelled) setAgentViewings(res) })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [token, user])
+
+  const agentCommissions: { id: string; propertyTitle: string; amount: number; date: string }[] = []
 
   return (
     <div className="py-12">
@@ -61,9 +84,11 @@ export default function AgentDashboard() {
               <button className="text-xs font-medium text-primary hover:underline uppercase tracking-widest">View Calendar</button>
             </div>
             <div className="space-y-4 max-h-[320px] overflow-y-auto pr-2 custom-scrollbar">
-              {agentViewings.map((viewing) => (
+              {agentViewings.length > 0 ? agentViewings.map((viewing) => (
                 <ViewingItem key={viewing.id} viewing={viewing} />
-              ))}
+              )) : (
+                <p className="text-xs text-slate-400 text-center py-8">No upcoming viewings.</p>
+              )}
             </div>
           </div>
 
@@ -74,7 +99,7 @@ export default function AgentDashboard() {
               <span className="text-[10px] font-medium bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-md uppercase tracking-widest border border-emerald-100">Last 30 Days</span>
             </div>
             <div className="space-y-4 max-h-[320px] overflow-y-auto pr-2 custom-scrollbar">
-              {agentCommissions.map((comm) => (
+              {agentCommissions.length > 0 ? agentCommissions.map((comm) => (
                 <div key={comm.id} className="flex flex-col gap-1.5 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all border border-transparent hover:border-slate-100 cursor-pointer">
                   <div className="flex items-center justify-between">
                     <p className="text-[11px] font-medium text-slate-700 dark:text-slate-300 truncate uppercase tracking-tight">{comm.propertyTitle}</p>
@@ -85,7 +110,9 @@ export default function AgentDashboard() {
                     <span className="text-emerald-500 font-medium uppercase text-[8px] tracking-widest">Paid</span>
                   </div>
                 </div>
-              ))}
+              )) : (
+                <p className="text-xs text-slate-400 text-center py-8">No commission records yet.</p>
+              )}
             </div>
             <button className="w-full mt-6 py-3 bg-slate-900 dark:bg-slate-100 dark:text-slate-900 text-white text-xs font-medium rounded-xl uppercase tracking-widest shadow-lg hover:bg-primary hover:text-white transition-all">
               Cash Out
@@ -125,44 +152,35 @@ function StatCard({ icon: Icon, label, value, color, bg }: any) {
   )
 }
 
-function ViewingItem({ viewing }: { viewing: any }) {
+function ViewingItem({ viewing }: { viewing: ViewingRequest }) {
+  const label = viewing.houseTitle ?? viewing.houseId ?? "Property"
+  const time = new Date(viewing.scheduledAt).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })
+  const initials = viewing.tenantId?.slice(0, 2).toUpperCase() ?? "??"
   return (
     <div className="p-4 rounded-xl border border-slate-50 dark:border-slate-800 hover:border-slate-100 hover:bg-slate-50/50 transition-all cursor-pointer group">
       <div className="flex items-start justify-between">
         <div className="flex gap-4">
           <div className="size-10 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 font-medium text-[10px] uppercase shadow-sm group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-            {viewing.tenantName.split(' ')[0][0]}{viewing.tenantName.split(' ')[1][0]}
+            {initials}
           </div>
           <div>
-            <p className="text-sm font-medium text-slate-700 group-hover:text-primary transition-colors">{viewing.tenantName}</p>
-            <p className="text-[11px] font-medium text-slate-400 uppercase tracking-tight">{viewing.propertyTitle}</p>
+            <p className="text-sm font-medium text-slate-700 group-hover:text-primary transition-colors">{label}</p>
             <div className="flex items-center gap-2 mt-1.5">
               <span className="flex items-center gap-1.5 text-[10px] font-medium text-slate-300 uppercase tracking-tighter">
-                <Clock className="h-3 w-3" /> {viewing.time}
+                <Clock className="h-3 w-3" /> {time}
               </span>
             </div>
           </div>
         </div>
-        <div className="flex gap-1">
-          <button className="p-2 text-slate-300 hover:text-emerald-500 transition-colors">
-            <CheckCircle2 className="h-4 w-4" />
-          </button>
-          <button className="p-2 text-slate-300 hover:text-primary transition-colors">
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        </div>
+        <span className={`text-[9px] font-medium px-2 py-0.5 rounded-full uppercase tracking-wider ${viewing.status === "confirmed" ? "bg-emerald-50 text-emerald-600" : "bg-slate-50 text-slate-400"}`}>
+          {viewing.status}
+        </span>
       </div>
     </div>
   )
 }
 
-function CheckCircle2({ className }: any) {
-  return (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" /><path d="m9 12 2 2 4-4" /></svg>
-  )
-}
-
-function AgentPropertyCard({ property }: { property: any }) {
+function AgentPropertyCard({ property }: { property: ReturnType<typeof toProperty> }) {
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm transition-all">
       <div className="h-32 relative overflow-hidden">

@@ -1,13 +1,10 @@
 "use client"
 
-import { DollarSign, TrendingUp, Calendar, ArrowUpRight, Download, MoreHorizontal } from "lucide-react"
-import { mockCommissions, mockUsers } from "@/lib/mock-data"
-import { cn } from "@/lib/utils"
+import { DollarSign, TrendingUp, ArrowUpRight, Download } from "lucide-react"
 
 export default function AgentEarningsPage() {
-    const agent = mockUsers.find(u => u.id === "user-5")!
-    const commissions = mockCommissions.filter(c => c.agentId === agent.id)
-    const totalEarned = commissions.reduce((acc, c) => acc + c.amount, 0)
+    const commissions: { id: string; propertyTitle: string; amount: number; date: string }[] = []
+    const totalEarned = 0
 
     return (
         <div className="py-12">
@@ -69,9 +66,9 @@ export default function AgentEarningsPage() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
-                                {commissions.map((c) => (
+                                {commissions.length > 0 ? commissions.map((c) => (
                                     <tr key={c.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/10 transition-colors group">
-                                        <td className="px-6 py-5 text-[10px] font-mono font-medium text-slate-400 uppercase">#TRX-{c.id.split('-')[1]}</td>
+                                        <td className="px-6 py-5 text-[10px] font-mono font-medium text-slate-400 uppercase">#TRX-{c.id.slice(-6)}</td>
                                         <td className="px-6 py-5 text-sm font-medium text-slate-700 dark:text-slate-300">{c.propertyTitle}</td>
                                         <td className="px-6 py-5 text-sm font-medium text-slate-800 dark:text-white">TZS {c.amount.toLocaleString()}</td>
                                         <td className="px-6 py-5 text-xs font-medium text-slate-400">{c.date}</td>
@@ -86,7 +83,11 @@ export default function AgentEarningsPage() {
                                             </button>
                                         </td>
                                     </tr>
-                                ))}
+                                )) : (
+                                    <tr>
+                                        <td colSpan={6} className="px-6 py-12 text-center text-sm text-slate-400">No commission records yet.</td>
+                                    </tr>
+                                )}
                             </tbody>
                         </table>
                     </div>

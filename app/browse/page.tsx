@@ -9,13 +9,31 @@ import { PropertyCard } from "@/components/properties/property-card"
 import { PropertyListCard } from "@/components/properties/property-list-card"
 import { FilterSidebar, type FilterState } from "@/components/properties/filter-sidebar"
 import { MapPlaceholder } from "@/components/properties/map-placeholder"
-import { mockProperties } from "@/lib/mock-data"
+import { propertiesApi, toProperty } from "@/lib/api"
 
 type ViewMode = "grid" | "list"
 
 export default function BrowsePage() {
   const searchParams = useSearchParams()
   const [search, setSearch] = useState(() => searchParams.get("q") ?? "")
+  const [allProperties, setAllProperties] = useState<ReturnType<typeof toProperty>[]>([])
+  const [isLoadingProps, setIsLoadingProps] = useState(true)
+
+  // Fetch all properties from backend once on mount
+  useEffect(() => {
+    let cancelled = false
+    setIsLoadingProps(true)
+    propertiesApi.list({ limit: 100 })
+      .then((res) => {
+        if (!cancelled) {
+          const items = Array.isArray(res) ? res : (res.data ?? [])
+          setAllProperties(items.map(toProperty))
+        }
+      })
+      .catch(() => setAllProperties([]))
+      .finally(() => { if (!cancelled) setIsLoadingProps(false) })
+    return () => { cancelled = true }
+  }, [])
 
   // Sync if the URL param changes (e.g. browser back/forward)
   useEffect(() => {
@@ -36,7 +54,7 @@ export default function BrowsePage() {
   })
 
   const filteredProperties = useMemo(() => {
-    let results = [...mockProperties]
+    let results = [...allProperties]
 
     // Search
     if (search) {
@@ -95,7 +113,7 @@ export default function BrowsePage() {
     }
 
     return results
-  }, [search, filters, sortBy])
+  }, [search, filters, sortBy, allProperties])
 
   return (
     <div className="flex flex-col">
@@ -124,10 +142,14 @@ export default function BrowsePage() {
 
               {/* Left: result count */}
               <div className="flex items-center gap-2">
-                <p className="text-sm text-muted-foreground">
-                  <span className="font-semibold text-foreground">{filteredProperties.length}</span>{" "}
-                  <span className="hidden sm:inline">properties</span> found
-                </p>
+                {isLoadingProps ? (
+                  <p className="text-sm text-muted-foreground animate-pulse">Loading properties…</p>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    <span className="font-semibold text-foreground">{filteredProperties.length}</span>{" "}
+                    <span className="hidden sm:inline">properties</span> found
+                  </p>
+                )}
               </div>
 
               {/* Right: controls */}
@@ -203,7 +225,19 @@ export default function BrowsePage() {
             )}
 
             {/* Property Cards */}
-            {filteredProperties.length > 0 ? (
+            {isLoadingProps ? (
+              <div className="grid gap-3 sm:grid-cols-2">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="animate-pulse rounded-xl border border-border bg-card overflow-hidden">
+                    <div className="aspect-4/3 bg-muted" />
+                    <div className="p-3 space-y-2">
+                      <div className="h-4 bg-muted rounded w-3/4" />
+                      <div className="h-3 bg-muted rounded w-1/2" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : filteredProperties.length > 0 ? (
               viewMode === "grid" ? (
                 /* ── Grid view ── */
                 <div className="grid gap-3 sm:grid-cols-2">
@@ -232,7 +266,7 @@ export default function BrowsePage() {
         </div>
 
         {/* Map Panel - Fills the rest of the screen to the right */}
-        <div className="hidden flex-1 border-l border-border xl:flex xl:flex-col">
+        <div className="relative z-0 hidden flex-1 border-l border-border xl:flex xl:flex-col">
           <MapPlaceholder properties={filteredProperties} />
         </div>
       </div>

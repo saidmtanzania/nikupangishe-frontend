@@ -13,12 +13,25 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
-import { mockProperties, mockUsers, mockExchangeRequests } from "@/lib/mock-data"
+import { useState, useEffect } from "react"
+import { useAuth } from "@/context/auth-context"
+import { propertiesApi, toProperty } from "@/lib/api"
 
 export default function OwnerDashboard() {
-  const owner = mockUsers.find((u) => u.id === "user-3")!
-  const userName = owner.name
-  const ownerProperties = mockProperties.filter(p => p.ownerId === owner.id)
+  const { user, token } = useAuth()
+  const userName = user ? `${user.firstName} ${user.lastName}` : "Owner"
+  const [ownerProperties, setOwnerProperties] = useState<ReturnType<typeof toProperty>[]>([])
+
+  useEffect(() => {
+    if (!token) return
+    let cancelled = false
+    propertiesApi.myHouses(token)
+      .then((res) => {
+        if (!cancelled) setOwnerProperties(res.map(toProperty))
+      })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [token])
 
   return (
     <div className="py-12">
@@ -126,14 +139,7 @@ export default function OwnerDashboard() {
               </div>
             </div>
             <div className="space-y-3 max-h-[420px] overflow-y-auto pr-2 custom-scrollbar">
-              {mockUsers.filter(u => u.role === "agent").map(agent => (
-                <AgentItem
-                  key={agent.id}
-                  name={agent.name}
-                  stats="⭐ 4.9 (Local Expert)"
-                  initials={agent.name.split(' ').map(n => n[0]).join('')}
-                />
-              ))}
+              <p className="text-xs text-slate-400 text-center py-4">Agent assignment coming soon.</p>
             </div>
           </section>
 
@@ -141,16 +147,9 @@ export default function OwnerDashboard() {
           <section className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm">
             <h3 className="text-lg font-medium mb-6 uppercase tracking-tight text-slate-800">Tenant Queue</h3>
             <div className="space-y-4 max-h-[420px] overflow-y-auto pr-2 custom-scrollbar">
-              {mockExchangeRequests.map(req => (
-                <TenantApplicant
-                  key={req.id}
-                  name={req.fromTenantName}
-                  role="Verified Tenant"
-                  property={req.toPropertyTitle}
-                  time={req.createdAt}
-                  initials={req.fromTenantName.split(' ').map(n => n[0]).join('')}
-                />
-              ))}
+              <div className="py-8 text-center">
+                <p className="text-xs text-slate-400">No pending tenant applications.</p>
+              </div>
             </div>
           </section>
         </div>

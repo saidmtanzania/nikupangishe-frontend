@@ -20,7 +20,7 @@ export function PropertyCard({
       href={`/properties/${property.id}`}
       className="group flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-all hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5"
     >
-      <div className="relative aspect-[4/3] overflow-hidden">
+      <div className="relative aspect-4/3 overflow-hidden">
         <Image
           src={property.images[0]}
           alt={property.title}

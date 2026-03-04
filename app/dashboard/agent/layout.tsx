@@ -1,16 +1,15 @@
 "use client"
 
 import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar"
-import { mockUsers } from "@/lib/mock-data"
+import { useAuth } from "@/context/auth-context"
 
 export default function AgentDashboardLayout({
     children,
 }: {
     children: React.ReactNode
 }) {
-    // Find primary agent (Emmanuel Ngowi)
-    const agent = mockUsers.find((u) => u.id === "user-5")!
-    const userName = agent.name
+    const { user } = useAuth()
+    const userName = user ? `${user.firstName} ${user.lastName}` : "Agent"
 
     return (
         <div className="min-h-screen w-full bg-[#f8f6f6] dark:bg-[#221610] flex justify-center">

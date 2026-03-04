@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Eye, EyeOff, Shield, Home, Briefcase, UserCheck } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useAuth } from "@/context/auth-context"
 
 const roles = [
   {
@@ -33,17 +34,40 @@ const roles = [
 
 export function RegisterForm() {
   const router = useRouter()
+  const { register } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [selectedRole, setSelectedRole] = useState<string>("tenant")
+  const [fullName, setFullName] = useState("")
+  const [phone, setPhone] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [apiError, setApiError] = useState("")
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setIsLoading(true)
-    setTimeout(() => {
+    setApiError("")
+    try {
+      const nameParts = fullName.trim().split(/\s+/)
+      const firstName = nameParts[0] ?? ""
+      const lastName = nameParts.slice(1).join(" ") || firstName
+      const normalizedPhone = `+255${phone.replace(/^0/, "").replace(/\s+/g, "")}`
+      await register({
+        firstName,
+        lastName,
+        email: email.trim() || `${firstName.toLowerCase()}.${Date.now()}@nkp.app`,
+        phone: normalizedPhone,
+        password,
+        role: selectedRole as "owner" | "agent" | "tenant",
+      })
+      // Registration succeeded — redirect to OTP verification
+      router.push(`/auth/verify?phone=${encodeURIComponent(normalizedPhone)}`)
+    } catch (err: unknown) {
+      setApiError(err instanceof Error ? err.message : "Registration failed. Please try again.")
+    } finally {
       setIsLoading(false)
-      router.push(`/dashboard/${selectedRole}`)
-    }, 1200)
+    }
   }
 
   return (
@@ -101,7 +125,7 @@ export function RegisterForm() {
         {/* Name */}
         <div className="flex flex-col gap-2">
           <Label htmlFor="name">Full Name</Label>
-          <Input id="name" placeholder="Enter your full name" required />
+          <Input id="name" placeholder="Enter your full name" required value={fullName} onChange={(e) => setFullName(e.target.value)} />
         </div>
 
         {/* Phone */}
@@ -117,16 +141,16 @@ export function RegisterForm() {
               placeholder="7XX XXX XXX"
               className="flex-1"
               required
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
             />
           </div>
         </div>
 
         {/* Email */}
         <div className="flex flex-col gap-2">
-          <Label htmlFor="reg-email">
-            Email <span className="text-muted-foreground">(optional)</span>
-          </Label>
-          <Input id="reg-email" type="email" placeholder="you@example.com" />
+          <Label htmlFor="reg-email">Email</Label>
+          <Input id="reg-email" type="email" placeholder="you@example.com" required value={email} onChange={(e) => setEmail(e.target.value)} />
         </div>
 
         {/* Password */}
@@ -138,6 +162,8 @@ export function RegisterForm() {
               type={showPassword ? "text" : "password"}
               placeholder="Create a strong password"
               required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
             <button
               type="button"
@@ -155,6 +181,12 @@ export function RegisterForm() {
         <Button type="submit" className="w-full" disabled={isLoading}>
           {isLoading ? "Creating account..." : "Create Account"}
         </Button>
+
+        {apiError && (
+          <p className="rounded-lg bg-destructive/10 px-3 py-2 text-center text-[12px] font-medium text-destructive">
+            {apiError}
+          </p>
+        )}
       </form>
 
       <div className="flex items-center gap-2 justify-center text-xs text-muted-foreground">

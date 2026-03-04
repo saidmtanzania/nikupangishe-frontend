@@ -1,39 +1,15 @@
 import { NextResponse } from "next/server"
-import { mockProperties } from "@/lib/mock-data"
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000/api/v1"
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
-  const city = searchParams.get("city")
-  const minPrice = searchParams.get("minPrice")
-  const maxPrice = searchParams.get("maxPrice")
-  const type = searchParams.get("type")
-  const verified = searchParams.get("verified")
-
-  let filtered = [...mockProperties]
-
-  if (city) {
-    filtered = filtered.filter((p) =>
-      p.location.city.toLowerCase().includes(city.toLowerCase()) ||
-      p.location.neighborhood.toLowerCase().includes(city.toLowerCase())
-    )
+  const qs = searchParams.toString()
+  try {
+    const res = await fetch(`${API_BASE}/houses${qs ? `?${qs}` : ""}`, { cache: "no-store" })
+    const data = await res.json()
+    return NextResponse.json(data)
+  } catch {
+    return NextResponse.json({ error: "Failed to fetch properties" }, { status: 502 })
   }
-
-  if (minPrice) {
-    filtered = filtered.filter((p) => p.price >= Number(minPrice))
-  }
-
-  if (maxPrice) {
-    filtered = filtered.filter((p) => p.price <= Number(maxPrice))
-  }
-
-  if (type) {
-    const types = type.split(",")
-    filtered = filtered.filter((p) => types.includes(p.propertyType))
-  }
-
-  if (verified === "true") {
-    filtered = filtered.filter((p) => p.isVerified)
-  }
-
-  return NextResponse.json(filtered)
 }
