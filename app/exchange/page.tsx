@@ -17,10 +17,6 @@ export const metadata: Metadata = {
   description: "Swap your current rental with another verified tenant on Nikupangishe. Simple, safe, and transparent.",
 }
 
-const exchangeableProperties = mockProperties.filter((p) =>
-  ["prop-1", "prop-5", "prop-8", "prop-2"].includes(p.id)
-)
-
 const steps = [
   { icon: <Search className="h-5 w-5" />, title: "Browse Listings", description: "Find a property you'd like to move to from verified listings" },
   { icon: <FileCheck className="h-5 w-5" />, title: "Submit Request", description: "Send an exchange request explaining why you want to swap" },

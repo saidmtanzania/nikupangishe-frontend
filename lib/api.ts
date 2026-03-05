@@ -292,14 +292,22 @@ export const viewingsApi = {
 // ── Exchange API ───────────────────────────────────────────────────────────
 export const exchangeApi = {
   async list(token: string): Promise<ExchangeRequest[]> {
-    const res = await apiFetch<ExchangeRequest[] | { data: ExchangeRequest[] }>("/exchanges", { token });
+    const res = await apiFetch<ExchangeRequest[] | { data: ExchangeRequest[] }>("/exchanges/my-exchanges", { token });
     if (Array.isArray(res)) return res;
     if ("data" in res) return (res as { data: ExchangeRequest[] }).data;
     return [];
   },
 
   async create(payload: { fromHouseId: string; toHouseId: string; message?: string }, token: string) {
-    return apiFetch("/exchanges", { method: "POST", body: JSON.stringify(payload), token });
+    return apiFetch("/exchanges", {
+      method: "POST",
+      body: JSON.stringify({
+        exchangeType: "exchange",
+        targetHouseId: payload.toHouseId,
+        notes: payload.message,
+      }),
+      token,
+    });
   },
 };
 
