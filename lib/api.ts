@@ -83,6 +83,18 @@ export interface ApiProperty {
   isOpenToExchange: boolean;
   ownerId: string;
   agentId?: string;
+  owner?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    phone: string;
+  };
+  agent?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    phone: string;
+  };
   status: "available" | "occupied" | "pending";
   createdAt: string;
   hasWater?: boolean;
@@ -344,6 +356,8 @@ export function toProperty(p: ApiProperty) {
     isOpenToExchange: p.isOpenToExchange ?? false,
     ownerId: p.ownerId ?? "",
     agentId: p.agentId,
+    owner: p.owner,
+    agent: p.agent,
     status: (p.status ?? "available") as "available" | "occupied" | "pending",
     createdAt: p.createdAt ?? new Date().toISOString(),
   };
@@ -354,6 +368,17 @@ export const chatApi = {
   async conversations(token: string) {
     const res = await apiFetch<unknown>("/chat/conversations", { token });
     return res;
+  },
+
+  async startConversation(
+    payload: { recipientId: string; houseId?: string; message?: string },
+    token: string
+  ): Promise<{ id: string }> {
+    return apiFetch<{ id: string }>("/chat/conversations", {
+      method: "POST",
+      body: JSON.stringify(payload),
+      token,
+    });
   },
 
   async messages(conversationId: string, token: string) {

@@ -20,6 +20,18 @@ export interface Property {
   isOpenToExchange: boolean
   ownerId: string
   agentId?: string
+  owner?: {
+    id: string
+    firstName: string
+    lastName: string
+    phone: string
+  }
+  agent?: {
+    id: string
+    firstName: string
+    lastName: string
+    phone: string
+  }
   status: "available" | "occupied" | "pending"
   createdAt: string
 }

@@ -23,6 +23,7 @@ import { PropertyCard } from "@/components/properties/property-card"
 import { propertiesApi, toProperty } from "@/lib/api"
 import { formatTZS } from "@/lib/utils"
 import { PropertyDetailsMap } from "@/components/properties/property-details-map"
+import { StartChatButton } from "@/components/properties/start-chat-button"
 
 export default async function PropertyDetailPage({
   params,
@@ -39,8 +40,20 @@ export default async function PropertyDetailPage({
   }
 
   const property = toProperty(apiProp!)
-  const agent = null  // agent profile lookup not yet available
-  const owner = null  // owner profile lookup not yet available
+  const owner = property.owner
+    ? {
+        id: property.owner.id,
+        name: `${property.owner.firstName} ${property.owner.lastName}`.trim(),
+        phone: property.owner.phone,
+      }
+    : null
+  const agent = property.agent
+    ? {
+        id: property.agent.id,
+        name: `${property.agent.firstName} ${property.agent.lastName}`.trim(),
+        phone: property.agent.phone,
+      }
+    : null
 
   let similar: ReturnType<typeof toProperty>[] = []
   try {
@@ -201,10 +214,12 @@ export default async function PropertyDetailPage({
                 </div>
               </div>
               <div className="flex flex-col gap-2">
-                <Button className="w-full gap-2">
-                  <MessageSquare className="h-4 w-4" />
-                  Chat with Agent
-                </Button>
+                <StartChatButton
+                  propertyId={property.id}
+                  ownerId={owner?.id}
+                  agentId={agent?.id}
+                  className="w-full"
+                />
                 <Button variant="outline" className="w-full gap-2">
                   <Phone className="h-4 w-4" />
                   {agent.phone}
@@ -226,8 +241,22 @@ export default async function PropertyDetailPage({
                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
                     Verified Owner
                   </div>
+                  <p className="mt-1 text-xs text-muted-foreground">{owner.phone}</p>
                 </div>
               </div>
+              {!agent && (
+                <div className="mt-4 flex flex-col gap-2">
+                  <StartChatButton
+                    propertyId={property.id}
+                    ownerId={owner.id}
+                    className="w-full"
+                  />
+                  <Button variant="outline" className="w-full gap-2">
+                    <Phone className="h-4 w-4" />
+                    {owner.phone}
+                  </Button>
+                </div>
+              )}
             </div>
           )}
 

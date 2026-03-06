@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import { ChatList } from "@/components/chat/chat-list"
 import { ChatWindow } from "@/components/chat/chat-window"
 import { MessageSquare, ArrowLeft, Loader2 } from "lucide-react"
@@ -11,6 +12,8 @@ import { Button } from "@/components/ui/button"
 
 export default function ChatPage() {
   const { token } = useAuth()
+  const searchParams = useSearchParams()
+  const requestedConversationId = searchParams.get("conversation")
   const [conversations, setConversations] = useState<unknown[]>([])
   const [activeConvoId, setActiveConvoId] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -28,14 +31,21 @@ export default function ChatPage() {
           const list = Array.isArray(res) ? res : ((res as Record<string, unknown>)?.data as unknown[] ?? [])
           setConversations(list)
           if (list.length > 0) {
-            setActiveConvoId((list[0] as Record<string, unknown>)?.id as string ?? null)
+            const foundRequested = requestedConversationId
+              ? list.some((item) => (item as Record<string, unknown>)?.id === requestedConversationId)
+              : false
+            setActiveConvoId(
+              foundRequested
+                ? requestedConversationId
+                : ((list[0] as Record<string, unknown>)?.id as string ?? null)
+            )
           }
         }
       })
       .catch(() => setConversations([]))
       .finally(() => { if (!cancelled) setIsLoading(false) })
     return () => { cancelled = true }
-  }, [token])
+  }, [token, requestedConversationId])
 
   const activeConvo = conversations.find(
     (c) => (c as Record<string, unknown>)?.id === activeConvoId
