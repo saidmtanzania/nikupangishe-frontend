@@ -132,54 +132,50 @@ export function ChatWindow({ conversation, messages: _initialMessages, onBack }:
   return (
     <div className="flex h-full flex-col">
       {/* ── Header ──────────────────────────────────────────────── */}
-      <div className="flex items-center gap-3 bg-[#F0F2F5] dark:bg-[#202C33] px-4 py-2.5 border-b border-[#E9EDEF] dark:border-[#313D45]">
+      <div className="flex items-center gap-3 bg-secondary border-b border-border px-4 py-2.5">
         {onBack && (
           <button onClick={onBack} className="md:hidden mr-1">
-            <ArrowLeft className="size-5 text-[#54656F] dark:text-[#AEBAC1]" />
+            <ArrowLeft className="size-5 text-muted-foreground" />
           </button>
         )}
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#DFE5E7] dark:bg-slate-600 text-sm font-semibold text-[#54656F] dark:text-slate-300">
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-accent text-sm font-semibold text-muted-foreground">
           {otherPerson ? getInitials(otherPerson.name) : "?"}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-[15px] font-medium text-[#111B21] dark:text-[#E9EDEF] truncate">
+          <p className="text-[15px] font-medium text-foreground truncate">
             {otherPerson?.name ?? "Unknown"}
           </p>
           <Link
             href={`/properties/${conversation.propertyId}`}
-            className="flex items-center gap-1 text-[12px] text-[#667781] dark:text-[#8696A0] hover:underline truncate"
+            className="flex items-center gap-1 text-[12px] text-muted-foreground hover:underline truncate"
           >
             <Home className="size-3 shrink-0" />
             {conversation.propertyTitle}
           </Link>
         </div>
         <div className="flex items-center gap-1">
-          <button className="p-2 rounded-full hover:bg-[#E9EDEF] dark:hover:bg-[#374045] transition-colors">
-            <Phone className="size-4.5 text-[#54656F] dark:text-[#AEBAC1]" />
+          <button className="p-2 rounded-full hover:bg-accent transition-colors">
+            <Phone className="size-4.5 text-muted-foreground" />
           </button>
-          <button className="p-2 rounded-full hover:bg-[#E9EDEF] dark:hover:bg-[#374045] transition-colors">
-            <MoreVertical className="size-4.5 text-[#54656F] dark:text-[#AEBAC1]" />
+          <button className="p-2 rounded-full hover:bg-accent transition-colors">
+            <MoreVertical className="size-4.5 text-muted-foreground" />
           </button>
         </div>
       </div>
 
       {/* ── Messages ────────────────────────────────────────────── */}
       <div
-        className="flex-1 overflow-y-auto px-[5%] md:px-[10%] py-4"
-        style={{
-          backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d5dbe0' fill-opacity='0.15'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")",
-          backgroundColor: "#ECE5DD",
-        }}
+        className="flex-1 overflow-y-auto px-[5%] md:px-[10%] py-4 bg-muted"
       >
         {loading ? (
           <div className="flex h-full items-center justify-center">
-            <div className="size-6 border-2 border-[#25D366] border-t-transparent rounded-full animate-spin" />
+            <div className="size-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
           </div>
         ) : allMessages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full gap-2">
-            <div className="flex items-center gap-2 bg-[#FCF4CF] dark:bg-[#332F1E] px-4 py-2 rounded-lg">
-              <Lock className="size-3 text-[#8696A0]" />
-              <p className="text-[11px] text-[#54656F] dark:text-[#8696A0]">
+            <div className="flex items-center gap-2 bg-card dark:bg-card px-4 py-2 rounded-lg shadow-sm">
+              <Lock className="size-3 text-muted-foreground" />
+              <p className="text-[11px] text-muted-foreground">
                 Messages are end-to-end encrypted. No one outside of this chat can read them.
               </p>
             </div>
@@ -198,7 +194,7 @@ export function ChatWindow({ conversation, messages: _initialMessages, onBack }:
                 <div key={msg.id}>
                   {showDivider && (
                     <div className="flex justify-center my-3">
-                      <span className="bg-[#E1F2FB] dark:bg-[#182229] text-[#54656F] dark:text-[#8696A0] text-[11px] font-medium px-3 py-1 rounded-lg shadow-sm">
+                      <span className="bg-card dark:bg-card text-muted-foreground text-[11px] font-medium px-3 py-1 rounded-lg shadow-sm">
                         {dayLabel}
                       </span>
                     </div>
@@ -208,24 +204,24 @@ export function ChatWindow({ conversation, messages: _initialMessages, onBack }:
                       className={cn(
                         "max-w-[65%] rounded-lg px-2.5 pt-1.5 pb-1 shadow-sm relative",
                         isMe
-                          ? "bg-[#D9FDD3] dark:bg-[#005C4B] rounded-tr-none"
-                          : "bg-white dark:bg-[#202C33] rounded-tl-none"
+                          ? "bg-primary/15 dark:bg-primary/20 rounded-tr-none"
+                          : "bg-card dark:bg-card rounded-tl-none"
                       )}
                     >
-                      <p className="text-sm leading-5 text-[#111B21] dark:text-[#E9EDEF] whitespace-pre-wrap wrap-break-word">
+                      <p className="text-sm leading-5 text-foreground whitespace-pre-wrap wrap-break-word">
                         {msg.content}
                       </p>
                       <div className="flex items-center justify-end gap-1 mt-0.5 -mb-0.5">
                         <span className={cn(
                           "text-[11px]",
                           isMe
-                            ? "text-[#667781] dark:text-[#ffffff99]"
-                            : "text-[#667781] dark:text-[#ffffff99]"
+                            ? "text-muted-foreground"
+                            : "text-muted-foreground"
                         )}>
                           {formatMsgTime(msg.timestamp)}
                         </span>
                         {isMe && (
-                          <CheckCheck className="size-3.5 text-[#53BDEB]" />
+                          <CheckCheck className="size-3.5 text-primary" />
                         )}
                       </div>
                     </div>
@@ -241,20 +237,20 @@ export function ChatWindow({ conversation, messages: _initialMessages, onBack }:
       {/* ── Input Bar ───────────────────────────────────────────── */}
       <form
         onSubmit={handleSend}
-        className="flex items-end gap-2 bg-[#F0F2F5] dark:bg-[#202C33] px-4 py-2 border-t border-[#E9EDEF] dark:border-[#313D45]"
+        className="flex items-end gap-2 bg-secondary border-t border-border px-4 py-2"
       >
-        <button type="button" className="p-2 hover:bg-[#E9EDEF] dark:hover:bg-[#374045] rounded-full transition-colors shrink-0">
-          <Smile className="size-5.5 text-[#54656F] dark:text-[#AEBAC1]" />
+        <button type="button" className="p-2 hover:bg-accent rounded-full transition-colors shrink-0">
+          <Smile className="size-5.5 text-muted-foreground" />
         </button>
-        <button type="button" className="p-2 hover:bg-[#E9EDEF] dark:hover:bg-[#374045] rounded-full transition-colors shrink-0">
-          <Paperclip className="size-5.5 text-[#54656F] dark:text-[#AEBAC1]" />
+        <button type="button" className="p-2 hover:bg-accent rounded-full transition-colors shrink-0">
+          <Paperclip className="size-5.5 text-muted-foreground" />
         </button>
-        <div className="flex-1 bg-white dark:bg-[#2A3942] rounded-lg px-3 py-2 min-h-10.5">
+        <div className="flex-1 bg-background rounded-lg px-3 py-2 min-h-10.5">
           <input
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Type a message"
-            className="w-full bg-transparent text-[15px] text-[#111B21] dark:text-[#E9EDEF] placeholder:text-[#667781] outline-none"
+            className="w-full bg-transparent text-[15px] text-foreground placeholder:text-muted-foreground outline-none"
             disabled={sending}
           />
         </div>
@@ -264,8 +260,8 @@ export function ChatWindow({ conversation, messages: _initialMessages, onBack }:
           className={cn(
             "p-2.5 rounded-full transition-colors shrink-0",
             newMessage.trim()
-              ? "bg-[#00A884] dark:bg-[#00A884] hover:bg-[#008f72] text-white"
-              : "text-[#54656F] dark:text-[#AEBAC1] hover:bg-[#E9EDEF] dark:hover:bg-[#374045]"
+              ? "bg-primary hover:bg-primary/90 text-white"
+              : "text-muted-foreground hover:bg-accent"
           )}
         >
           <Send className="size-5" />

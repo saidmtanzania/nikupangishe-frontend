@@ -54,29 +54,29 @@ export default function ChatPage() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="flex h-full items-center justify-center bg-[#F0F2F5] dark:bg-[#0B141A]">
+      <div className="flex h-full items-center justify-center bg-secondary">
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className="size-6 animate-spin text-[#00A884]" />
-          <p className="text-xs font-medium text-[#667781] uppercase tracking-wider">Loading conversations…</p>
+          <Loader2 className="size-6 animate-spin text-primary" />
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Loading conversations…</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="flex h-full bg-[#ECE5DD] dark:bg-[#0B141A]">
+    <div className="flex h-full bg-background">
       {/* ── Left Panel: Conversation List ───────────────────────── */}
-      <div className={`w-85 lg:w-95 shrink-0 border-r border-[#E9EDEF] dark:border-[#313D45] bg-white dark:bg-[#111B21] flex-col ${activeConvoId ? "hidden md:flex" : "flex"}`}>
+      <div className={`w-85 lg:w-95 shrink-0 border-r border-border bg-background flex-col ${activeConvoId ? "hidden md:flex" : "flex"}`}>
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-2.5 bg-[#F0F2F5] dark:bg-[#202C33]">
+        <div className="flex items-center justify-between px-4 py-2.5 bg-secondary">
           <div className="flex items-center gap-3">
-            <div className="size-10 rounded-full bg-[#DFE5E7] dark:bg-slate-600 flex items-center justify-center text-sm font-semibold text-[#54656F] dark:text-slate-300">
+            <div className="size-10 rounded-full bg-accent flex items-center justify-center text-sm font-semibold text-muted-foreground">
               {user ? `${user.firstName?.[0] ?? ""}${user.lastName?.[0] ?? ""}`.toUpperCase() : "U"}
             </div>
           </div>
           <div className="flex items-center gap-1">
-            <button className="p-2 rounded-full hover:bg-[#E9EDEF] dark:hover:bg-[#374045] transition-colors">
-              <MessageSquare className="size-4.5 text-[#54656F] dark:text-[#AEBAC1]" />
+            <button className="p-2 rounded-full hover:bg-accent transition-colors">
+              <MessageSquare className="size-4.5 text-muted-foreground" />
             </button>
           </div>
         </div>
@@ -84,14 +84,14 @@ export default function ChatPage() {
         <div className="flex-1 overflow-hidden">
           {conversations.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full gap-3 px-6 text-center">
-              <div className="size-16 rounded-full bg-[#F0F2F5] dark:bg-[#202C33] flex items-center justify-center">
-                <MessageSquare className="size-7 text-[#8696A0]" />
+              <div className="size-16 rounded-full bg-secondary flex items-center justify-center">
+                <MessageSquare className="size-7 text-muted-foreground" />
               </div>
-              <p className="text-sm font-medium text-[#111B21] dark:text-[#E9EDEF]">No conversations yet</p>
-              <p className="text-xs text-[#667781]">
+              <p className="text-sm font-medium text-foreground">No conversations yet</p>
+              <p className="text-xs text-muted-foreground">
                 Start a conversation from a property listing
               </p>
-              <Button asChild size="sm" className="mt-1 text-xs h-8 bg-[#00A884] hover:bg-[#008f72] text-white">
+              <Button asChild size="sm" className="mt-1 text-xs h-8 bg-primary hover:bg-primary/90 text-white">
                 <Link href="/browse">Browse Listings</Link>
               </Button>
             </div>
@@ -115,17 +115,16 @@ export default function ChatPage() {
           />
         ) : (
           <div
-            className="flex h-full flex-col items-center justify-center gap-4 text-center px-6"
-            style={{ backgroundColor: "#F0F2F5" }}
+            className="flex h-full flex-col items-center justify-center gap-4 text-center px-6 bg-muted"
           >
-            <div className="size-50 rounded-full bg-[#E9EDEF] dark:bg-[#202C33] flex items-center justify-center">
+            <div className="size-50 rounded-full bg-accent flex items-center justify-center">
               <svg viewBox="0 0 303 172" width="250" className="opacity-40">
-                <path fill="#DAE5D0" d="M229.565 160.229c32.647-10.984 57.366-41.457 53.825-73.27-3.542-31.812-33.94-55.263-62.79-69.694C191.75 3.834 159.279-4.634 130.09 3.14 100.901 10.913 74.993 35.023 54.934 60.96 34.876 86.898 20.667 114.664 22.175 140.39c1.508 25.726 18.733 49.413 46.847 55.463 28.113 6.051 67.116-5.534 101.695-14.4 34.579-8.866 64.97-15.046 58.848-21.223Z" />
+                <path fill="hsl(var(--primary) / 0.25)" d="M229.565 160.229c32.647-10.984 57.366-41.457 53.825-73.27-3.542-31.812-33.94-55.263-62.79-69.694C191.75 3.834 159.279-4.634 130.09 3.14 100.901 10.913 74.993 35.023 54.934 60.96 34.876 86.898 20.667 114.664 22.175 140.39c1.508 25.726 18.733 49.413 46.847 55.463 28.113 6.051 67.116-5.534 101.695-14.4 34.579-8.866 64.97-15.046 58.848-21.223Z" />
               </svg>
             </div>
             <div>
-              <h3 className="text-[28px] font-light text-[#41525D] dark:text-[#E9EDEF]">Nikupangishe Web</h3>
-              <p className="text-sm text-[#667781] mt-3 max-w-md">
+              <h3 className="text-[28px] font-light text-foreground">Nikupangishe Web</h3>
+              <p className="text-sm text-muted-foreground mt-3 max-w-md">
                 Send and receive messages about properties. Select a conversation to get started.
               </p>
             </div>
