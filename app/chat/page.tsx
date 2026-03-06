@@ -4,14 +4,14 @@ import { useState, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
 import { ChatList } from "@/components/chat/chat-list"
 import { ChatWindow } from "@/components/chat/chat-window"
-import { MessageSquare, ArrowLeft, Loader2 } from "lucide-react"
+import { MessageSquare, Loader2 } from "lucide-react"
 import { useAuth } from "@/context/auth-context"
 import { chatApi } from "@/lib/api"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
 export default function ChatPage() {
-  const { token } = useAuth()
+  const { user, token } = useAuth()
   const searchParams = useSearchParams()
   const requestedConversationId = searchParams.get("conversation")
   const [conversations, setConversations] = useState<unknown[]>([])
@@ -54,42 +54,44 @@ export default function ChatPage() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="flex h-full items-center justify-center">
+      <div className="flex h-full items-center justify-center bg-[#F0F2F5] dark:bg-[#0B141A]">
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className="size-6 animate-spin text-primary" />
-          <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">Loading conversations…</p>
+          <Loader2 className="size-6 animate-spin text-[#00A884]" />
+          <p className="text-xs font-medium text-[#667781] uppercase tracking-wider">Loading conversations…</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="flex h-full">
-      {/* ── Conversation List ─────────────────────────────────────── */}
-      <div className={`w-80 shrink-0 border-r border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 flex-col ${activeConvoId ? "hidden md:flex" : "flex"}`}>
-        <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-100 dark:border-slate-800">
-          <div className="size-8 rounded-lg bg-primary/10 flex items-center justify-center">
-            <MessageSquare className="size-4 text-primary" />
+    <div className="flex h-full bg-[#ECE5DD] dark:bg-[#0B141A]">
+      {/* ── Left Panel: Conversation List ───────────────────────── */}
+      <div className={`w-85 lg:w-95 shrink-0 border-r border-[#E9EDEF] dark:border-[#313D45] bg-white dark:bg-[#111B21] flex-col ${activeConvoId ? "hidden md:flex" : "flex"}`}>
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-2.5 bg-[#F0F2F5] dark:bg-[#202C33]">
+          <div className="flex items-center gap-3">
+            <div className="size-10 rounded-full bg-[#DFE5E7] dark:bg-slate-600 flex items-center justify-center text-sm font-semibold text-[#54656F] dark:text-slate-300">
+              {user ? `${user.firstName?.[0] ?? ""}${user.lastName?.[0] ?? ""}`.toUpperCase() : "U"}
+            </div>
           </div>
-          <div>
-            <h2 className="text-sm font-bold text-slate-800 dark:text-white">Messages</h2>
-            <p className="text-[10px] text-slate-400 font-medium">
-              {conversations.length} conversation{conversations.length !== 1 ? "s" : ""}
-            </p>
+          <div className="flex items-center gap-1">
+            <button className="p-2 rounded-full hover:bg-[#E9EDEF] dark:hover:bg-[#374045] transition-colors">
+              <MessageSquare className="size-4.5 text-[#54656F] dark:text-[#AEBAC1]" />
+            </button>
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-hidden">
           {conversations.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full gap-3 px-6 text-center">
-              <div className="size-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                <MessageSquare className="size-5 text-slate-300" />
+              <div className="size-16 rounded-full bg-[#F0F2F5] dark:bg-[#202C33] flex items-center justify-center">
+                <MessageSquare className="size-7 text-[#8696A0]" />
               </div>
-              <p className="text-xs font-medium text-slate-500">No conversations yet</p>
-              <p className="text-[10px] text-slate-400">
+              <p className="text-sm font-medium text-[#111B21] dark:text-[#E9EDEF]">No conversations yet</p>
+              <p className="text-xs text-[#667781]">
                 Start a conversation from a property listing
               </p>
-              <Button asChild size="sm" variant="outline" className="mt-1 text-xs h-8">
+              <Button asChild size="sm" className="mt-1 text-xs h-8 bg-[#00A884] hover:bg-[#008f72] text-white">
                 <Link href="/browse">Browse Listings</Link>
               </Button>
             </div>
@@ -103,36 +105,28 @@ export default function ChatPage() {
         </div>
       </div>
 
-      {/* ── Chat Window ───────────────────────────────────────────── */}
-      <div className={`flex-1 flex flex-col bg-[#faf9f8] dark:bg-[#1a1210] ${activeConvoId ? "flex" : "hidden md:flex"}`}>
+      {/* ── Right Panel: Chat Window ────────────────────────────── */}
+      <div className={`flex-1 flex flex-col ${activeConvoId ? "flex" : "hidden md:flex"}`}>
         {activeConvo ? (
-          <>
-            {/* Mobile back button */}
-            <div className="md:hidden px-3 pt-3">
-              <button
-                onClick={() => setActiveConvoId(null)}
-                className="flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors"
-              >
-                <ArrowLeft className="size-3.5" />
-                Back to conversations
-              </button>
-            </div>
-            <div className="flex-1 overflow-hidden">
-              <ChatWindow
-                conversation={activeConvo as Parameters<typeof ChatWindow>[0]["conversation"]}
-                messages={[]}
-              />
-            </div>
-          </>
+          <ChatWindow
+            conversation={activeConvo as Parameters<typeof ChatWindow>[0]["conversation"]}
+            messages={[]}
+            onBack={() => setActiveConvoId(null)}
+          />
         ) : (
-          <div className="flex h-full flex-col items-center justify-center gap-4 text-center px-6">
-            <div className="size-16 rounded-2xl bg-primary/5 border border-primary/10 flex items-center justify-center">
-              <MessageSquare className="size-7 text-primary/40" />
+          <div
+            className="flex h-full flex-col items-center justify-center gap-4 text-center px-6"
+            style={{ backgroundColor: "#F0F2F5" }}
+          >
+            <div className="size-50 rounded-full bg-[#E9EDEF] dark:bg-[#202C33] flex items-center justify-center">
+              <svg viewBox="0 0 303 172" width="250" className="opacity-40">
+                <path fill="#DAE5D0" d="M229.565 160.229c32.647-10.984 57.366-41.457 53.825-73.27-3.542-31.812-33.94-55.263-62.79-69.694C191.75 3.834 159.279-4.634 130.09 3.14 100.901 10.913 74.993 35.023 54.934 60.96 34.876 86.898 20.667 114.664 22.175 140.39c1.508 25.726 18.733 49.413 46.847 55.463 28.113 6.051 67.116-5.534 101.695-14.4 34.579-8.866 64.97-15.046 58.848-21.223Z" />
+              </svg>
             </div>
             <div>
-              <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200">Select a conversation</h3>
-              <p className="text-xs text-slate-400 mt-1 max-w-60">
-                Choose a conversation from the list to start messaging
+              <h3 className="text-[28px] font-light text-[#41525D] dark:text-[#E9EDEF]">Nikupangishe Web</h3>
+              <p className="text-sm text-[#667781] mt-3 max-w-md">
+                Send and receive messages about properties. Select a conversation to get started.
               </p>
             </div>
           </div>
