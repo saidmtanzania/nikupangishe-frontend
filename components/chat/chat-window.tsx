@@ -65,6 +65,8 @@ export function ChatWindow({ conversation, messages: _initialMessages, onBack }:
     setLoading(true)
     setAllMessages([])
     fetchMessages()
+    // Mark conversation as read when opened
+    if (token) chatApi.markAsRead(conversation.id, token).catch(() => {})
     const interval = setInterval(fetchMessages, 5000)
     return () => clearInterval(interval)
   }, [fetchMessages])

@@ -18,6 +18,17 @@ export default function ChatPage() {
   const [activeConvoId, setActiveConvoId] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
+  function selectConversation(id: string) {
+    setActiveConvoId(id)
+    // Clear unread badge immediately in the local list
+    setConversations((prev) =>
+      prev.map((c) => {
+        const conv = c as Record<string, unknown>
+        return conv.id === id ? { ...conv, unreadCount: 0 } : c
+      })
+    )
+  }
+
   useEffect(() => {
     if (!token) {
       setIsLoading(false)
@@ -99,7 +110,7 @@ export default function ChatPage() {
             <ChatList
               conversations={conversations as Parameters<typeof ChatList>[0]["conversations"]}
               activeId={activeConvoId}
-              onSelect={setActiveConvoId}
+              onSelect={selectConversation}
             />
           )}
         </div>

@@ -382,7 +382,16 @@ export const chatApi = {
   },
 
   async messages(conversationId: string, token: string) {
-    const res = await apiFetch<ChatMessage[]>(`/chat/conversations/${conversationId}/messages`, { token });
-    return Array.isArray(res) ? res : [];
+    const res = await apiFetch<unknown>(`/chat/conversations/${conversationId}/messages`, { token });
+    // API returns { data: [...], meta: {...} } after envelope unwrap
+    const arr = (res as Record<string, unknown>)?.data ?? res;
+    return Array.isArray(arr) ? (arr as ChatMessage[]) : [];
+  },
+
+  async markAsRead(conversationId: string, token: string) {
+    await apiFetch(`/chat/conversations/${conversationId}/read`, {
+      method: "PATCH",
+      token,
+    });
   },
 };
