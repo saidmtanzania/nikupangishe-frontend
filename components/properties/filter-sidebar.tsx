@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { Check, ChevronDown, Search, SlidersHorizontal, ArrowLeftRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -82,6 +82,38 @@ interface FilterSidebarProps {
 }
 
 export function FilterSidebar({ filters, onFilterChange, search, onSearchChange }: FilterSidebarProps) {
+  // Ref tracks committed value so we can detect external resets
+  const priceRef = useRef<[number, number]>(filters.priceRange)
+  // Key forces slider remount only when value changes externally (e.g. Reset button)
+  const [sliderKey, setSliderKey] = useState(0)
+  // DOM refs for labels — written directly during drag with zero re-renders
+  const minLabelRef = useRef<HTMLSpanElement>(null)
+  const maxLabelRef = useRef<HTMLSpanElement>(null)
+
+  useEffect(() => {
+    const [a, b] = filters.priceRange
+    const [ra, rb] = priceRef.current
+    if (a !== ra || b !== rb) {
+      // External change (reset, navigation) — remount slider with new defaultValue
+      priceRef.current = filters.priceRange
+      setSliderKey((k) => k + 1)
+      if (minLabelRef.current) minLabelRef.current.textContent = formatTZSShort(a)
+      if (maxLabelRef.current) maxLabelRef.current.textContent = formatTZSShort(b)
+    }
+  }, [filters.priceRange])
+
+  // During drag: only update labels — no state, no re-renders, native smooth movement
+  const handleSliderChange = useCallback((value: number[]) => {
+    if (minLabelRef.current) minLabelRef.current.textContent = formatTZSShort(value[0])
+    if (maxLabelRef.current) maxLabelRef.current.textContent = formatTZSShort(value[1])
+  }, [])
+
+  const handleSliderCommit = useCallback((value: number[]) => {
+    const next: [number, number] = [value[0], value[1]]
+    priceRef.current = next
+    onFilterChange({ ...filters, priceRange: next })
+  }, [filters, onFilterChange])
+
   const [expanded, setExpanded] = useState({
     price: true,
     type: true,
@@ -151,17 +183,17 @@ export function FilterSidebar({ filters, onFilterChange, search, onSearchChange 
       <Section label="Price Range" expandKey="price">
         <div className="flex flex-col gap-3">
           <Slider
+            key={sliderKey}
             min={100000}
             max={6000000}
-            step={50000}
-            value={filters.priceRange}
-            onValueChange={(value) =>
-              onFilterChange({ ...filters, priceRange: value as [number, number] })
-            }
+            step={1}
+            defaultValue={priceRef.current}
+            onValueChange={handleSliderChange}
+            onValueCommit={handleSliderCommit}
           />
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>{formatTZSShort(filters.priceRange[0])}</span>
-            <span>{formatTZSShort(filters.priceRange[1])}</span>
+          <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+            <span ref={minLabelRef}>{formatTZSShort(priceRef.current[0])}</span>
+            <span ref={maxLabelRef}>{formatTZSShort(priceRef.current[1])}</span>
           </div>
         </div>
       </Section>
