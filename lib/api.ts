@@ -285,6 +285,27 @@ export const propertiesApi = {
     }
     return unwrap<{ images: string[] }>(body);
   },
+
+  async publishHouse(houseId: string, token: string): Promise<ApiProperty> {
+    return apiFetch<ApiProperty>(`/houses/${houseId}/publish`, {
+      method: "PATCH",
+      token,
+    });
+  },
+
+  async unpublishHouse(houseId: string, token: string): Promise<ApiProperty> {
+    return apiFetch<ApiProperty>(`/houses/${houseId}/unpublish`, {
+      method: "PATCH",
+      token,
+    });
+  },
+
+  async delete(houseId: string, token: string): Promise<void> {
+    await apiFetch(`/houses/${houseId}`, {
+      method: "DELETE",
+      token,
+    });
+  },
 };
 
 // ── Viewings API ───────────────────────────────────────────────────────────
