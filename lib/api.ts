@@ -341,7 +341,9 @@ export function toProperty(p: ApiProperty) {
     images:
       Array.isArray(p.images) && p.images.length > 0
         ? p.images
-        : ["/images/house-placeholder.jpg"],
+        : Array.isArray((p as any).photos) && (p as any).photos.length > 0
+          ? (p as any).photos
+          : ["/images/house-placeholder.jpg"],
     bedrooms: p.bedrooms ?? 0,
     bathrooms: p.bathrooms ?? 0,
     area: p.squareMeters ?? 0,
