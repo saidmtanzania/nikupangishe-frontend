@@ -564,29 +564,14 @@ export default function AddHousePage() {
                                     </div>
 
                                     {/* Available From, Min Lease */}
-                                    <div className="grid gap-6 grid-cols-2">
-                                        <div className="space-y-2">
-                                            <Label className={fieldLabel}>Available From</Label>
-                                            <Input
-                                                type="date"
-                                                value={form.availableFrom}
-                                                onChange={(e) => set("availableFrom", e.target.value)}
-                                                className={inputClass}
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label className={fieldLabel}>Min. Lease (months)</Label>
-                                            <Input
-                                                type="number"
-                                                min={0}
-                                                value={form.minimumLeaseDuration}
-                                                onChange={(e) =>
-                                                    set("minimumLeaseDuration", e.target.value)
-                                                }
-                                                placeholder="0"
-                                                className={inputClass}
-                                            />
-                                        </div>
+                                    <div className="space-y-2">
+                                        <Label className={fieldLabel}>Available From</Label>
+                                        <Input
+                                            type="date"
+                                            value={form.availableFrom}
+                                            onChange={(e) => set("availableFrom", e.target.value)}
+                                            className={inputClass}
+                                        />
                                     </div>
 
                                     {/* Description */}
@@ -1003,14 +988,6 @@ export default function AddHousePage() {
                                         <ReviewItem
                                             label="Available From"
                                             value={form.availableFrom || "Immediately"}
-                                        />
-                                        <ReviewItem
-                                            label="Min Lease"
-                                            value={
-                                                form.minimumLeaseDuration
-                                                    ? `${form.minimumLeaseDuration} month(s)`
-                                                    : "—"
-                                            }
                                         />
                                     </ReviewSection>
 

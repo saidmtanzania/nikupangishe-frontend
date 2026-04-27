@@ -169,14 +169,16 @@ export interface ApiTenancy {
   houseId: string;
   house?: { id: string; title: string; city: string; area: string; images?: string[] };
   tenantId: string;
+  tenant?: { id: string; firstName: string; lastName: string; email: string; phone?: string; avatar?: string };
   status: "pending_owner_confirmation" | "active" | "ended" | "transferred";
-  startDate?: string;
-  endDate?: string;
-  agreedRent?: number;
+  startDate?: string | null;
+  endDate?: string | null;
+  agreedRent?: number | null;
   currency: string;
-  agentCommissionRate?: number;
+  agentCommissionRate?: number | null;
   agentCommissionAmount?: number;
   commissionPaid: boolean;
+  notes?: string | null;
   createdAt: string;
 }
 
@@ -507,19 +509,14 @@ export const exchangeApi = {
     });
   },
 
-  async myTenancy(token: string): Promise<ApiTenancy | null> {
-    try {
-      const res = await apiFetch<ApiTenancy[] | { data: ApiTenancy[] }>(
-        "/exchanges/my-exchanges",
-        { token }
-      );
-      // We need tenancies not exchanges — use the tenancies endpoint once it exists
-      // For now return null — placeholder until /tenancies/me is added
-      void res;
-      return null;
-    } catch {
-      return null;
-    }
+  async myTenancies(token: string): Promise<ApiTenancy[]> {
+    const res = await apiFetch<ApiTenancy[] | { data: ApiTenancy[] }>(
+      "/exchanges/my-tenancies",
+      { token }
+    );
+    if (Array.isArray(res)) return res;
+    if ("data" in res) return (res as { data: ApiTenancy[] }).data;
+    return [];
   },
 
   async assignAgent(
