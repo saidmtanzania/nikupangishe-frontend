@@ -15,6 +15,7 @@ import {
     RefreshCw,
     Briefcase,
     ArrowRight,
+    ExternalLink,
 } from "lucide-react"
 import Image from "next/image"
 import { useAuth } from "@/context/auth-context"
@@ -82,7 +83,7 @@ export default function AdminDashboard() {
         if (!token) return
         const reason = rejectReason[houseId] ?? ""
         if (!approved && !reason.trim()) {
-            setError("Please provide a rejection reason before rejecting.")
+            setError("Please provide a reason before revoking verification.")
             return
         }
         setHouseLoading((p) => ({ ...p, [houseId]: true }))
@@ -166,9 +167,9 @@ export default function AdminDashboard() {
                 <section className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
                     <div className="flex items-center justify-between px-6 py-5 border-b border-slate-50 dark:border-slate-800">
                         <div>
-                            <h3 className="text-sm font-medium uppercase tracking-widest text-slate-800 dark:text-white">Pending House Verification</h3>
+                            <h3 className="text-sm font-medium uppercase tracking-widest text-slate-800 dark:text-white">Unverified Active Listings</h3>
                             <p className="text-[11px] text-slate-400 mt-0.5 font-medium">
-                                Showing up to 5 — <Link href="/dashboard/admin/houses?status=pending_verification" className="text-primary hover:underline">view all</Link>
+                                Showing up to 5 — <Link href="/dashboard/admin/houses" className="text-primary hover:underline">view all</Link>
                             </p>
                         </div>
                         <span className="text-[9px] font-medium px-2.5 py-1 rounded-full bg-amber-50 text-amber-600 border border-amber-100 uppercase tracking-widest">Admin Only</span>
@@ -206,22 +207,36 @@ export default function AdminDashboard() {
                                                     {house.owner && <span className="text-[10px] font-medium text-slate-400">👤 {house.owner.firstName} {house.owner.lastName}</span>}
                                                     <span className="text-[10px] font-medium text-slate-300 flex items-center gap-0.5"><Clock className="h-3 w-3" /> {relativeTime(p.createdAt)}</span>
                                                 </div>
+
+                                                {/* Owner verification evidence */}
+                                                {(house.verificationVideoUrl || house.ownerVerificationNote) && (
+                                                    <div className="mt-2 p-2.5 bg-blue-50/60 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 rounded-lg space-y-1.5">
+                                                        <p className="text-[9px] font-bold uppercase tracking-widest text-blue-500">Owner Evidence</p>
+                                                        {house.verificationVideoUrl && (
+                                                            <a href={house.verificationVideoUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-[10px] font-medium text-blue-600 hover:underline break-all">
+                                                                <ExternalLink className="h-3 w-3 shrink-0" /> {house.verificationVideoUrl}
+                                                            </a>
+                                                        )}
+                                                        {house.ownerVerificationNote && (
+                                                            <p className="text-[10px] font-medium text-slate-600 dark:text-slate-300 whitespace-pre-wrap">{house.ownerVerificationNote}</p>
+                                                        )}
+                                                    </div>
+                                                )}
                                                 {isRejecting && (
                                                     <div className="mt-3">
-                                                        <input type="text" placeholder="Reason for rejection..." value={rejectReason[house.id] ?? ""} onChange={(e) => setRejectReason((prev) => ({ ...prev, [house.id]: e.target.value }))} className="w-full max-w-sm text-xs border border-red-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-red-300 dark:bg-slate-800 dark:border-slate-600 dark:text-white placeholder:text-slate-400" />
+                                                        <input type="text" placeholder="Reason for revoking verified badge..." value={rejectReason[house.id] ?? ""} onChange={(e) => setRejectReason((prev) => ({ ...prev, [house.id]: e.target.value }))} className="w-full max-w-sm text-xs border border-red-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-red-300 dark:bg-slate-800 dark:border-slate-600 dark:text-white placeholder:text-slate-400" />
                                                     </div>
                                                 )}
                                             </div>
                                             <div className="flex items-center gap-2 shrink-0">
                                                 {isRejecting ? (
                                                     <>
-                                                        <button disabled={busy} onClick={() => handleVerify(house.id, false)} className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-medium uppercase tracking-widest bg-red-500 hover:bg-red-600 text-white rounded-lg transition-all active:scale-95 disabled:opacity-50">{busy ? <Loader2 className="h-3 w-3 animate-spin" /> : <XCircle className="h-3 w-3" />} Confirm</button>
+                                                        <button disabled={busy} onClick={() => handleVerify(house.id, false)} className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-medium uppercase tracking-widest bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-all active:scale-95 disabled:opacity-50">{busy ? <Loader2 className="h-3 w-3 animate-spin" /> : <XCircle className="h-3 w-3" />} Confirm Revoke</button>
                                                         <button disabled={busy} onClick={() => setHouseAction((pa) => ({ ...pa, [house.id]: null }))} className="px-3 py-1.5 text-[10px] font-medium uppercase tracking-widest border border-slate-200 dark:border-slate-600 text-slate-500 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">Cancel</button>
                                                     </>
                                                 ) : (
                                                     <>
-                                                        <button disabled={busy} onClick={() => handleVerify(house.id, true)} className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-medium uppercase tracking-widest bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg transition-all active:scale-95 disabled:opacity-50">{busy ? <Loader2 className="h-3 w-3 animate-spin" /> : <CheckCircle2 className="h-3 w-3" />} Approve</button>
-                                                        <button disabled={busy} onClick={() => setHouseAction((pa) => ({ ...pa, [house.id]: "reject" }))} className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-medium uppercase tracking-widest border border-red-200 text-red-500 hover:bg-red-50 rounded-lg transition-all active:scale-95 disabled:opacity-50"><XCircle className="h-3 w-3" /> Reject</button>
+                                                        <button disabled={busy} onClick={() => handleVerify(house.id, true)} className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-medium uppercase tracking-widest bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all active:scale-95 disabled:opacity-50">{busy ? <Loader2 className="h-3 w-3 animate-spin" /> : <CheckCircle2 className="h-3 w-3" />} Verify</button>
                                                     </>
                                                 )}
                                             </div>

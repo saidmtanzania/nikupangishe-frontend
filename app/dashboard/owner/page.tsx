@@ -117,8 +117,8 @@ export default function OwnerDashboard() {
                 price={`TZS ${property.price.toLocaleString()}`}
                 period="/mo"
                 status={property.status.charAt(0).toUpperCase() + property.status.slice(1)}
-                statusColor={property.status === "available" ? "bg-primary" : "bg-emerald-500"}
-                editable={property.status === "available"}
+                statusColor={property.status === "active" ? "bg-primary" : "bg-emerald-500"}
+                editable={property.status === "active"}
               />
             ))}
           </div>

@@ -98,7 +98,7 @@ export function DashboardSidebar({ role, userName }: DashboardSidebarProps) {
   }, [settingsOpen])
 
   return (
-    <aside className="sticky top-0 h-screen w-[260px] shrink-0 flex flex-col border-r border-primary/10 bg-white dark:bg-slate-900 shadow-sm">
+    <aside className="sticky top-0 h-screen w-65 shrink-0 flex flex-col border-r border-primary/10 bg-white dark:bg-slate-900 shadow-sm">
       {/* Logo Section */}
       <div className="p-6">
         <Link href="/" className="flex items-center gap-3">

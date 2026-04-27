@@ -95,7 +95,7 @@ export default function AdminHousesPage() {
         if (!token) return
         const reason = rejectReason[houseId] ?? ""
         if (!approved && !reason.trim()) {
-            setError("Please provide a rejection reason before rejecting.")
+            setError("Please provide a reason before revoking verification.")
             return
         }
         setHouseLoading((p) => ({ ...p, [houseId]: true }))
@@ -106,7 +106,8 @@ export default function AdminHousesPage() {
                 approved ? { approved: true } : { approved: false, rejectionReason: reason },
                 token
             )
-            setHouses((prev) => prev.map((h) => h.id === houseId ? { ...h, status: approved ? "active" : "rejected" } : h))
+            // Update isVerified badge only — listing status stays unchanged
+            setHouses((prev) => prev.map((h) => h.id === houseId ? { ...h, isVerified: approved } : h))
         } catch (e) {
             setError(e instanceof Error ? e.message : "Action failed.")
         } finally {
@@ -198,8 +199,10 @@ export default function AdminHousesPage() {
                             {houses.map((house) => {
                                 const p = toProperty(house)
                                 const houseStatus = house.status ?? "active"
-                                const isPending = houseStatus === "pending_verification"
-                                const isRejecting = houseAction[house.id] === "reject"
+                                const isVerified = !!house.isVerified
+                                // Revoking = removing the verified badge from a verified listing
+                                const isRevoking = houseAction[house.id] === "reject"
+                                const isRejecting = isRevoking
                                 const busy = houseLoading[house.id]
                                 const delBusy = deleteLoading[house.id]
                                 const confirmingDelete = deleteConfirm === house.id
@@ -224,6 +227,9 @@ export default function AdminHousesPage() {
                                                     <span className={cn("text-[9px] font-medium px-2 py-0.5 rounded-full border uppercase tracking-widest shrink-0", STATUS_COLORS[houseStatus] ?? "bg-slate-50 text-slate-500 border-slate-100")}>
                                                         {STATUS_LABELS[houseStatus] ?? houseStatus}
                                                     </span>
+                                                    {isVerified && (
+                                                        <span className="text-[9px] font-medium px-2 py-0.5 rounded-full border uppercase tracking-widest shrink-0 bg-blue-50 text-blue-600 border-blue-100">✓ Verified</span>
+                                                    )}
                                                 </div>
                                                 <div className="flex flex-wrap gap-3 mt-1">
                                                     <span className="text-[10px] font-medium text-slate-400">📍 {p.location.neighborhood}, {p.location.city}</span>
@@ -232,11 +238,32 @@ export default function AdminHousesPage() {
                                                     <span className="text-[10px] font-medium text-slate-400">💵 {house.currency ?? "TZS"} {p.price.toLocaleString()}/mo</span>
                                                 </div>
 
-                                                {isRejecting && (
+                                                {/* Owner verification evidence */}
+                                                {(house.verificationVideoUrl || house.ownerVerificationNote) && (
+                                                    <div className="mt-3 p-3 bg-blue-50/60 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 rounded-lg space-y-2">
+                                                        <p className="text-[9px] font-bold uppercase tracking-widest text-blue-500">Owner Verification Evidence</p>
+                                                        {house.verificationVideoUrl && (
+                                                            <a
+                                                                href={house.verificationVideoUrl}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="flex items-center gap-1.5 text-[10px] font-medium text-blue-600 hover:underline break-all"
+                                                            >
+                                                                <ExternalLink className="h-3 w-3 shrink-0" />
+                                                                {house.verificationVideoUrl}
+                                                            </a>
+                                                        )}
+                                                        {house.ownerVerificationNote && (
+                                                            <p className="text-[10px] font-medium text-slate-600 dark:text-slate-300 whitespace-pre-wrap">{house.ownerVerificationNote}</p>
+                                                        )}
+                                                    </div>
+                                                )}
+
+                                                {isRevoking && (
                                                     <div className="mt-3">
                                                         <input
                                                             type="text"
-                                                            placeholder="Reason for rejection..."
+                                                            placeholder="Reason for revoking verified badge..."
                                                             value={rejectReason[house.id] ?? ""}
                                                             onChange={(e) => setRejectReason((prev) => ({ ...prev, [house.id]: e.target.value }))}
                                                             className="w-full max-w-sm text-xs border border-red-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-red-300 dark:bg-slate-800 dark:border-slate-600 dark:text-white placeholder:text-slate-400"
@@ -259,20 +286,22 @@ export default function AdminHousesPage() {
 
                                             {/* Actions */}
                                             <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
-                                                {isPending && !isRejecting && (
-                                                    <>
-                                                        <button disabled={busy} onClick={() => handleVerify(house.id, true)} className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-medium uppercase tracking-widest bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg transition-all active:scale-95 disabled:opacity-50">
-                                                            {busy ? <Loader2 className="h-3 w-3 animate-spin" /> : <CheckCircle2 className="h-3 w-3" />} Approve
-                                                        </button>
-                                                        <button disabled={busy} onClick={() => setHouseAction((pa) => ({ ...pa, [house.id]: "reject" }))} className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-medium uppercase tracking-widest border border-red-200 text-red-500 hover:bg-red-50 rounded-lg transition-all active:scale-95 disabled:opacity-50">
-                                                            <XCircle className="h-3 w-3" /> Reject
-                                                        </button>
-                                                    </>
+                                                {/* Verify badge — only shown on active, unverified listings */}
+                                                {houseStatus === "active" && !isVerified && !isRevoking && (
+                                                    <button disabled={busy} onClick={() => handleVerify(house.id, true)} className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-medium uppercase tracking-widest bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all active:scale-95 disabled:opacity-50">
+                                                        {busy ? <Loader2 className="h-3 w-3 animate-spin" /> : <CheckCircle2 className="h-3 w-3" />} Verify
+                                                    </button>
                                                 )}
-                                                {isRejecting && (
+                                                {/* Revoke badge — shown on verified listings */}
+                                                {isVerified && !isRevoking && (
+                                                    <button disabled={busy} onClick={() => setHouseAction((pa) => ({ ...pa, [house.id]: "reject" }))} className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-medium uppercase tracking-widest border border-orange-200 text-orange-500 hover:bg-orange-50 rounded-lg transition-all active:scale-95 disabled:opacity-50">
+                                                        <XCircle className="h-3 w-3" /> Revoke
+                                                    </button>
+                                                )}
+                                                {isRevoking && (
                                                     <>
-                                                        <button disabled={busy} onClick={() => handleVerify(house.id, false)} className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-medium uppercase tracking-widest bg-red-500 hover:bg-red-600 text-white rounded-lg transition-all active:scale-95 disabled:opacity-50">
-                                                            {busy ? <Loader2 className="h-3 w-3 animate-spin" /> : <XCircle className="h-3 w-3" />} Confirm Reject
+                                                        <button disabled={busy} onClick={() => handleVerify(house.id, false)} className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-medium uppercase tracking-widest bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-all active:scale-95 disabled:opacity-50">
+                                                            {busy ? <Loader2 className="h-3 w-3 animate-spin" /> : <XCircle className="h-3 w-3" />} Confirm Revoke
                                                         </button>
                                                         <button disabled={busy} onClick={() => setHouseAction((pa) => ({ ...pa, [house.id]: null }))} className="px-3 py-1.5 text-[10px] font-medium uppercase tracking-widest border border-slate-200 dark:border-slate-600 text-slate-500 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">Cancel</button>
                                                     </>

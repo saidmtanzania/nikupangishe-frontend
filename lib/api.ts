@@ -7,7 +7,7 @@
  */
 
 export const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000/api/v1";
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api/v1";
 
 // ── Envelope unwrap ────────────────────────────────────────────────────────
 function unwrap<T>(body: unknown): T {
@@ -105,6 +105,12 @@ export interface ApiProperty {
   hasGarden?: boolean;
   petFriendly?: boolean;
   availableFrom?: string | null;
+  // Verification evidence submitted by owner for admin review
+  verificationVideoUrl?: string | null;
+  ownerVerificationNote?: string | null;
+  // Admin outcome
+  verificationNotes?: string | null;
+  rejectionReason?: string | null;
 }
 
 export interface ApiPropertyList {
@@ -591,7 +597,16 @@ export function toProperty(p: ApiProperty) {
     agentId: p.agentId,
     owner: p.owner,
     agent: p.agent,
-    status: (p.status ?? "available") as "available" | "occupied" | "pending",
+    // Map raw backend status → UI-friendly value
+    status: (() => {
+      const s = p.status ?? "draft";
+      if (s === "active" || s === "available") return "active" as const;
+      if (s === "rented" || s === "occupied") return "rented" as const;
+      if (s === "inactive") return "inactive" as const;
+      if (s === "rejected") return "rejected" as const;
+      // draft, pending_verification → not yet published
+      return "draft" as const;
+    })(),
     createdAt: p.createdAt ?? new Date().toISOString(),
     hasWater: p.hasWater,
     hasElectricity: p.hasElectricity,

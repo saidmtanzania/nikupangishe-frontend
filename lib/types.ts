@@ -33,7 +33,7 @@ export interface Property {
     lastName: string
     phone: string
   }
-  status: "available" | "occupied" | "pending"
+  status: "available" | "occupied" | "pending" | "active" | "rented" | "draft" | "inactive" | "rejected"
   createdAt: string
   // Utility features
   hasWater?: boolean

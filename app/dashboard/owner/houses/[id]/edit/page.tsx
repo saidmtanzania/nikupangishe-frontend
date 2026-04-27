@@ -111,6 +111,8 @@ interface HouseForm {
     rules: string[]
     isUnique: boolean
     isOpenToExchange: boolean
+    verificationVideoUrl: string
+    ownerVerificationNote: string
 }
 
 const defaultForm: HouseForm = {
@@ -122,6 +124,7 @@ const defaultForm: HouseForm = {
     hasSecurityGuard: false, hasCCTV: false, petFriendly: false,
     availableFrom: "", minimumLeaseDuration: "", amenities: [], rules: [],
     isUnique: false, isOpenToExchange: false,
+    verificationVideoUrl: "", ownerVerificationNote: "",
 }
 
 export default function EditHousePage() {
@@ -182,6 +185,8 @@ export default function EditHousePage() {
                     rules: [],
                     isUnique: house.isUnique ?? false,
                     isOpenToExchange: house.isOpenToExchange ?? false,
+                    verificationVideoUrl: house.verificationVideoUrl ?? "",
+                    ownerVerificationNote: house.ownerVerificationNote ?? "",
                 })
                 const imgs = house.images ?? []
                 setExistingImages(imgs)
@@ -298,6 +303,8 @@ export default function EditHousePage() {
                 rules: form.rules,
                 isUnique: form.isUnique,
                 isOpenToExchange: form.isOpenToExchange,
+                verificationVideoUrl: form.verificationVideoUrl || undefined,
+                ownerVerificationNote: form.ownerVerificationNote || undefined,
                 location:
                     form.latitude && form.longitude
                         ? { lat: parseFloat(form.latitude), lng: parseFloat(form.longitude), neighborhood: form.area, city: form.city }
@@ -733,11 +740,35 @@ export default function EditHousePage() {
                                             </div>
                                         )}
                                     </div>
+                    {/* Verification evidence for admin */}
+                                    <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                                        <div>
+                                            <h4 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Verification Evidence</h4>
+                                            <p className="text-[8px] text-slate-400 mt-1 uppercase tracking-wider">Help the admin verify your property — optional but speeds up getting the Verified badge</p>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label className={fieldLabel}>Verification Video URL</Label>
+                                            <Input
+                                                value={form.verificationVideoUrl}
+                                                onChange={(e) => set("verificationVideoUrl", e.target.value)}
+                                                placeholder="https://youtube.com/... or Google Drive link"
+                                                className={inputClass}
+                                            />
+                                            <p className="text-[8px] text-slate-400 ml-1">Walk-through video of the property — YouTube, Google Drive, or any public link</p>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label className={fieldLabel}>Note to Admin</Label>
+                                            <Textarea
+                                                value={form.ownerVerificationNote}
+                                                onChange={(e) => set("ownerVerificationNote", e.target.value)}
+                                                placeholder="Describe ownership proof, any supporting information, or special notes for the reviewer..."
+                                                className="min-h-25 border-slate-100 bg-slate-50/50 focus:ring-0 focus:border-slate-300 text-xs font-medium rounded-lg resize-none leading-relaxed transition-none"
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
                             </>
                         )}
-
-                        {/* ─── STEP 5: Review ────────────────────────── */}
                         {currentStep === 5 && (
                             <>
                                 <div>
@@ -791,6 +822,12 @@ export default function EditHousePage() {
                                     <ReviewSection title="Description">
                                         <p className="text-[10px] text-slate-600 dark:text-slate-300 font-medium leading-relaxed whitespace-pre-wrap">{form.description || "—"}</p>
                                     </ReviewSection>
+                                    {(form.verificationVideoUrl || form.ownerVerificationNote) && (
+                                        <ReviewSection title="Verification Evidence">
+                                            {form.verificationVideoUrl && <ReviewItem label="Video URL" value={form.verificationVideoUrl} />}
+                                            {form.ownerVerificationNote && <ReviewItem label="Note to Admin" value={form.ownerVerificationNote} />}
+                                        </ReviewSection>
+                                    )}
                                 </div>
                             </>
                         )}
@@ -831,6 +868,7 @@ export default function EditHousePage() {
                                 <div className="space-y-3">
                                     <SideTip title="Quality Photos" text="Well-lit photos get 3x more views." />
                                     <SideTip title="New uploads" text="New photos are added to existing ones (not replaced)." />
+                                    <SideTip title="Verified Badge" text="Upload a walk-through video and a note so the admin can grant you the Verified badge faster." />
                                 </div>
                             </section>
                         )}

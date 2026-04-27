@@ -148,7 +148,7 @@ export default async function PropertyDetailPage({
               { icon: Bed, label: "Bedrooms", value: property.bedrooms },
               { icon: Bath, label: "Bathrooms", value: property.bathrooms },
               { icon: Maximize, label: "Area", value: `${property.area} m\u00B2` },
-              { icon: Shield, label: "Status", value: property.status === "available" ? "Available" : property.status },
+              { icon: Shield, label: "Status", value: property.status === "active" ? "Available" : property.status },
             ].map((feat) => (
               <div
                 key={feat.label}

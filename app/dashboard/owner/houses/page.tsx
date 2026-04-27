@@ -67,7 +67,7 @@ export default function MyHousesPage() {
         try {
             await propertiesApi.publishHouse(id, token)
             setOwnerProperties(prev =>
-                prev.map(p => p.id === id ? { ...p, status: "available" as const } : p)
+                prev.map(p => p.id === id ? { ...p, status: "active" as const } : p)
             )
         } catch (e) {
             setActionError(e instanceof Error ? e.message : "Failed to publish")
@@ -83,7 +83,7 @@ export default function MyHousesPage() {
         try {
             await propertiesApi.unpublishHouse(id, token)
             setOwnerProperties(prev =>
-                prev.map(p => p.id === id ? { ...p, status: "pending" as const } : p)
+                prev.map(p => p.id === id ? { ...p, status: "draft" as const } : p)
             )
         } catch (e) {
             setActionError(e instanceof Error ? e.message : "Failed to unpublish")
@@ -197,10 +197,16 @@ export default function MyHousesPage() {
                                 </thead>
                                 <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
                                     {filteredProperties.map((p) => {
-                                        const isPending = p.status === "pending"
-                                        const isActive = p.status === "available"
-                                        const isOccupied = p.status === "occupied"
+                                        const isDraft = p.status === "draft"
+                                        const isActive = p.status === "active"
+                                        const isRented = p.status === "rented"
+                                        const isInactive = p.status === "inactive"
+                                        const isRejected = p.status === "rejected"
                                         const isLoading = actionLoading[p.id]
+                                        // Owner can publish draft/pending_verification houses
+                                        const canPublish = isDraft
+                                        // Owner can unpublish active houses only
+                                        const canUnpublish = isActive
 
                                         return (
                                             <tr key={p.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors group">
@@ -225,11 +231,12 @@ export default function MyHousesPage() {
                                                     <span className={cn(
                                                         "inline-flex items-center px-3 py-1 rounded-full text-[10px] font-medium uppercase tracking-wider shadow-sm",
                                                         isActive && "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 border border-emerald-100",
-                                                        isPending && "bg-amber-50 text-amber-600 dark:bg-amber-950/30 border border-amber-100",
-                                                        isOccupied && "bg-slate-100 text-slate-600 border border-slate-200",
-                                                        !isActive && !isPending && !isOccupied && "bg-red-50 text-red-600 dark:bg-red-950/30 border border-red-100",
+                                                        isDraft && "bg-amber-50 text-amber-600 dark:bg-amber-950/30 border border-amber-100",
+                                                        isRented && "bg-slate-100 text-slate-600 border border-slate-200",
+                                                        isInactive && "bg-red-50 text-red-500 dark:bg-red-950/30 border border-red-100",
+                                                        isRejected && "bg-red-50 text-red-600 dark:bg-red-950/30 border border-red-100",
                                                     )}>
-                                                        {isActive ? "Published" : isOccupied ? "Rented" : isPending ? "Pending" : "Inactive"}
+                                                        {isActive ? "Published" : isRented ? "Rented" : isDraft ? "Draft" : isInactive ? "Inactive" : "Rejected"}
                                                     </span>
                                                 </td>
                                                 <td className="px-6 py-6">
@@ -257,21 +264,23 @@ export default function MyHousesPage() {
                                                 </td>
                                                 <td className="px-6 py-6">
                                                     <div className="flex items-center justify-end gap-2">
-                                                        {isPending && (
+                                                        {canPublish && (
                                                             <button
                                                                 onClick={() => handlePublish(p.id)}
                                                                 disabled={isLoading}
                                                                 className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-white text-[10px] font-bold uppercase tracking-wider rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95"
+                                                                title="Make this listing visible to the public"
                                                             >
                                                                 {isLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Eye className="h-3 w-3" />}
                                                                 Publish
                                                             </button>
                                                         )}
-                                                        {isActive && (
+                                                        {canUnpublish && (
                                                             <button
                                                                 onClick={() => handleUnpublish(p.id)}
                                                                 disabled={isLoading}
                                                                 className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-bold uppercase tracking-wider rounded-lg hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95"
+                                                                title="Hide this listing from public browsing"
                                                             >
                                                                 {isLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <EyeOff className="h-3 w-3" />}
                                                                 Unpublish

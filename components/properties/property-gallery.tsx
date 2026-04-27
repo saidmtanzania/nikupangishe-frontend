@@ -42,7 +42,7 @@ export function PropertyGallery({ images, title }: { images: string[]; title: st
       <div className="overflow-hidden cursor-grab active:cursor-grabbing" ref={emblaRef}>
         <div className="flex">
           {images.map((img, index) => (
-            <div key={index} className="relative aspect-[16/9] min-w-0 flex-[0_0_100%] lg:aspect-[2/1]">
+            <div key={index} className="relative aspect-video min-w-0 flex-[0_0_100%] lg:aspect-2/1">
               <Image
                 src={img}
                 alt={`${title} - Image ${index + 1}`}
@@ -51,7 +51,7 @@ export function PropertyGallery({ images, title }: { images: string[]; title: st
                 priority={index === 0}
               />
               {/* Refined bottom gradient for dots visibility */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80" />
+              <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-80" />
             </div>
           ))}
         </div>
