@@ -18,13 +18,13 @@ import Link from "next/link"
 import Image from "next/image"
 import { useState, useEffect } from "react"
 import { useAuth } from "@/context/auth-context"
-import { propertiesApi, viewingsApi, toProperty, type ViewingRequest } from "@/lib/api"
+import { propertiesApi, viewingsApi, toProperty, type ApiViewingRequest } from "@/lib/api"
 
 export default function AgentDashboard() {
   const { user, token } = useAuth()
   const userName = user ? `${user.firstName} ${user.lastName}` : "Agent"
   const [assignedProperties, setAssignedProperties] = useState<ReturnType<typeof toProperty>[]>([])
-  const [agentViewings, setAgentViewings] = useState<ViewingRequest[]>([])
+  const [agentViewings, setAgentViewings] = useState<ApiViewingRequest[]>([])
 
   useEffect(() => {
     if (!token || !user) return
@@ -40,7 +40,7 @@ export default function AgentDashboard() {
       })
       .catch(() => {})
     // Fetch viewings
-    viewingsApi.list(token)
+    viewingsApi.myViewings(token)
       .then((res) => { if (!cancelled) setAgentViewings(res) })
       .catch(() => {})
     return () => { cancelled = true }
@@ -152,9 +152,9 @@ function StatCard({ icon: Icon, label, value, color, bg }: any) {
   )
 }
 
-function ViewingItem({ viewing }: { viewing: ViewingRequest }) {
-  const label = viewing.houseTitle ?? viewing.houseId ?? "Property"
-  const time = new Date(viewing.scheduledAt).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })
+function ViewingItem({ viewing }: { viewing: ApiViewingRequest }) {
+  const label = viewing.house?.title ?? viewing.houseId ?? "Property"
+  const time = new Date(viewing.preferredDate).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })
   const initials = viewing.tenantId?.slice(0, 2).toUpperCase() ?? "??"
   return (
     <div className="p-4 rounded-xl border border-slate-50 dark:border-slate-800 hover:border-slate-100 hover:bg-slate-50/50 transition-all cursor-pointer group">

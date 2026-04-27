@@ -19,6 +19,7 @@ import {
   User,
   HelpCircle,
   MessageSquare,
+  Briefcase,
 } from "lucide-react"
 
 interface NavItem {
@@ -47,13 +48,22 @@ const agentNav: NavItem[] = [
 
 const tenantNav: NavItem[] = [
   { href: "/dashboard/tenant", label: "Overview", icon: LayoutDashboard },
+  { href: "/dashboard/tenant/viewings", label: "My Viewings", icon: Calendar },
   { href: "/dashboard/tenant/exchange", label: "Exchanges", icon: FileText },
   { href: "/chat", label: "Chat", icon: MessageSquare },
   { href: "/dashboard/tenant/verification", label: "Trust Score", icon: Shield },
 ]
 
+const adminNav: NavItem[] = [
+  { href: "/dashboard/admin", label: "Overview", icon: LayoutDashboard },
+  { href: "/dashboard/admin/users", label: "Users", icon: Users },
+  { href: "/dashboard/admin/houses", label: "All Houses", icon: Home },
+  { href: "/dashboard/admin/agents", label: "Agents", icon: Briefcase },
+  { href: "/chat", label: "Chat", icon: MessageSquare },
+]
+
 interface DashboardSidebarProps {
-  role: "owner" | "agent" | "tenant"
+  role: "owner" | "agent" | "tenant" | "admin"
   userName: string
 }
 
@@ -64,10 +74,10 @@ export function DashboardSidebar({ role, userName }: DashboardSidebarProps) {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const panelRef = useRef<HTMLDivElement>(null)
 
-  const navItems = role === "owner" ? ownerNav : role === "agent" ? agentNav : tenantNav
+  const navItems = role === "owner" ? ownerNav : role === "agent" ? agentNav : role === "admin" ? adminNav : tenantNav
   const initials = userName.split(' ').map(n => n[0]).join('')
   const roleLabel = role.charAt(0).toUpperCase() + role.slice(1)
-  const badgeLabel = role === "owner" ? "Premium Owner" : role === "agent" ? "Verified Agent" : "Gold Tenant"
+  const badgeLabel = role === "owner" ? "Premium Owner" : role === "agent" ? "Verified Agent" : role === "admin" ? "Platform Admin" : "Gold Tenant"
 
   const handleLogout = () => {
     logout()
