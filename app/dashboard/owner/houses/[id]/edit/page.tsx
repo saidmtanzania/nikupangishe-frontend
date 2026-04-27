@@ -174,7 +174,9 @@ export default function EditHousePage() {
                     hasSecurityGuard: house.hasSecurityGuard ?? false,
                     hasCCTV: house.hasCCTV ?? false,
                     petFriendly: house.petFriendly ?? false,
-                    availableFrom: "",
+                    availableFrom: house.availableFrom
+                        ? String(house.availableFrom).split("T")[0]
+                        : "",
                     minimumLeaseDuration: "",
                     amenities: house.amenities ?? [],
                     rules: [],
@@ -290,7 +292,7 @@ export default function EditHousePage() {
                 hasSecurityGuard: form.hasSecurityGuard,
                 hasCCTV: form.hasCCTV,
                 petFriendly: form.petFriendly,
-                availableFrom: form.availableFrom || undefined,
+                availableFrom: form.availableFrom ? new Date(form.availableFrom).toISOString() : undefined,
                 minimumLeaseDuration: Number(form.minimumLeaseDuration) || 0,
                 amenities: form.amenities,
                 rules: form.rules,

@@ -110,6 +110,7 @@ export default function OwnerDashboard() {
             {ownerProperties.map((property) => (
               <PropertyCardV3
                 key={property.id}
+                houseId={property.id}
                 image={property.images[0]}
                 name={property.title}
                 location={`${property.location.neighborhood}, ${property.location.city}`}
@@ -138,7 +139,7 @@ export default function OwnerDashboard() {
                 </select>
               </div>
             </div>
-            <div className="space-y-3 max-h-[420px] overflow-y-auto pr-2 custom-scrollbar">
+            <div className="space-y-3 max-h-105 overflow-y-auto pr-2 custom-scrollbar">
               <p className="text-xs text-slate-400 text-center py-4">Agent assignment coming soon.</p>
             </div>
           </section>
@@ -146,7 +147,7 @@ export default function OwnerDashboard() {
           {/* Tenant Approval Queue */}
           <section className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm">
             <h3 className="text-lg font-medium mb-6 uppercase tracking-tight text-slate-800">Tenant Queue</h3>
-            <div className="space-y-4 max-h-[420px] overflow-y-auto pr-2 custom-scrollbar">
+            <div className="space-y-4 max-h-105 overflow-y-auto pr-2 custom-scrollbar">
               <div className="py-8 text-center">
                 <p className="text-xs text-slate-400">No pending tenant applications.</p>
               </div>
@@ -180,7 +181,7 @@ function RevenueBar({ label, height, active }: any) {
         style={{ height }}
       >
         {active && (
-          <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-t from-black/10 to-transparent" />
         )}
       </div>
       <div className={cn(
@@ -195,15 +196,15 @@ function RevenueBar({ label, height, active }: any) {
   )
 }
 
-function PropertyCardV3({ image, name, location, price, period, status, statusColor, editable, subtitle }: any) {
+function PropertyCardV3({ houseId, image, name, location, price, period, status, statusColor, editable, subtitle }: any) {
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm transition-all">
-      <div className="h-36 relative overflow-hidden">
+      <Link href={`/dashboard/owner/houses/${houseId}/edit`} className="block h-36 relative overflow-hidden">
         <Image src={image} alt={name} fill className="object-cover transition-transform duration-500 hover:scale-110" />
         <div className={cn("absolute top-3 right-3 text-white text-[9px] font-medium px-2.5 py-1 rounded-full uppercase tracking-widest shadow-lg backdrop-blur-sm", statusColor)}>
           {status}
         </div>
-      </div>
+      </Link>
       <div className="p-4">
         <h4 className="font-bold text-slate-800 dark:text-white truncate text-sm">{name}</h4>
         <p className="text-[11px] text-slate-500 font-medium flex items-center gap-1.5 mt-1.5 uppercase tracking-tighter">
@@ -215,7 +216,7 @@ function PropertyCardV3({ image, name, location, price, period, status, statusCo
             <span className="text-[9px] font-medium text-slate-400 uppercase tracking-widest leading-none mt-1">{period}</span>
           </div>
           {editable ? (
-            <button className="text-[10px] font-medium text-slate-400 hover:text-white hover:bg-primary transition-all py-2 px-4 rounded-xl border border-slate-100 dark:border-slate-800 uppercase tracking-widest">Edit</button>
+            <Link href={`/dashboard/owner/houses/${houseId}/edit`} className="text-[10px] font-medium text-slate-400 hover:text-white hover:bg-primary transition-all py-2 px-4 rounded-xl border border-slate-100 dark:border-slate-800 uppercase tracking-widest">Edit</Link>
           ) : subtitle ? (
             <span className="text-[10px] font-medium italic text-amber-600 uppercase tracking-widest">{subtitle}</span>
           ) : (

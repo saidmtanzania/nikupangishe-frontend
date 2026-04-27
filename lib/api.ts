@@ -104,6 +104,7 @@ export interface ApiProperty {
   hasSecurityGuard?: boolean;
   hasGarden?: boolean;
   petFriendly?: boolean;
+  availableFrom?: string | null;
 }
 
 export interface ApiPropertyList {

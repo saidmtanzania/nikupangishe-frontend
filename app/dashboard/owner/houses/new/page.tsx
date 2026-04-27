@@ -275,7 +275,7 @@ export default function AddHousePage() {
                 hasSecurityGuard: form.hasSecurityGuard,
                 hasCCTV: form.hasCCTV,
                 petFriendly: form.petFriendly,
-                availableFrom: form.availableFrom || undefined,
+                availableFrom: form.availableFrom ? new Date(form.availableFrom).toISOString() : undefined,
                 minimumLeaseDuration: Number(form.minimumLeaseDuration) || 0,
                 amenities: form.amenities,
                 rules: form.rules,
