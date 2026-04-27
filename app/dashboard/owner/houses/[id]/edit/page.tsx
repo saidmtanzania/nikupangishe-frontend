@@ -11,6 +11,9 @@ import {
     Loader2,
     MapPin,
     Pencil,
+    Star,
+    ChevronLeft,
+    ChevronRight,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -130,6 +133,8 @@ export default function EditHousePage() {
     const [loadingHouse, setLoadingHouse] = useState(true)
     // Existing images from backend (URLs)
     const [existingImages, setExistingImages] = useState<string[]>([])
+    // Track original order to detect if reorder API call is needed
+    const [originalImages, setOriginalImages] = useState<string[]>([])
     // New files selected by user
     const [newImageFiles, setNewImageFiles] = useState<File[]>([])
     const [newImagePreviews, setNewImagePreviews] = useState<string[]>([])
@@ -176,7 +181,9 @@ export default function EditHousePage() {
                     isUnique: house.isUnique ?? false,
                     isOpenToExchange: house.isOpenToExchange ?? false,
                 })
-                setExistingImages(house.images ?? [])
+                const imgs = house.images ?? []
+                setExistingImages(imgs)
+                setOriginalImages(imgs)
             })
             .catch(() => setError("Failed to load house details."))
             .finally(() => setLoadingHouse(false))
@@ -224,6 +231,28 @@ export default function EditHousePage() {
 
     const removeExistingImage = (index: number) => {
         setExistingImages((prev) => prev.filter((_, i) => i !== index))
+    }
+
+    // Move image at `index` to position 0 (makes it the cover)
+    const setCoverImage = (index: number) => {
+        if (index === 0) return
+        setExistingImages((prev) => {
+            const next = [...prev]
+            const [picked] = next.splice(index, 1)
+            next.unshift(picked)
+            return next
+        })
+    }
+
+    // Swap image at `index` with the one to its left or right
+    const swapImage = (index: number, direction: "left" | "right") => {
+        setExistingImages((prev) => {
+            const next = [...prev]
+            const target = direction === "left" ? index - 1 : index + 1
+            if (target < 0 || target >= next.length) return prev
+            ;[next[index], next[target]] = [next[target], next[index]]
+            return next
+        })
     }
 
     const handleSubmit = async () => {
@@ -275,6 +304,18 @@ export default function EditHousePage() {
             Object.keys(payload).forEach((k) => { if (payload[k] === undefined) delete payload[k] })
 
             await propertiesApi.updateHouse(id, payload, token)
+
+            // Reorder photos if the cover (or order) changed
+            const orderChanged =
+                existingImages.length !== originalImages.length ||
+                existingImages.some((url, i) => url !== originalImages[i])
+            if (orderChanged && existingImages.length > 0) {
+                try {
+                    await propertiesApi.reorderPhotos(id, existingImages, token)
+                } catch {
+                    // Non-blocking
+                }
+            }
 
             // Upload any new photos
             if (newImageFiles.length > 0) {
@@ -617,12 +658,46 @@ export default function EditHousePage() {
                                             <h4 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Current Photos</h4>
                                             <div className="grid grid-cols-4 gap-4">
                                                 {existingImages.map((url, index) => (
-                                                    <div key={index} className="relative aspect-square rounded-lg overflow-hidden border border-slate-100">
+                                                    <div key={url} className="group relative aspect-square rounded-lg overflow-hidden border border-slate-100">
                                                         <img src={url} alt={`Photo ${index + 1}`} className="w-full h-full object-cover" />
+                                                        {/* Trash */}
                                                         <button onClick={() => removeExistingImage(index)} className="absolute top-2 right-2 p-1.5 bg-black/50 rounded text-white hover:bg-black/70">
                                                             <Trash2 className="size-2.5" />
                                                         </button>
-                                                        {index === 0 && <span className="absolute bottom-2 left-2 text-[7px] font-bold uppercase tracking-widest bg-primary text-white px-2 py-0.5 rounded">Cover</span>}
+                                                        {/* Swap left / right arrows */}
+                                                        <div className="absolute top-2 left-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                            {index > 0 && (
+                                                                <button
+                                                                    onClick={() => swapImage(index, "left")}
+                                                                    className="p-1.5 bg-black/50 rounded text-white hover:bg-black/70"
+                                                                    title="Move left"
+                                                                >
+                                                                    <ChevronLeft className="size-2.5" />
+                                                                </button>
+                                                            )}
+                                                            {index < existingImages.length - 1 && (
+                                                                <button
+                                                                    onClick={() => swapImage(index, "right")}
+                                                                    className="p-1.5 bg-black/50 rounded text-white hover:bg-black/70"
+                                                                    title="Move right"
+                                                                >
+                                                                    <ChevronRight className="size-2.5" />
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                        {/* Cover badge / Set-as-cover button */}
+                                                        {index === 0 ? (
+                                                            <span className="absolute bottom-2 left-2 flex items-center gap-1 text-[7px] font-bold uppercase tracking-widest bg-primary text-white px-2 py-0.5 rounded">
+                                                                <Star className="size-2 fill-white" /> Cover
+                                                            </span>
+                                                        ) : (
+                                                            <button
+                                                                onClick={() => setCoverImage(index)}
+                                                                className="absolute bottom-2 left-2 flex items-center gap-1 text-[7px] font-bold uppercase tracking-widest bg-black/60 text-white px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity hover:bg-primary"
+                                                            >
+                                                                <Star className="size-2" /> Set Cover
+                                                            </button>
+                                                        )}
                                                     </div>
                                                 ))}
                                             </div>

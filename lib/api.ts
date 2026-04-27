@@ -366,6 +366,14 @@ export const propertiesApi = {
       token,
     });
   },
+
+  async reorderPhotos(houseId: string, photos: string[], token: string): Promise<void> {
+    await apiFetch(`/houses/${houseId}/photos/reorder`, {
+      method: "PATCH",
+      body: JSON.stringify({ photos }),
+      token,
+    });
+  },
 };
 
 // ── Viewings API ───────────────────────────────────────────────────────────
