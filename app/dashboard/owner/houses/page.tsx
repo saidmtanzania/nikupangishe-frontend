@@ -12,6 +12,7 @@ import {
     Eye,
     EyeOff,
     Trash2,
+    Pencil,
 } from "lucide-react"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
@@ -276,6 +277,13 @@ export default function MyHousesPage() {
                                                                 Unpublish
                                                             </button>
                                                         )}
+                                                        <button
+                                                            onClick={() => router.push(`/dashboard/owner/houses/${p.id}/edit`)}
+                                                            className="p-1.5 text-slate-300 hover:text-primary transition-colors"
+                                                            title="Edit listing"
+                                                        >
+                                                            <Pencil className="h-3.5 w-3.5" />
+                                                        </button>
                                                         <button
                                                             onClick={() => handleDelete(p.id)}
                                                             disabled={isLoading}

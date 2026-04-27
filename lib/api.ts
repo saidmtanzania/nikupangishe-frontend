@@ -356,6 +356,14 @@ export const propertiesApi = {
       token,
     });
   },
+
+  async updateHouse(houseId: string, payload: Record<string, unknown>, token: string): Promise<ApiProperty> {
+    return apiFetch<ApiProperty>(`/houses/${houseId}`, {
+      method: "PUT",
+      body: JSON.stringify(payload),
+      token,
+    });
+  },
 };
 
 // ── Viewings API ───────────────────────────────────────────────────────────
