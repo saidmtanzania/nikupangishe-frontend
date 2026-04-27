@@ -43,6 +43,12 @@ export function StartChatButton({
 
   const recipientLabel = recipientId === ownerId ? "Owner" : "Agent";
 
+  // Only tenants may initiate a chat about a property.
+  // Admins, agents, and owners should not see this button.
+  if (isAuthenticated && user?.role && user.role !== "tenant") {
+    return null;
+  }
+
   async function handleClick() {
     if (!isAuthenticated || !token) {
       router.push(`/auth/login?redirect=${encodeURIComponent(pathname)}`);

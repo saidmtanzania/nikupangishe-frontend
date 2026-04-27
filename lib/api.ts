@@ -95,7 +95,7 @@ export interface ApiProperty {
     lastName: string;
     phone: string;
   };
-  status: "available" | "occupied" | "pending";
+  status: "available" | "occupied" | "pending" | "active" | "draft" | "pending_verification" | "rented" | "inactive" | "rejected";
   createdAt: string;
   hasWater?: boolean;
   hasElectricity?: boolean;
@@ -128,6 +128,7 @@ export interface ApiUser {
   isPhoneVerified?: boolean;
   isEmailVerified?: boolean;
   profilePhoto?: string;
+  createdAt?: string;
 }
 
 export interface AuthResponse {
@@ -465,7 +466,7 @@ export const agentsApi = {
 
   async verify(
     agentProfileId: string,
-    dto: { approved: boolean; notes?: string },
+    dto: { approved: boolean; notes?: string; rejectionReason?: string },
     token: string
   ): Promise<ApiAgentProfile> {
     return apiFetch<ApiAgentProfile>(`/agents/${agentProfileId}/verify`, {
@@ -636,6 +637,20 @@ export const chatApi = {
 };
 
 // ── Admin API ──────────────────────────────────────────────────────────────
+export type AdminHouseFilters = {
+  status?: string;
+  search?: string;
+  houseType?: string;
+  page?: number;
+  limit?: number;
+};
+
+export type AdminAgentFilters = {
+  verificationStatus?: string;
+  page?: number;
+  limit?: number;
+};
+
 export const adminApi = {
   async listUsers(
     filters: { role?: string; status?: string; page?: number; limit?: number },
@@ -652,6 +667,25 @@ export const adminApi = {
     return apiFetch<ApiUser>(`/users/${userId}/status`, {
       method: "PATCH",
       body: JSON.stringify({ status }),
+      token,
+    });
+  },
+
+  async updateUserRole(
+    userId: string,
+    role: "owner" | "agent" | "tenant",
+    token: string
+  ): Promise<ApiUser> {
+    return apiFetch<ApiUser>(`/users/${userId}/role`, {
+      method: "PATCH",
+      body: JSON.stringify({ role }),
+      token,
+    });
+  },
+
+  async sendPasswordReset(userId: string, token: string): Promise<{ message: string; resetToken?: string }> {
+    return apiFetch(`/users/${userId}/send-password-reset`, {
+      method: "POST",
       token,
     });
   },
@@ -678,6 +712,30 @@ export const adminApi = {
     });
   },
 
+  async adminListHouses(
+    filters: AdminHouseFilters,
+    token: string
+  ): Promise<{ data: ApiProperty[]; meta: { total: number; page: number; limit: number; totalPages: number } }> {
+    return apiFetch("/houses/admin/all", {
+      params: filters as RequestOptions["params"],
+      token,
+    });
+  },
+
+  async deleteHouse(houseId: string, token: string): Promise<void> {
+    return apiFetch(`/houses/${houseId}`, { method: "DELETE", token });
+  },
+
+  async adminListAgents(
+    filters: AdminAgentFilters,
+    token: string
+  ): Promise<{ data: ApiAgentProfile[]; meta: { total: number; page: number; limit: number; totalPages: number } }> {
+    return apiFetch("/agents/admin/all", {
+      params: filters as RequestOptions["params"],
+      token,
+    });
+  },
+
   async allHousesMeta(token: string): Promise<ApiPropertyList> {
     return apiFetch<ApiPropertyList>("/houses", {
       params: { limit: 1 } as RequestOptions["params"],
@@ -685,3 +743,4 @@ export const adminApi = {
     });
   },
 };
+
