@@ -134,7 +134,7 @@ export default function PropertyMap({ properties, showPopups = true }: PropertyM
                                     </div>
 
                                     <a
-                                        href={`/properties/${property.id}`}
+                                        href={`/properties/${property.id.slice(0, 8)}`}
                                         className="flex w-full items-center justify-center rounded-md bg-[#ec5413]/10 py-1.5 text-center text-xs font-bold text-[#ec5413] transition-all hover:bg-[#ec5413]/20 active:scale-95"
                                     >
                                         View Details

@@ -148,7 +148,7 @@ export function ChatWindow({ conversation, messages: _initialMessages, onBack }:
             {otherPerson?.name ?? "Unknown"}
           </p>
           <Link
-            href={`/properties/${conversation.propertyId}`}
+            href={`/properties/${conversation.propertyId?.slice(0, 8) ?? conversation.propertyId}`}
             className="flex items-center gap-1 text-[12px] text-muted-foreground hover:underline truncate"
           >
             <Home className="size-3 shrink-0" />

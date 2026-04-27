@@ -17,7 +17,7 @@ export function PropertyCard({
 }) {
   return (
     <Link
-      href={`/properties/${property.id}`}
+      href={`/properties/${property.id.slice(0, 8)}`}
       className="group flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-all hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5"
     >
       <div className="relative aspect-4/3 overflow-hidden">

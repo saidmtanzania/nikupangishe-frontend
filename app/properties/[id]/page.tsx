@@ -32,9 +32,14 @@ export default async function PropertyDetailPage({
 }) {
   const { id } = await params
 
+  // Accept both full UUIDs (36 chars) and short IDs (8 chars)
+  const isShortId = id.length <= 8
+
   let apiProp
   try {
-    apiProp = await propertiesApi.get(id)
+    apiProp = isShortId
+      ? await propertiesApi.getByShortId(id)
+      : await propertiesApi.get(id)
   } catch {
     notFound()
   }

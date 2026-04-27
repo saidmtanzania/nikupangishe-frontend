@@ -13,7 +13,8 @@ export interface Property {
   bedrooms: number
   bathrooms: number
   area: number
-  propertyType: "apartment" | "standalone" | "single-room" | "commercial"
+  propertyType: string
+  furnishingStatus?: string
   amenities: string[]
   isVerified: boolean
   isUnique: boolean
@@ -34,6 +35,14 @@ export interface Property {
   }
   status: "available" | "occupied" | "pending"
   createdAt: string
+  // Utility features
+  hasWater?: boolean
+  hasElectricity?: boolean
+  hasInternet?: boolean
+  hasCCTV?: boolean
+  hasSecurityGuard?: boolean
+  hasGarden?: boolean
+  petFriendly?: boolean
 }
 
 export interface User {

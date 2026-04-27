@@ -303,6 +303,10 @@ export const propertiesApi = {
     return apiFetch<ApiProperty>(`/houses/${id}`, { token });
   },
 
+  async getByShortId(shortId: string): Promise<ApiProperty> {
+    return apiFetch<ApiProperty>(`/houses/s/${shortId}`);
+  },
+
   async myHouses(token: string): Promise<ApiProperty[]> {
     // Returns the raw list (not paginated) for owner's properties
     const res = await apiFetch<ApiProperty[] | ApiPropertyList>("/houses/my-houses", { token });
@@ -575,11 +579,8 @@ export function toProperty(p: ApiProperty) {
     bedrooms: p.bedrooms ?? 0,
     bathrooms: p.bathrooms ?? 0,
     area: p.squareMeters ?? 0,
-    propertyType: (p.houseType ?? p.propertyType ?? "apartment") as
-      | "apartment"
-      | "standalone"
-      | "single-room"
-      | "commercial",
+    propertyType: (p.houseType ?? p.propertyType ?? "apartment") as string,
+    furnishingStatus: p.furnishingStatus,
     amenities: p.amenities ?? [],
     isVerified: p.isVerified ?? false,
     isUnique: p.isUnique ?? false,
@@ -590,6 +591,13 @@ export function toProperty(p: ApiProperty) {
     agent: p.agent,
     status: (p.status ?? "available") as "available" | "occupied" | "pending",
     createdAt: p.createdAt ?? new Date().toISOString(),
+    hasWater: p.hasWater,
+    hasElectricity: p.hasElectricity,
+    hasInternet: p.hasInternet,
+    hasCCTV: p.hasCCTV,
+    hasSecurityGuard: p.hasSecurityGuard,
+    hasGarden: p.hasGarden,
+    petFriendly: p.petFriendly,
   };
 }
 

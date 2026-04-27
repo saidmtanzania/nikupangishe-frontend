@@ -15,7 +15,7 @@ export function PropertyListCard({
 }) {
     return (
         <Link
-            href={`/properties/${property.id}`}
+            href={`/properties/${property.id.slice(0, 8)}`}
             className="group flex overflow-hidden rounded-xl border border-border bg-card transition-all hover:border-primary/30 hover:shadow-md hover:shadow-primary/5"
         >
             {/* Compact square thumbnail */}
