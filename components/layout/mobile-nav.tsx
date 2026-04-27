@@ -2,25 +2,29 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, Search, ArrowLeftRight, MessageSquare, User } from "lucide-react"
+import { Home, Search, ArrowLeftRight, MessageSquare, User, LayoutDashboard } from "lucide-react"
 import { cn } from "@/lib/utils"
-
-const mobileNavItems = [
-  { href: "/", label: "Home", icon: Home },
-  { href: "/browse", label: "Browse", icon: Search },
-  { href: "/exchange", label: "Exchange", icon: ArrowLeftRight },
-  { href: "/chat", label: "Chat", icon: MessageSquare },
-  { href: "/auth/login", label: "Account", icon: User },
-]
+import { useAuth } from "@/context/auth-context"
 
 export function MobileNav() {
   const pathname = usePathname()
+  const { isAuthenticated, user } = useAuth()
 
   const isDashboard = pathname.startsWith("/dashboard")
   const isChat = pathname.startsWith("/chat")
   const isOnboarding = pathname.startsWith("/onboarding")
 
   if (isDashboard || isChat || isOnboarding) return null
+
+  const accountItem = isAuthenticated && user
+    ? { href: `/dashboard/${user.role}`, label: "Dashboard", icon: LayoutDashboard }
+    : { href: "/auth/login", label: "Account", icon: User }
+
+  const mobileNavItems = [
+    { href: "/", label: "Home", icon: Home },
+    { href: "/browse", label: "Browse", icon: Search },
+    accountItem,
+  ]
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/95 backdrop-blur-md lg:hidden">

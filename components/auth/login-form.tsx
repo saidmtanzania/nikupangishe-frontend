@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -12,7 +12,8 @@ import { useAuth } from "@/context/auth-context"
 
 export function LoginForm() {
   const router = useRouter()
-  const { login } = useAuth()
+  const searchParams = useSearchParams()
+  const { login, isAuthenticated, user } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [identifier, setIdentifier] = useState("")
@@ -37,9 +38,19 @@ export function LoginForm() {
     setApiError("")
     try {
       const user = await login(identifier.trim(), password)
-      // Redirect to the dashboard matching the user's role
-      const role = user.role === "admin" ? "owner" : user.role
-      router.push(`/dashboard/${role}`)
+      const role = user.role // "owner" | "agent" | "tenant" | "admin"
+      const ownDashboard = `/dashboard/${role}`
+
+      // Only honour redirect param if it belongs to the user's own role subtree
+      const redirectTo = searchParams.get("redirect")
+      const safeRedirect =
+        redirectTo &&
+        redirectTo.startsWith("/") &&
+        (redirectTo === ownDashboard || redirectTo.startsWith(`${ownDashboard}/`))
+          ? redirectTo
+          : ownDashboard
+
+      router.push(safeRedirect)
     } catch (err: unknown) {
       setApiError(err instanceof Error ? err.message : "Invalid credentials. Please try again.")
     } finally {

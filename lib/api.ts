@@ -7,7 +7,7 @@
  */
 
 export const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000/api/v1";
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api/v1";
 
 // ── Envelope unwrap ────────────────────────────────────────────────────────
 function unwrap<T>(body: unknown): T {
@@ -83,7 +83,19 @@ export interface ApiProperty {
   isOpenToExchange: boolean;
   ownerId: string;
   agentId?: string;
-  status: "available" | "occupied" | "pending";
+  owner?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    phone: string;
+  };
+  agent?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    phone: string;
+  };
+  status: "available" | "occupied" | "pending" | "active" | "draft" | "pending_verification" | "rented" | "inactive" | "rejected";
   createdAt: string;
   hasWater?: boolean;
   hasElectricity?: boolean;
@@ -92,6 +104,13 @@ export interface ApiProperty {
   hasSecurityGuard?: boolean;
   hasGarden?: boolean;
   petFriendly?: boolean;
+  availableFrom?: string | null;
+  // Verification evidence submitted by owner for admin review
+  verificationVideoUrl?: string | null;
+  ownerVerificationNote?: string | null;
+  // Admin outcome
+  verificationNotes?: string | null;
+  rejectionReason?: string | null;
 }
 
 export interface ApiPropertyList {
@@ -115,6 +134,7 @@ export interface ApiUser {
   isPhoneVerified?: boolean;
   isEmailVerified?: boolean;
   profilePhoto?: string;
+  createdAt?: string;
 }
 
 export interface AuthResponse {
@@ -123,6 +143,24 @@ export interface AuthResponse {
   refreshToken: string;
 }
 
+export interface ApiViewingRequest {
+  id: string;
+  houseId: string;
+  house?: { id: string; title: string; city: string; area: string; images?: string[] };
+  tenantId: string;
+  tenant?: { id: string; firstName: string; lastName: string; email: string; phone?: string };
+  assignedAgentId?: string;
+  status: "pending" | "confirmed" | "completed" | "cancelled" | "no_show";
+  preferredDate: string;
+  confirmedDate?: string;
+  tenantMessage?: string;
+  agentNotes?: string;
+  tenantInterestedAfterViewing: boolean;
+  cancellationReason?: string;
+  createdAt: string;
+}
+
+/** @deprecated use ApiViewingRequest */
 export interface ViewingRequest {
   id: string;
   houseId: string;
@@ -132,6 +170,40 @@ export interface ViewingRequest {
   scheduledAt: string;
   notes?: string;
   status: "pending" | "confirmed" | "completed" | "cancelled";
+}
+
+export interface ApiTenancy {
+  id: string;
+  houseId: string;
+  house?: { id: string; title: string; city: string; area: string; images?: string[] };
+  tenantId: string;
+  tenant?: { id: string; firstName: string; lastName: string; email: string; phone?: string; avatar?: string };
+  status: "pending_owner_confirmation" | "active" | "ended" | "transferred";
+  startDate?: string | null;
+  endDate?: string | null;
+  agreedRent?: number | null;
+  currency: string;
+  agentCommissionRate?: number | null;
+  agentCommissionAmount?: number;
+  commissionPaid: boolean;
+  notes?: string | null;
+  createdAt: string;
+}
+
+export interface ApiAgentProfile {
+  id: string;
+  userId: string;
+  user?: { id: string; firstName: string; lastName: string; email: string; phone?: string; profilePhoto?: string };
+  agencyName?: string;
+  licenseNumber?: string;
+  bio?: string;
+  verificationStatus: "pending" | "verified" | "rejected";
+  commissionRate: number;
+  rating: number;
+  totalCompletedDeals: number;
+  totalActiveManagedHouses: number;
+  rejectionReason?: string;
+  createdAt?: string;
 }
 
 export interface ExchangeRequest {
@@ -239,6 +311,10 @@ export const propertiesApi = {
     return apiFetch<ApiProperty>(`/houses/${id}`, { token });
   },
 
+  async getByShortId(shortId: string): Promise<ApiProperty> {
+    return apiFetch<ApiProperty>(`/houses/s/${shortId}`);
+  },
+
   async myHouses(token: string): Promise<ApiProperty[]> {
     // Returns the raw list (not paginated) for owner's properties
     const res = await apiFetch<ApiProperty[] | ApiPropertyList>("/houses/my-houses", { token });
@@ -273,33 +349,217 @@ export const propertiesApi = {
     }
     return unwrap<{ images: string[] }>(body);
   },
+
+  async publishHouse(houseId: string, token: string): Promise<ApiProperty> {
+    return apiFetch<ApiProperty>(`/houses/${houseId}/publish`, {
+      method: "PATCH",
+      token,
+    });
+  },
+
+  async unpublishHouse(houseId: string, token: string): Promise<ApiProperty> {
+    return apiFetch<ApiProperty>(`/houses/${houseId}/unpublish`, {
+      method: "PATCH",
+      token,
+    });
+  },
+
+  async delete(houseId: string, token: string): Promise<void> {
+    await apiFetch(`/houses/${houseId}`, {
+      method: "DELETE",
+      token,
+    });
+  },
+
+  async updateHouse(houseId: string, payload: Record<string, unknown>, token: string): Promise<ApiProperty> {
+    return apiFetch<ApiProperty>(`/houses/${houseId}`, {
+      method: "PUT",
+      body: JSON.stringify(payload),
+      token,
+    });
+  },
+
+  async reorderPhotos(houseId: string, photos: string[], token: string): Promise<void> {
+    await apiFetch(`/houses/${houseId}/photos/reorder`, {
+      method: "PATCH",
+      body: JSON.stringify({ photos }),
+      token,
+    });
+  },
 };
 
 // ── Viewings API ───────────────────────────────────────────────────────────
 export const viewingsApi = {
-  async list(token: string): Promise<ViewingRequest[]> {
-    const res = await apiFetch<ViewingRequest[] | { data: ViewingRequest[] }>("/viewings", { token });
+  async myViewings(token: string): Promise<ApiViewingRequest[]> {
+    const res = await apiFetch<ApiViewingRequest[] | { data: ApiViewingRequest[] }>(
+      "/viewings/my-viewings",
+      { token }
+    );
     if (Array.isArray(res)) return res;
-    if ("data" in res) return (res as { data: ViewingRequest[] }).data;
+    if ("data" in res) return (res as { data: ApiViewingRequest[] }).data;
     return [];
   },
 
-  async create(payload: { houseId: string; scheduledAt: string; notes?: string }, token: string) {
-    return apiFetch("/viewings", { method: "POST", body: JSON.stringify(payload), token });
+  /** @deprecated use myViewings */
+  async list(token: string): Promise<ApiViewingRequest[]> {
+    return viewingsApi.myViewings(token);
+  },
+
+  async get(id: string, token: string): Promise<ApiViewingRequest> {
+    return apiFetch<ApiViewingRequest>(`/viewings/${id}`, { token });
+  },
+
+  async create(
+    payload: { houseId: string; preferredDate: string; tenantMessage?: string },
+    token: string
+  ): Promise<ApiViewingRequest> {
+    return apiFetch<ApiViewingRequest>("/viewings", {
+      method: "POST",
+      body: JSON.stringify(payload),
+      token,
+    });
+  },
+
+  async update(
+    id: string,
+    dto: {
+      status?: "confirmed" | "completed" | "cancelled" | "no_show";
+      confirmedDate?: string;
+      agentNotes?: string;
+      tenantInterestedAfterViewing?: boolean;
+      cancellationReason?: string;
+    },
+    token: string
+  ): Promise<ApiViewingRequest> {
+    return apiFetch<ApiViewingRequest>(`/viewings/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(dto),
+      token,
+    });
+  },
+};
+
+// ── Agents API ─────────────────────────────────────────────────────────────
+export const agentsApi = {
+  async list(
+    params?: { verificationStatus?: string; page?: number; limit?: number }
+  ): Promise<{ data: ApiAgentProfile[]; meta: { total: number } }> {
+    const res = await apiFetch<ApiAgentProfile[] | { data: ApiAgentProfile[]; meta: { total: number } }>(
+      "/agents",
+      { params: params as RequestOptions["params"] }
+    );
+    if (Array.isArray(res)) return { data: res, meta: { total: res.length } };
+    return res as { data: ApiAgentProfile[]; meta: { total: number } };
+  },
+
+  async me(token: string): Promise<ApiAgentProfile> {
+    return apiFetch<ApiAgentProfile>("/agents/me", { token });
+  },
+
+  async get(id: string): Promise<ApiAgentProfile> {
+    return apiFetch<ApiAgentProfile>(`/agents/${id}`);
+  },
+
+  async pendingVerification(token: string): Promise<ApiAgentProfile[]> {
+    const res = await apiFetch<ApiAgentProfile[] | { data: ApiAgentProfile[] }>(
+      "/agents/pending",
+      { token }
+    );
+    if (Array.isArray(res)) return res;
+    if ("data" in res) return (res as { data: ApiAgentProfile[] }).data;
+    return [];
+  },
+
+  async verify(
+    agentProfileId: string,
+    dto: { approved: boolean; notes?: string; rejectionReason?: string },
+    token: string
+  ): Promise<ApiAgentProfile> {
+    return apiFetch<ApiAgentProfile>(`/agents/${agentProfileId}/verify`, {
+      method: "PATCH",
+      body: JSON.stringify(dto),
+      token,
+    });
   },
 };
 
 // ── Exchange API ───────────────────────────────────────────────────────────
 export const exchangeApi = {
   async list(token: string): Promise<ExchangeRequest[]> {
-    const res = await apiFetch<ExchangeRequest[] | { data: ExchangeRequest[] }>("/exchanges", { token });
+    const res = await apiFetch<ExchangeRequest[] | { data: ExchangeRequest[] }>("/exchanges/my-exchanges", { token });
     if (Array.isArray(res)) return res;
     if ("data" in res) return (res as { data: ExchangeRequest[] }).data;
     return [];
   },
 
-  async create(payload: { fromHouseId: string; toHouseId: string; message?: string }, token: string) {
-    return apiFetch("/exchanges", { method: "POST", body: JSON.stringify(payload), token });
+  async create(
+    payload: { exchangeType: "move" | "exchange"; targetHouseId: string; notes?: string },
+    token: string
+  ): Promise<ExchangeRequest> {
+    return apiFetch<ExchangeRequest>("/exchanges", {
+      method: "POST",
+      body: JSON.stringify(payload),
+      token,
+    });
+  },
+
+  async approve(id: string, token: string): Promise<ExchangeRequest> {
+    return apiFetch<ExchangeRequest>(`/exchanges/${id}/approve`, {
+      method: "PATCH",
+      token,
+    });
+  },
+
+  async reject(id: string, token: string, reason?: string): Promise<ExchangeRequest> {
+    return apiFetch<ExchangeRequest>(`/exchanges/${id}/reject`, {
+      method: "PATCH",
+      body: JSON.stringify({ reason }),
+      token,
+    });
+  },
+
+  async confirmTenancy(
+    dto: { tenantUserId: string; houseId: string; startDate?: string; agreedRent?: number },
+    token: string
+  ): Promise<ApiTenancy> {
+    return apiFetch<ApiTenancy>("/exchanges/confirm-tenancy", {
+      method: "POST",
+      body: JSON.stringify(dto),
+      token,
+    });
+  },
+
+  async myTenancies(token: string): Promise<ApiTenancy[]> {
+    const res = await apiFetch<ApiTenancy[] | { data: ApiTenancy[] }>(
+      "/exchanges/my-tenancies",
+      { token }
+    );
+    if (Array.isArray(res)) return res;
+    if ("data" in res) return (res as { data: ApiTenancy[] }).data;
+    return [];
+  },
+
+  async assignAgent(
+    houseId: string,
+    agentUserId: string,
+    token: string
+  ): Promise<unknown> {
+    return apiFetch(`/houses/${houseId}/agents`, {
+      method: "POST",
+      body: JSON.stringify({ agentUserId }),
+      token,
+    });
+  },
+
+  async removeAgent(
+    houseId: string,
+    agentId: string,
+    token: string
+  ): Promise<void> {
+    await apiFetch(`/houses/${houseId}/agents/${agentId}`, {
+      method: "DELETE",
+      token,
+    });
   },
 };
 
@@ -321,23 +581,40 @@ export function toProperty(p: ApiProperty) {
     images:
       Array.isArray(p.images) && p.images.length > 0
         ? p.images
-        : ["/images/house-placeholder.jpg"],
+        : Array.isArray((p as any).photos) && (p as any).photos.length > 0
+          ? (p as any).photos
+          : ["/images/house-placeholder.jpg"],
     bedrooms: p.bedrooms ?? 0,
     bathrooms: p.bathrooms ?? 0,
     area: p.squareMeters ?? 0,
-    propertyType: (p.houseType ?? p.propertyType ?? "apartment") as
-      | "apartment"
-      | "standalone"
-      | "single-room"
-      | "commercial",
+    propertyType: (p.houseType ?? p.propertyType ?? "apartment") as string,
+    furnishingStatus: p.furnishingStatus,
     amenities: p.amenities ?? [],
     isVerified: p.isVerified ?? false,
     isUnique: p.isUnique ?? false,
     isOpenToExchange: p.isOpenToExchange ?? false,
     ownerId: p.ownerId ?? "",
     agentId: p.agentId,
-    status: (p.status ?? "available") as "available" | "occupied" | "pending",
+    owner: p.owner,
+    agent: p.agent,
+    // Map raw backend status → UI-friendly value
+    status: (() => {
+      const s = p.status ?? "draft";
+      if (s === "active" || s === "available") return "active" as const;
+      if (s === "rented" || s === "occupied") return "rented" as const;
+      if (s === "inactive") return "inactive" as const;
+      if (s === "rejected") return "rejected" as const;
+      // draft, pending_verification → not yet published
+      return "draft" as const;
+    })(),
     createdAt: p.createdAt ?? new Date().toISOString(),
+    hasWater: p.hasWater,
+    hasElectricity: p.hasElectricity,
+    hasInternet: p.hasInternet,
+    hasCCTV: p.hasCCTV,
+    hasSecurityGuard: p.hasSecurityGuard,
+    hasGarden: p.hasGarden,
+    petFriendly: p.petFriendly,
   };
 }
 
@@ -348,8 +625,137 @@ export const chatApi = {
     return res;
   },
 
+  async startConversation(
+    payload: { recipientId: string; houseId?: string; message?: string },
+    token: string
+  ): Promise<{ id: string }> {
+    return apiFetch<{ id: string }>("/chat/conversations", {
+      method: "POST",
+      body: JSON.stringify(payload),
+      token,
+    });
+  },
+
   async messages(conversationId: string, token: string) {
-    const res = await apiFetch<ChatMessage[]>(`/chat/conversations/${conversationId}/messages`, { token });
-    return Array.isArray(res) ? res : [];
+    const res = await apiFetch<unknown>(`/chat/conversations/${conversationId}/messages`, { token });
+    // API returns { data: [...], meta: {...} } after envelope unwrap
+    const arr = (res as Record<string, unknown>)?.data ?? res;
+    return Array.isArray(arr) ? (arr as ChatMessage[]) : [];
+  },
+
+  async markAsRead(conversationId: string, token: string) {
+    await apiFetch(`/chat/conversations/${conversationId}/read`, {
+      method: "PATCH",
+      token,
+    });
   },
 };
+
+// ── Admin API ──────────────────────────────────────────────────────────────
+export type AdminHouseFilters = {
+  status?: string;
+  search?: string;
+  houseType?: string;
+  page?: number;
+  limit?: number;
+};
+
+export type AdminAgentFilters = {
+  verificationStatus?: string;
+  page?: number;
+  limit?: number;
+};
+
+export const adminApi = {
+  async listUsers(
+    filters: { role?: string; status?: string; page?: number; limit?: number },
+    token: string
+  ): Promise<{ data: ApiUser[]; meta: { total: number; page: number; limit: number; totalPages: number } }> {
+    return apiFetch("/users", { params: filters as RequestOptions["params"], token });
+  },
+
+  async updateUserStatus(
+    userId: string,
+    status: "active" | "suspended" | "banned",
+    token: string
+  ): Promise<ApiUser> {
+    return apiFetch<ApiUser>(`/users/${userId}/status`, {
+      method: "PATCH",
+      body: JSON.stringify({ status }),
+      token,
+    });
+  },
+
+  async updateUserRole(
+    userId: string,
+    role: "owner" | "agent" | "tenant",
+    token: string
+  ): Promise<ApiUser> {
+    return apiFetch<ApiUser>(`/users/${userId}/role`, {
+      method: "PATCH",
+      body: JSON.stringify({ role }),
+      token,
+    });
+  },
+
+  async sendPasswordReset(userId: string, token: string): Promise<{ message: string; resetToken?: string }> {
+    return apiFetch(`/users/${userId}/send-password-reset`, {
+      method: "POST",
+      token,
+    });
+  },
+
+  async pendingHouses(token: string): Promise<ApiProperty[]> {
+    const res = await apiFetch<ApiProperty[] | { data: ApiProperty[] }>(
+      "/houses/pending-verification",
+      { token }
+    );
+    if (Array.isArray(res)) return res;
+    if ("data" in res) return (res as { data: ApiProperty[] }).data;
+    return [];
+  },
+
+  async verifyHouse(
+    houseId: string,
+    dto: { approved: boolean; notes?: string; rejectionReason?: string },
+    token: string
+  ): Promise<ApiProperty> {
+    return apiFetch<ApiProperty>(`/houses/${houseId}/verify`, {
+      method: "PATCH",
+      body: JSON.stringify(dto),
+      token,
+    });
+  },
+
+  async adminListHouses(
+    filters: AdminHouseFilters,
+    token: string
+  ): Promise<{ data: ApiProperty[]; meta: { total: number; page: number; limit: number; totalPages: number } }> {
+    return apiFetch("/houses/admin/all", {
+      params: filters as RequestOptions["params"],
+      token,
+    });
+  },
+
+  async deleteHouse(houseId: string, token: string): Promise<void> {
+    return apiFetch(`/houses/${houseId}`, { method: "DELETE", token });
+  },
+
+  async adminListAgents(
+    filters: AdminAgentFilters,
+    token: string
+  ): Promise<{ data: ApiAgentProfile[]; meta: { total: number; page: number; limit: number; totalPages: number } }> {
+    return apiFetch("/agents/admin/all", {
+      params: filters as RequestOptions["params"],
+      token,
+    });
+  },
+
+  async allHousesMeta(token: string): Promise<ApiPropertyList> {
+    return apiFetch<ApiPropertyList>("/houses", {
+      params: { limit: 1 } as RequestOptions["params"],
+      token,
+    });
+  },
+};
+

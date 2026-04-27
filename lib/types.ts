@@ -13,15 +13,36 @@ export interface Property {
   bedrooms: number
   bathrooms: number
   area: number
-  propertyType: "apartment" | "standalone" | "single-room" | "commercial"
+  propertyType: string
+  furnishingStatus?: string
   amenities: string[]
   isVerified: boolean
   isUnique: boolean
   isOpenToExchange: boolean
   ownerId: string
   agentId?: string
-  status: "available" | "occupied" | "pending"
+  owner?: {
+    id: string
+    firstName: string
+    lastName: string
+    phone: string
+  }
+  agent?: {
+    id: string
+    firstName: string
+    lastName: string
+    phone: string
+  }
+  status: "available" | "occupied" | "pending" | "active" | "rented" | "draft" | "inactive" | "rejected"
   createdAt: string
+  // Utility features
+  hasWater?: boolean
+  hasElectricity?: boolean
+  hasInternet?: boolean
+  hasCCTV?: boolean
+  hasSecurityGuard?: boolean
+  hasGarden?: boolean
+  petFriendly?: boolean
 }
 
 export interface User {

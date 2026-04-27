@@ -168,7 +168,7 @@ export default function TenantDashboard() {
             </div>
             <div className="space-y-4">
               {myMessages.length > 0 ? (myMessages as Record<string, unknown>[]).slice(0, 3).map((conv) => (
-                <Link key={conv.id as string} href={`/chat/${conv.id}`} className="flex items-center gap-4 p-4 rounded-2xl border border-slate-50 dark:border-slate-800 hover:border-slate-100 hover:bg-slate-50/50 transition-all group">
+                <Link key={conv.id as string} href={`/chat?conversation=${conv.id}`} className="flex items-center gap-4 p-4 rounded-2xl border border-slate-50 dark:border-slate-800 hover:border-slate-100 hover:bg-slate-50/50 transition-all group">
                   <div className="size-11 rounded-full bg-slate-50 flex items-center justify-center text-xs font-medium text-slate-400 uppercase shadow-sm border border-white">
                     <MessageSquare className="h-4 w-4" />
                   </div>

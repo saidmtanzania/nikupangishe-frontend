@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { Check, ChevronDown, Search, SlidersHorizontal, ArrowLeftRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -12,30 +12,66 @@ import { formatTZSShort } from "@/lib/utils"
 export interface FilterState {
   priceRange: [number, number]
   propertyTypes: string[]
+  furnishingStatus: string[]
+  city: string
+  minBedrooms: number
+  minBathrooms: number
   verifiedOnly: boolean
   amenities: string[]
-  minBedrooms: number
+  features: string[]
   swapOnly: boolean
+}
+
+export const DEFAULT_FILTERS: FilterState = {
+  priceRange: [100000, 6000000],
+  propertyTypes: [],
+  furnishingStatus: [],
+  city: "",
+  minBedrooms: 0,
+  minBathrooms: 0,
+  verifiedOnly: false,
+  amenities: [],
+  features: [],
+  swapOnly: false,
 }
 
 const propertyTypes = [
   { value: "apartment", label: "Apartment" },
-  { value: "standalone", label: "Standalone House" },
+  { value: "house", label: "House" },
+  { value: "villa", label: "Villa" },
+  { value: "townhouse", label: "Townhouse" },
+  { value: "studio", label: "Studio" },
+  { value: "room", label: "Room" },
   { value: "single-room", label: "Single Room" },
+  { value: "standalone", label: "Standalone" },
   { value: "commercial", label: "Commercial" },
 ]
 
+const furnishingOptions = [
+  { value: "furnished", label: "Furnished" },
+  { value: "semi_furnished", label: "Semi-Furnished" },
+  { value: "unfurnished", label: "Unfurnished" },
+]
+
+const tanzaniaCities = [
+  "Dar es Salaam", "Dodoma", "Arusha", "Mwanza", "Mbeya",
+  "Zanzibar", "Tanga", "Morogoro", "Iringa", "Kilimanjaro",
+]
+
 const amenityOptions = [
-  "Parking",
-  "Security",
-  "Swimming Pool",
-  "Gym",
-  "Generator",
-  "WiFi",
-  "Garden",
-  "Servant Quarters",
-  "Balcony",
-  "Elevator",
+  "Parking", "Security", "Water Supply", "Swimming Pool",
+  "Gym", "Generator", "Wi-Fi", "Garden",
+  "Balcony", "Elevator", "Laundry", "Rooftop",
+]
+
+const featureOptions = [
+  { value: "hasWater", label: "Water Supply" },
+  { value: "hasElectricity", label: "Electricity" },
+  { value: "hasInternet", label: "Internet" },
+  { value: "hasSecurityGuard", label: "Security Guard" },
+  { value: "hasCCTV", label: "CCTV" },
+  { value: "hasGarden", label: "Garden" },
+  { value: "petFriendly", label: "Pet Friendly" },
 ]
 
 interface FilterSidebarProps {
@@ -46,25 +82,58 @@ interface FilterSidebarProps {
 }
 
 export function FilterSidebar({ filters, onFilterChange, search, onSearchChange }: FilterSidebarProps) {
+  // Ref tracks committed value so we can detect external resets
+  const priceRef = useRef<[number, number]>(filters.priceRange)
+  // Key forces slider remount only when value changes externally (e.g. Reset button)
+  const [sliderKey, setSliderKey] = useState(0)
+  // DOM refs for labels — written directly during drag with zero re-renders
+  const minLabelRef = useRef<HTMLSpanElement>(null)
+  const maxLabelRef = useRef<HTMLSpanElement>(null)
+
+  useEffect(() => {
+    const [a, b] = filters.priceRange
+    const [ra, rb] = priceRef.current
+    if (a !== ra || b !== rb) {
+      // External change (reset, navigation) — remount slider with new defaultValue
+      priceRef.current = filters.priceRange
+      setSliderKey((k) => k + 1)
+      if (minLabelRef.current) minLabelRef.current.textContent = formatTZSShort(a)
+      if (maxLabelRef.current) maxLabelRef.current.textContent = formatTZSShort(b)
+    }
+  }, [filters.priceRange])
+
+  // During drag: only update labels — no state, no re-renders, native smooth movement
+  const handleSliderChange = useCallback((value: number[]) => {
+    if (minLabelRef.current) minLabelRef.current.textContent = formatTZSShort(value[0])
+    if (maxLabelRef.current) maxLabelRef.current.textContent = formatTZSShort(value[1])
+  }, [])
+
+  const handleSliderCommit = useCallback((value: number[]) => {
+    const next: [number, number] = [value[0], value[1]]
+    priceRef.current = next
+    onFilterChange({ ...filters, priceRange: next })
+  }, [filters, onFilterChange])
+
   const [expanded, setExpanded] = useState({
     price: true,
     type: true,
+    furnishing: false,
+    location: false,
     bedrooms: true,
+    bathrooms: false,
+    features: false,
     amenities: false,
   })
 
-  const toggleType = (type: string) => {
-    const types = filters.propertyTypes.includes(type)
-      ? filters.propertyTypes.filter((t) => t !== type)
-      : [...filters.propertyTypes, type]
-    onFilterChange({ ...filters, propertyTypes: types })
-  }
+  const toggle = (key: keyof typeof expanded) =>
+    setExpanded((p) => ({ ...p, [key]: !p[key] }))
 
-  const toggleAmenity = (amenity: string) => {
-    const amenities = filters.amenities.includes(amenity)
-      ? filters.amenities.filter((a) => a !== amenity)
-      : [...filters.amenities, amenity]
-    onFilterChange({ ...filters, amenities })
+  const toggleMulti = (field: "propertyTypes" | "furnishingStatus" | "features" | "amenities", val: string) => {
+    const arr = filters[field] as string[]
+    onFilterChange({
+      ...filters,
+      [field]: arr.includes(val) ? arr.filter((x) => x !== val) : [...arr, val],
+    })
   }
 
   const bedroomOptions = [
@@ -75,8 +144,21 @@ export function FilterSidebar({ filters, onFilterChange, search, onSearchChange 
     { label: "4+", value: 4 },
   ]
 
+  const Section = ({ label, expandKey, children }: { label: string; expandKey: keyof typeof expanded; children: React.ReactNode }) => (
+    <div>
+      <button
+        onClick={() => toggle(expandKey)}
+        className="mb-3 flex w-full items-center justify-between text-sm font-medium text-foreground"
+      >
+        {label}
+        <ChevronDown className={`h-4 w-4 transition-transform ${expanded[expandKey] ? "rotate-180" : ""}`} />
+      </button>
+      {expanded[expandKey] && children}
+    </div>
+  )
+
   return (
-    <aside className="flex flex-col gap-6">
+    <aside className="flex flex-col gap-5">
       <div className="flex items-center gap-2">
         <SlidersHorizontal className="h-5 w-5 text-primary" />
         <h2 className="text-lg font-semibold text-foreground">Filters</h2>
@@ -91,157 +173,215 @@ export function FilterSidebar({ filters, onFilterChange, search, onSearchChange 
           type="text"
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Search neighborhoods, cities…"
+          placeholder="Search neighborhoods, titles…"
           className="w-full bg-transparent text-sm text-foreground placeholder-muted-foreground outline-none"
           autoComplete="off"
         />
       </div>
 
       {/* Price Range */}
-      <div>
-        <button
-          onClick={() => setExpanded((p) => ({ ...p, price: !p.price }))}
-          className="mb-3 flex w-full items-center justify-between text-sm font-medium text-foreground"
-        >
-          Price Range
-          <ChevronDown className={`h-4 w-4 transition-transform ${expanded.price ? "rotate-180" : ""}`} />
-        </button>
-        {expanded.price && (
-          <div className="flex flex-col gap-3">
-            <Slider
-              min={100000}
-              max={6000000}
-              step={50000}
-              value={filters.priceRange}
-              onValueChange={(value) =>
-                onFilterChange({ ...filters, priceRange: value as [number, number] })
-              }
-            />
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span>{formatTZSShort(filters.priceRange[0])}</span>
-              <span>{formatTZSShort(filters.priceRange[1])}</span>
-            </div>
+      <Section label="Price Range" expandKey="price">
+        <div className="flex flex-col gap-3">
+          <Slider
+            key={sliderKey}
+            min={100000}
+            max={6000000}
+            step={1}
+            defaultValue={priceRef.current}
+            onValueChange={handleSliderChange}
+            onValueCommit={handleSliderCommit}
+          />
+          <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+            <span ref={minLabelRef}>{formatTZSShort(priceRef.current[0])}</span>
+            <span ref={maxLabelRef}>{formatTZSShort(priceRef.current[1])}</span>
           </div>
-        )}
-      </div>
+        </div>
+      </Section>
 
       <Separator />
 
-      {/* Bedrooms */}
-      <div>
-        <button
-          onClick={() => setExpanded((p) => ({ ...p, bedrooms: !p.bedrooms }))}
-          className="mb-3 flex w-full items-center justify-between text-sm font-medium text-foreground"
-        >
-          Bedrooms
-          <ChevronDown className={`h-4 w-4 transition-transform ${expanded.bedrooms ? "rotate-180" : ""}`} />
-        </button>
-        {expanded.bedrooms && (
-          <div className="flex gap-1.5">
-            {bedroomOptions.map((opt) => (
-              <button
-                key={opt.value}
-                onClick={() => onFilterChange({ ...filters, minBedrooms: opt.value })}
-                className={`flex-1 rounded-md border py-1.5 text-xs font-medium transition-all ${filters.minBedrooms === opt.value
+      {/* City */}
+      <Section label="City" expandKey="location">
+        <div className="flex flex-col gap-1.5">
+          <button
+            onClick={() => onFilterChange({ ...filters, city: "" })}
+            className={`rounded-md border px-3 py-1.5 text-left text-xs font-medium transition-all ${
+              !filters.city
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border text-muted-foreground hover:border-foreground"
+            }`}
+          >
+            Any city
+          </button>
+          {tanzaniaCities.map((c) => (
+            <button
+              key={c}
+              onClick={() => onFilterChange({ ...filters, city: filters.city === c ? "" : c })}
+              className={`rounded-md border px-3 py-1.5 text-left text-xs font-medium transition-all ${
+                filters.city === c
                   ? "border-primary bg-primary/10 text-primary"
-                  : "border-border bg-background text-muted-foreground hover:border-border-foreground"
-                  }`}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+                  : "border-border text-muted-foreground hover:border-foreground"
+              }`}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
+      </Section>
 
       <Separator />
 
       {/* Property Type */}
-      <div>
-        <button
-          onClick={() => setExpanded((p) => ({ ...p, type: !p.type }))}
-          className="mb-3 flex w-full items-center justify-between text-sm font-medium text-foreground"
-        >
-          Property Type
-          <ChevronDown className={`h-4 w-4 transition-transform ${expanded.type ? "rotate-180" : ""}`} />
-        </button>
-        {expanded.type && (
-          <div className="flex flex-col gap-2.5">
-            {propertyTypes.map((type) => (
-              <div key={type.value} className="flex items-center gap-2">
-                <Checkbox
-                  id={`type-${type.value}`}
-                  checked={filters.propertyTypes.includes(type.value)}
-                  onCheckedChange={() => toggleType(type.value)}
-                />
-                <Label htmlFor={`type-${type.value}`} className="text-sm font-normal text-foreground cursor-pointer">
-                  {type.label}
-                </Label>
-              </div>
-            ))}
-          </div>
-        )}
+      <Section label="Property Type" expandKey="type">
+        <div className="flex flex-col gap-2.5">
+          {propertyTypes.map((type) => (
+            <div key={type.value} className="flex items-center gap-2">
+              <Checkbox
+                id={`type-${type.value}`}
+                checked={filters.propertyTypes.includes(type.value)}
+                onCheckedChange={() => toggleMulti("propertyTypes", type.value)}
+              />
+              <Label htmlFor={`type-${type.value}`} className="text-sm font-normal text-foreground cursor-pointer">
+                {type.label}
+              </Label>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      <Separator />
+
+      {/* Furnishing */}
+      <Section label="Furnishing" expandKey="furnishing">
+        <div className="flex flex-col gap-2.5">
+          {furnishingOptions.map((opt) => (
+            <div key={opt.value} className="flex items-center gap-2">
+              <Checkbox
+                id={`furnish-${opt.value}`}
+                checked={filters.furnishingStatus.includes(opt.value)}
+                onCheckedChange={() => toggleMulti("furnishingStatus", opt.value)}
+              />
+              <Label htmlFor={`furnish-${opt.value}`} className="text-sm font-normal text-foreground cursor-pointer">
+                {opt.label}
+              </Label>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      <Separator />
+
+      {/* Bedrooms */}
+      <Section label="Bedrooms" expandKey="bedrooms">
+        <div className="flex gap-1.5">
+          {bedroomOptions.map((opt) => (
+            <button
+              key={opt.value}
+              onClick={() => onFilterChange({ ...filters, minBedrooms: opt.value })}
+              className={`flex-1 rounded-md border py-1.5 text-xs font-medium transition-all ${
+                filters.minBedrooms === opt.value
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-border bg-background text-muted-foreground hover:border-foreground"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </Section>
+
+      <Separator />
+
+      {/* Bathrooms */}
+      <Section label="Bathrooms" expandKey="bathrooms">
+        <div className="flex gap-1.5">
+          {bedroomOptions.map((opt) => (
+            <button
+              key={opt.value}
+              onClick={() => onFilterChange({ ...filters, minBathrooms: opt.value })}
+              className={`flex-1 rounded-md border py-1.5 text-xs font-medium transition-all ${
+                filters.minBathrooms === opt.value
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-border bg-background text-muted-foreground hover:border-foreground"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </Section>
+
+      <Separator />
+
+      {/* Verified / Swap toggles */}
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center gap-2">
+          <Checkbox
+            id="verified-only"
+            checked={filters.verifiedOnly}
+            onCheckedChange={(checked) =>
+              onFilterChange({ ...filters, verifiedOnly: Boolean(checked) })
+            }
+          />
+          <Label htmlFor="verified-only" className="flex items-center gap-1.5 text-sm font-normal text-foreground cursor-pointer">
+            <Check className="h-3.5 w-3.5 text-[#059669]" />
+            Verified only
+          </Label>
+        </div>
+        <div className="flex items-center gap-2">
+          <Checkbox
+            id="swap-only"
+            checked={filters.swapOnly}
+            onCheckedChange={(checked) =>
+              onFilterChange({ ...filters, swapOnly: Boolean(checked) })
+            }
+          />
+          <Label htmlFor="swap-only" className="flex items-center gap-1.5 text-sm font-normal text-foreground cursor-pointer">
+            <ArrowLeftRight className="h-3.5 w-3.5 text-primary" />
+            Available for Swap
+          </Label>
+        </div>
       </div>
 
       <Separator />
 
-      {/* Verified Only */}
-      <div className="flex items-center gap-2">
-        <Checkbox
-          id="verified-only"
-          checked={filters.verifiedOnly}
-          onCheckedChange={(checked) =>
-            onFilterChange({ ...filters, verifiedOnly: Boolean(checked) })
-          }
-        />
-        <Label htmlFor="verified-only" className="flex items-center gap-1.5 text-sm font-normal text-foreground cursor-pointer">
-          <Check className="h-3.5 w-3.5 text-[#059669]" />
-          Verified only
-        </Label>
-      </div>
-
-      <div className="flex items-center gap-2">
-        <Checkbox
-          id="swap-only"
-          checked={filters.swapOnly}
-          onCheckedChange={(checked) =>
-            onFilterChange({ ...filters, swapOnly: Boolean(checked) })
-          }
-        />
-        <Label htmlFor="swap-only" className="flex items-center gap-1.5 text-sm font-normal text-foreground cursor-pointer">
-          <ArrowLeftRight className="h-3.5 w-3.5 text-primary" />
-          Available for Swap
-        </Label>
-      </div>
+      {/* Utility Features */}
+      <Section label="Features" expandKey="features">
+        <div className="flex flex-col gap-2.5">
+          {featureOptions.map((feat) => (
+            <div key={feat.value} className="flex items-center gap-2">
+              <Checkbox
+                id={`feat-${feat.value}`}
+                checked={filters.features.includes(feat.value)}
+                onCheckedChange={() => toggleMulti("features", feat.value)}
+              />
+              <Label htmlFor={`feat-${feat.value}`} className="text-sm font-normal text-foreground cursor-pointer">
+                {feat.label}
+              </Label>
+            </div>
+          ))}
+        </div>
+      </Section>
 
       <Separator />
 
       {/* Amenities */}
-      <div>
-        <button
-          onClick={() => setExpanded((p) => ({ ...p, amenities: !p.amenities }))}
-          className="mb-3 flex w-full items-center justify-between text-sm font-medium text-foreground"
-        >
-          Amenities
-          <ChevronDown className={`h-4 w-4 transition-transform ${expanded.amenities ? "rotate-180" : ""}`} />
-        </button>
-        {expanded.amenities && (
-          <div className="flex flex-col gap-2.5">
-            {amenityOptions.map((amenity) => (
-              <div key={amenity} className="flex items-center gap-2">
-                <Checkbox
-                  id={`amenity-${amenity}`}
-                  checked={filters.amenities.includes(amenity)}
-                  onCheckedChange={() => toggleAmenity(amenity)}
-                />
-                <Label htmlFor={`amenity-${amenity}`} className="text-sm font-normal text-foreground cursor-pointer">
-                  {amenity}
-                </Label>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      <Section label="Amenities" expandKey="amenities">
+        <div className="flex flex-col gap-2.5">
+          {amenityOptions.map((amenity) => (
+            <div key={amenity} className="flex items-center gap-2">
+              <Checkbox
+                id={`amenity-${amenity}`}
+                checked={filters.amenities.includes(amenity)}
+                onCheckedChange={() => toggleMulti("amenities", amenity)}
+              />
+              <Label htmlFor={`amenity-${amenity}`} className="text-sm font-normal text-foreground cursor-pointer">
+                {amenity}
+              </Label>
+            </div>
+          ))}
+        </div>
+      </Section>
 
       <Separator />
 
@@ -250,14 +390,7 @@ export function FilterSidebar({ filters, onFilterChange, search, onSearchChange 
         variant="outline"
         size="sm"
         onClick={() => {
-          onFilterChange({
-            priceRange: [100000, 6000000],
-            propertyTypes: [],
-            verifiedOnly: false,
-            amenities: [],
-            minBedrooms: 0,
-            swapOnly: false,
-          })
+          onFilterChange(DEFAULT_FILTERS)
           onSearchChange("")
         }}
       >
@@ -266,3 +399,4 @@ export function FilterSidebar({ filters, onFilterChange, search, onSearchChange 
     </aside>
   )
 }
+

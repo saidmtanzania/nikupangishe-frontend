@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { PropertyCard } from "@/components/properties/property-card"
 import { PropertyListCard } from "@/components/properties/property-list-card"
-import { FilterSidebar, type FilterState } from "@/components/properties/filter-sidebar"
+import { FilterSidebar, DEFAULT_FILTERS, type FilterState } from "@/components/properties/filter-sidebar"
 import { MapPlaceholder } from "@/components/properties/map-placeholder"
 import { propertiesApi, toProperty } from "@/lib/api"
 
@@ -44,14 +44,7 @@ export default function BrowsePage() {
   const [showMap, setShowMap] = useState(true)
   const [showFilters, setShowFilters] = useState(false)
   const [viewMode, setViewMode] = useState<ViewMode>("grid")
-  const [filters, setFilters] = useState<FilterState>({
-    priceRange: [100000, 6000000],
-    propertyTypes: [],
-    verifiedOnly: false,
-    amenities: [],
-    minBedrooms: 0,
-    swapOnly: false,
-  })
+  const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS)
 
   const filteredProperties = useMemo(() => {
     let results = [...allProperties]
@@ -94,6 +87,31 @@ export default function BrowsePage() {
       results = results.filter((p) => p.bedrooms >= filters.minBedrooms)
     }
 
+    // Bathrooms
+    if (filters.minBathrooms > 0) {
+      results = results.filter((p) => p.bathrooms >= filters.minBathrooms)
+    }
+
+    // City
+    if (filters.city) {
+      const city = filters.city.toLowerCase()
+      results = results.filter((p) => p.location.city.toLowerCase() === city)
+    }
+
+    // Furnishing
+    if (filters.furnishingStatus.length > 0) {
+      results = results.filter((p) =>
+        p.furnishingStatus ? filters.furnishingStatus.includes(p.furnishingStatus) : false
+      )
+    }
+
+    // Features (hasWater, hasElectricity, etc.)
+    if (filters.features.length > 0) {
+      results = results.filter((p) =>
+        filters.features.every((feat) => (p as Record<string, unknown>)[feat] === true)
+      )
+    }
+
     // Swap only
     if (filters.swapOnly) {
       results = results.filter((p) => p.isOpenToExchange)
@@ -134,7 +152,7 @@ export default function BrowsePage() {
         </div>
 
         {/* Listings column - slightly wider for better card visibility */}
-        <div className="flex w-full flex-col overflow-hidden border-r border-border lg:w-[540px] xl:w-[640px] shrink-0">
+        <div className="flex w-full flex-col overflow-hidden border-r border-border lg:w-135 xl:w-160 shrink-0">
 
           {/* ── Inline controls header (inside listings area) ── */}
           <div className="shrink-0 border-b border-border bg-card/80 px-4 py-2.5 backdrop-blur-sm lg:px-5">

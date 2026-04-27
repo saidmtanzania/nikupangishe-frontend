@@ -7,8 +7,10 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params
+  // Support both full UUIDs and 8-char short IDs
+  const endpoint = id.length <= 8 ? `${API_BASE}/houses/s/${id}` : `${API_BASE}/houses/${id}`
   try {
-    const res = await fetch(`${API_BASE}/houses/${id}`, { cache: "no-store" })
+    const res = await fetch(endpoint, { cache: "no-store" })
     if (!res.ok) return NextResponse.json({ error: "Property not found" }, { status: res.status })
     const data = await res.json()
     return NextResponse.json(data)
