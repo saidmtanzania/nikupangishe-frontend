@@ -27,12 +27,19 @@ export function PropertyListCard({
                     className="object-cover transition-transform duration-300 group-hover:scale-105"
                     {...(priority ? { priority: true } : { loading: "lazy" })}
                 />
-                {/* Verified badge */}
-                {property.isVerified && (
-                    <div className="absolute left-1.5 top-1.5 sm:left-2 sm:top-2">
-                        <span className="rounded-full bg-[#059669] px-1.5 py-0.5 text-[9px] font-medium text-white sm:px-2 sm:text-[10px]">
-                            Verified
-                        </span>
+                {/* Badges */}
+                {(property.isVerified || property.isOpenToExchange) && (
+                    <div className="absolute left-1.5 top-1.5 flex flex-col gap-1 sm:left-2 sm:top-2">
+                        {property.isVerified && (
+                            <span className="rounded-full bg-[#059669] px-1.5 py-0.5 text-[9px] font-medium text-white sm:px-2 sm:text-[10px]">
+                                Verified
+                            </span>
+                        )}
+                        {property.isOpenToExchange && (
+                            <span className="rounded-full bg-primary px-1.5 py-0.5 text-[9px] font-medium text-white sm:px-2 sm:text-[10px]">
+                                Swap
+                            </span>
+                        )}
                     </div>
                 )}
             </div>
