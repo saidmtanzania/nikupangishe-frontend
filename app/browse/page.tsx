@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { Grid3X3, Map, LayoutGrid, AlignJustify } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -13,7 +13,7 @@ import { propertiesApi, toProperty } from "@/lib/api"
 
 type ViewMode = "grid" | "list"
 
-export default function BrowsePage() {
+function BrowseContent() {
   const searchParams = useSearchParams()
   const [search, setSearch] = useState(() => searchParams.get("q") ?? "")
   const [allProperties, setAllProperties] = useState<ReturnType<typeof toProperty>[]>([])
@@ -320,5 +320,13 @@ export default function BrowsePage() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function BrowsePage() {
+  return (
+    <Suspense>
+      <BrowseContent />
+    </Suspense>
   )
 }
