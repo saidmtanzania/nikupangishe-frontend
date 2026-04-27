@@ -13,7 +13,7 @@ export default function OwnerDashboardLayout({
     const userName = user ? `${user.firstName} ${user.lastName}` : "Owner"
 
     return (
-        <RequireAuth allowedRoles={["owner", "admin"]}>
+        <RequireAuth allowedRoles={["owner"]}>
             <div className="min-h-screen w-full bg-[#f8f6f6] dark:bg-[#221610] flex justify-center">
                 <div className="relative flex w-full max-w-[1540px]">
                     {/* Fixed Sidebar */}

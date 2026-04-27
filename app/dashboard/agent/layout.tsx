@@ -13,7 +13,7 @@ export default function AgentDashboardLayout({
     const userName = user ? `${user.firstName} ${user.lastName}` : "Agent"
 
     return (
-        <RequireAuth allowedRoles={["agent", "admin"]}>
+        <RequireAuth allowedRoles={["agent"]}>
             <div className="min-h-screen w-full bg-[#f8f6f6] dark:bg-[#221610] flex justify-center">
                 <div className="relative flex w-full max-w-[1540px]">
                     {/* Fixed Sidebar */}

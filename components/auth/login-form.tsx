@@ -38,14 +38,19 @@ export function LoginForm() {
     setApiError("")
     try {
       const user = await login(identifier.trim(), password)
-      // If there's a redirect param, go there; otherwise go to the user's dashboard
+      const role = user.role // "owner" | "agent" | "tenant" | "admin"
+      const ownDashboard = `/dashboard/${role}`
+
+      // Only honour redirect param if it belongs to the user's own role subtree
       const redirectTo = searchParams.get("redirect")
-      if (redirectTo && redirectTo.startsWith("/")) {
-        router.push(redirectTo)
-      } else {
-        const role = user.role === "admin" ? "owner" : user.role
-        router.push(`/dashboard/${role}`)
-      }
+      const safeRedirect =
+        redirectTo &&
+        redirectTo.startsWith("/") &&
+        (redirectTo === ownDashboard || redirectTo.startsWith(`${ownDashboard}/`))
+          ? redirectTo
+          : ownDashboard
+
+      router.push(safeRedirect)
     } catch (err: unknown) {
       setApiError(err instanceof Error ? err.message : "Invalid credentials. Please try again.")
     } finally {

@@ -35,14 +35,14 @@ const ownerNav: NavItem[] = [
   { href: "/dashboard/owner/agents", label: "Agents", icon: Users },
   { href: "/dashboard/owner/viewings", label: "Viewings", icon: Calendar },
   { href: "/dashboard/owner/tenancies", label: "Tenancies", icon: ClipboardList },
-  { href: "/chat", label: "Chat", icon: MessageSquare },
+  { href: "/dashboard/owner/chat", label: "Chat", icon: MessageSquare },
   { href: "/dashboard/owner/verification", label: "Trust Center", icon: Shield },
 ]
 
 const agentNav: NavItem[] = [
   { href: "/dashboard/agent", label: "Dashboard", icon: LayoutDashboard },
   { href: "/dashboard/agent/viewings", label: "Viewings", icon: Users },
-  { href: "/chat", label: "Chat", icon: MessageSquare },
+  { href: "/dashboard/agent/chat", label: "Chat", icon: MessageSquare },
   { href: "/dashboard/agent/commissions", label: "Earnings", icon: FileText },
 ]
 
@@ -50,7 +50,7 @@ const tenantNav: NavItem[] = [
   { href: "/dashboard/tenant", label: "Overview", icon: LayoutDashboard },
   { href: "/dashboard/tenant/viewings", label: "My Viewings", icon: Calendar },
   { href: "/dashboard/tenant/exchange", label: "Exchanges", icon: FileText },
-  { href: "/chat", label: "Chat", icon: MessageSquare },
+  { href: "/dashboard/tenant/chat", label: "Chat", icon: MessageSquare },
   { href: "/dashboard/tenant/verification", label: "Trust Score", icon: Shield },
 ]
 
@@ -59,7 +59,7 @@ const adminNav: NavItem[] = [
   { href: "/dashboard/admin/users", label: "Users", icon: Users },
   { href: "/dashboard/admin/houses", label: "All Houses", icon: Home },
   { href: "/dashboard/admin/agents", label: "Agents", icon: Briefcase },
-  { href: "/chat", label: "Chat", icon: MessageSquare },
+  { href: "/dashboard/admin/chat", label: "Chat", icon: MessageSquare },
 ]
 
 interface DashboardSidebarProps {
