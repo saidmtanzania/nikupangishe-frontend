@@ -362,6 +362,9 @@ export interface ChatMessage {
   content: string;
   timestamp: string;
   createdAt?: string;
+  propertyId?: string;
+  propertyTitle?: string;
+  replyTo?: { id: string; senderId: string; content: string };
 }
 
 export interface ApiNotification {
@@ -848,7 +851,7 @@ export const chatApi = {
 
   async sendMessage(
     conversationId: string,
-    payload: { content: string; receiverId?: string },
+    payload: { content: string; receiverId?: string; replyToId?: string },
     token: string
   ): Promise<ChatMessage> {
     return apiFetch<ChatMessage>(`/chat/conversations/${conversationId}/messages`, {

@@ -84,6 +84,11 @@ export interface ChatMessage {
   senderId: string
   content: string
   timestamp: string
+  /** House this message is about, if any */
+  propertyId?: string
+  propertyTitle?: string
+  /** Quoted message this one replies to */
+  replyTo?: { id: string; senderId: string; content: string }
 }
 
 export interface Tenancy {

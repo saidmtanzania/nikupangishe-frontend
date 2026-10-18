@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react"
 import type { ChatConversation, ChatMessage } from "@/lib/types"
 import { cn } from "@/lib/utils"
-import { Send, Smile, Paperclip, Phone, MoreVertical, ArrowLeft, Home, CheckCheck, Lock } from "lucide-react"
+import { Send, Smile, Paperclip, Phone, MoreVertical, ArrowLeft, Home, CheckCheck, Lock, Reply, X } from "lucide-react"
 import Link from "next/link"
 import { useAuth } from "@/context/auth-context"
 import { API_BASE, chatApi } from "@/lib/api"
@@ -39,9 +39,26 @@ export function ChatWindow({ conversation, messages: _initialMessages, onBack }:
   const [allMessages, setAllMessages] = useState<ChatMessage[]>([])
   const [sending, setSending] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [replyingTo, setReplyingTo] = useState<ChatMessage | null>(null)
+  const [highlightedId, setHighlightedId] = useState<string | null>(null)
+  const [swipe, setSwipe] = useState<{ id: string; startX: number; dx: number } | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
   const socketRef = useRef<Socket | null>(null)
   const otherPerson = conversation.participants.find((p) => p.id !== user?.id) ?? conversation.participants[0]
+  const senderName = (senderId: string) => (senderId === user?.id ? "You" : otherPerson?.name ?? "Them")
+
+  const startReply = (msg: ChatMessage) => {
+    if (msg.id.startsWith("opt-")) return
+    setReplyingTo(msg)
+    inputRef.current?.focus()
+  }
+
+  const jumpToMessage = (id: string) => {
+    document.getElementById(`msg-${id}`)?.scrollIntoView({ behavior: "smooth", block: "center" })
+    setHighlightedId(id)
+    window.setTimeout(() => setHighlightedId((current) => (current === id ? null : current)), 1500)
+  }
 
   const upsertMessage = useCallback((message: ChatMessage) => {
     setAllMessages((previous) => {
@@ -81,6 +98,7 @@ export function ChatWindow({ conversation, messages: _initialMessages, onBack }:
   useEffect(() => {
     setLoading(true)
     setAllMessages([])
+    setReplyingTo(null)
     void fetchMessages()
     // Mark conversation as read when opened
     if (token) void chatApi.markAsRead(conversation.id, token).catch(() => {})
@@ -112,6 +130,9 @@ export function ChatWindow({ conversation, messages: _initialMessages, onBack }:
           timestamp: String(
             candidate.timestamp ?? candidate.createdAt ?? new Date().toISOString(),
           ),
+          propertyId: typeof candidate.propertyId === "string" ? candidate.propertyId : undefined,
+          propertyTitle: typeof candidate.propertyTitle === "string" ? candidate.propertyTitle : undefined,
+          replyTo: candidate.replyTo as ChatMessage["replyTo"],
         }
         upsertMessage(message)
         if (message.senderId !== user?.id && token) {
@@ -138,6 +159,8 @@ export function ChatWindow({ conversation, messages: _initialMessages, onBack }:
     if (!trimmed || sending || !token) return
     setSending(true)
     setNewMessage("")
+    const quoted = replyingTo
+    setReplyingTo(null)
 
     // Optimistic local message
     const optimistic: ChatMessage = {
@@ -146,6 +169,7 @@ export function ChatWindow({ conversation, messages: _initialMessages, onBack }:
       senderId: user?.id ?? "",
       content: trimmed,
       timestamp: new Date().toISOString(),
+      replyTo: quoted ? { id: quoted.id, senderId: quoted.senderId, content: quoted.content } : undefined,
     }
     setAllMessages((prev) => [...prev, optimistic])
 
@@ -154,6 +178,7 @@ export function ChatWindow({ conversation, messages: _initialMessages, onBack }:
         conversationId: conversation.id,
         receiverId: otherPerson?.id ?? "",
         content: trimmed,
+        replyToId: quoted?.id,
       }
       const socket = socketRef.current
       let deliveredRealtime = false
@@ -173,7 +198,7 @@ export function ChatWindow({ conversation, messages: _initialMessages, onBack }:
       } else {
         const message = await chatApi.sendMessage(
           conversation.id,
-          { content: trimmed, receiverId: otherPerson?.id },
+          { content: trimmed, receiverId: otherPerson?.id, replyToId: quoted?.id },
           token,
         )
         upsertMessage(message)
@@ -185,8 +210,9 @@ export function ChatWindow({ conversation, messages: _initialMessages, onBack }:
     }
   }
 
-  // Group messages with date dividers
+  // Group messages with date dividers and house-context dividers
   let lastDate = ""
+  let lastPropertyId = ""
 
   return (
     <div className="flex h-full flex-col">
@@ -204,13 +230,15 @@ export function ChatWindow({ conversation, messages: _initialMessages, onBack }:
           <p className="text-[15px] font-medium text-foreground truncate">
             {otherPerson?.name ?? "Unknown"}
           </p>
-          <Link
-            href={`/properties/${conversation.propertyId?.slice(0, 8) ?? conversation.propertyId}`}
-            className="flex items-center gap-1 text-[12px] text-muted-foreground hover:underline truncate"
-          >
-            <Home className="size-3 shrink-0" />
-            {conversation.propertyTitle}
-          </Link>
+          {conversation.propertyId && (
+            <Link
+              href={`/properties/${conversation.propertyId.slice(0, 8)}`}
+              className="flex items-center gap-1 text-[12px] text-muted-foreground hover:underline truncate"
+            >
+              <Home className="size-3 shrink-0" />
+              {conversation.propertyTitle}
+            </Link>
+          )}
         </div>
         <div className="flex items-center gap-1">
           <button className="p-2 rounded-full hover:bg-accent transition-colors">
@@ -249,6 +277,8 @@ export function ChatWindow({ conversation, messages: _initialMessages, onBack }:
                 lastDate = dayLabel
                 showDivider = true
               }
+              const showProperty = !!msg.propertyId && msg.propertyId !== lastPropertyId
+              if (msg.propertyId) lastPropertyId = msg.propertyId
               return (
                 <div key={msg.id}>
                   {showDivider && (
@@ -258,15 +288,65 @@ export function ChatWindow({ conversation, messages: _initialMessages, onBack }:
                       </span>
                     </div>
                   )}
-                  <div className={cn("flex mb-0.5", isMe ? "justify-end" : "justify-start")}>
+                  {showProperty && (
+                    <div className="flex justify-center my-2">
+                      <Link
+                        href={`/properties/${msg.propertyId!.slice(0, 8)}`}
+                        className="flex items-center gap-1.5 bg-primary/10 text-primary text-[11px] font-medium px-3 py-1 rounded-full hover:bg-primary/15 transition-colors"
+                      >
+                        <Home className="size-3 shrink-0" />
+                        Re: {msg.propertyTitle ?? "Property"}
+                      </Link>
+                    </div>
+                  )}
+                  <div
+                    id={`msg-${msg.id}`}
+                    className={cn("group flex items-center gap-1 mb-0.5", isMe ? "justify-end" : "justify-start")}
+                    onTouchStart={(e) => setSwipe({ id: msg.id, startX: e.touches[0].clientX, dx: 0 })}
+                    onTouchMove={(e) => {
+                      const touchX = e.touches[0].clientX
+                      setSwipe((s) => (s && s.id === msg.id ? { ...s, dx: Math.max(0, Math.min(80, touchX - s.startX)) } : s))
+                    }}
+                    onTouchEnd={() => {
+                      if (swipe?.id === msg.id && swipe.dx > 50) startReply(msg)
+                      setSwipe(null)
+                    }}
+                  >
+                    {isMe && (
+                      <button
+                        type="button"
+                        onClick={() => startReply(msg)}
+                        className="opacity-0 group-hover:opacity-100 p-1 rounded-full text-muted-foreground hover:bg-accent transition-opacity"
+                        title="Reply"
+                      >
+                        <Reply className="size-4" />
+                      </button>
+                    )}
                     <div
+                      onDoubleClick={() => startReply(msg)}
+                      style={swipe?.id === msg.id ? { transform: `translateX(${swipe.dx}px)` } : undefined}
                       className={cn(
-                        "max-w-[65%] rounded-lg px-2.5 pt-1.5 pb-1 shadow-sm relative",
+                        "max-w-[65%] rounded-lg px-2.5 pt-1.5 pb-1 shadow-sm relative transition-colors",
                         isMe
                           ? "bg-primary/15 dark:bg-primary/20 rounded-tr-none"
-                          : "bg-card dark:bg-card rounded-tl-none"
+                          : "bg-card dark:bg-card rounded-tl-none",
+                        highlightedId === msg.id && "ring-2 ring-primary/40"
                       )}
                     >
+                      {msg.replyTo && (
+                        <button
+                          type="button"
+                          onClick={() => jumpToMessage(msg.replyTo!.id)}
+                          className="mb-1 block w-full text-left rounded-md border-l-4 border-primary bg-black/5 dark:bg-white/5 px-2 py-1"
+                        >
+                          <span className="block text-[12px] font-semibold text-primary">
+                            {senderName(msg.replyTo.senderId)}
+                          </span>
+                          <span className="block text-[12px] text-muted-foreground line-clamp-2">
+                            {msg.replyTo.content || "Message deleted"}
+                          </span>
+                        </button>
+                      )}
                       <p className="text-sm leading-5 text-foreground whitespace-pre-wrap wrap-break-word">
                         {msg.content}
                       </p>
@@ -284,6 +364,16 @@ export function ChatWindow({ conversation, messages: _initialMessages, onBack }:
                         )}
                       </div>
                     </div>
+                    {!isMe && (
+                      <button
+                        type="button"
+                        onClick={() => startReply(msg)}
+                        className="opacity-0 group-hover:opacity-100 p-1 rounded-full text-muted-foreground hover:bg-accent transition-opacity"
+                        title="Reply"
+                      >
+                        <Reply className="size-4" />
+                      </button>
+                    )}
                   </div>
                 </div>
               )
@@ -293,8 +383,22 @@ export function ChatWindow({ conversation, messages: _initialMessages, onBack }:
         )}
       </div>
 
-      {/* ── Input Bar ───────────────────────────────────────────── */}
-      <form
+      {/* ── Input Bar ───────────────────────────────────────────── */}      {replyingTo && (
+        <div className="flex items-center gap-2 bg-secondary border-t border-border px-4 pt-2">
+          <div className="flex-1 min-w-0 rounded-md border-l-4 border-primary bg-background px-3 py-1.5">
+            <p className="text-[12px] font-semibold text-primary">{senderName(replyingTo.senderId)}</p>
+            <p className="text-[12px] text-muted-foreground truncate">{replyingTo.content}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setReplyingTo(null)}
+            className="p-1.5 rounded-full text-muted-foreground hover:bg-accent"
+            title="Cancel reply"
+          >
+            <X className="size-4" />
+          </button>
+        </div>
+      )}      <form
         onSubmit={handleSend}
         className="flex items-end gap-2 bg-secondary border-t border-border px-4 py-2"
       >
@@ -306,8 +410,12 @@ export function ChatWindow({ conversation, messages: _initialMessages, onBack }:
         </button>
         <div className="flex-1 bg-background rounded-lg px-3 py-2 min-h-10.5">
           <input
+            ref={inputRef}
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") setReplyingTo(null)
+            }}
             placeholder="Type a message"
             className="w-full bg-transparent text-[15px] text-foreground placeholder:text-muted-foreground outline-none"
             disabled={sending}
