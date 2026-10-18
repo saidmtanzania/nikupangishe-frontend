@@ -19,18 +19,21 @@ import Link from "next/link"
 import Image from "next/image"
 import { useState, useEffect } from "react"
 import { useAuth } from "@/context/auth-context"
-import { exchangeApi, chatApi, type ExchangeRequest } from "@/lib/api"
+import { exchangeApi, chatApi, type ApiTenancy, type ExchangeRequest } from "@/lib/api"
 
 export default function TenantDashboard() {
   const { user, token } = useAuth()
   const userName = user ? `${user.firstName} ${user.lastName}` : "Tenant"
-  const myTenancy = null  // tenancy endpoint not yet implemented
+  const [myTenancy, setMyTenancy] = useState<ApiTenancy | null>(null)
   const [myExchangeRequests, setMyExchangeRequests] = useState<ExchangeRequest[]>([])
   const [myMessages, setMyMessages] = useState<unknown[]>([])
 
   useEffect(() => {
     if (!token) return
     let cancelled = false
+    exchangeApi.myTenancy(token)
+      .then((res) => { if (!cancelled) setMyTenancy(res) })
+      .catch(() => { if (!cancelled) setMyTenancy(null) })
     exchangeApi.list(token)
       .then((res) => { if (!cancelled) setMyExchangeRequests(res) })
       .catch(() => {})
@@ -77,15 +80,32 @@ export default function TenantDashboard() {
                   <div className="w-full h-full bg-muted flex items-center justify-center"><Home className="h-10 w-10 text-muted-foreground/30" /></div>
                 </div>
                 <div className="flex-1 space-y-4">
+                  {myTenancy.house && (
+                    <div>
+                      <p className="text-base font-medium text-slate-800 dark:text-white">{myTenancy.house.title}</p>
+                      <p className="text-[11px] font-medium text-slate-400 flex items-center gap-1 mt-0.5">
+                        <MapPin className="h-3 w-3" /> {myTenancy.house.area}, {myTenancy.house.city}
+                      </p>
+                    </div>
+                  )}
                   <div className="grid grid-cols-2 gap-4">
                     <div className="p-3.5 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100/50">
                       <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest">Monthly Rent</p>
-                      <p className="text-lg font-medium text-slate-700 dark:text-white mt-0.5">TZS {myTenancy.monthlyRent.toLocaleString()}</p>
+                      <p className="text-lg font-medium text-slate-700 dark:text-white mt-0.5">TZS {(myTenancy.agreedRent ?? 0).toLocaleString()}</p>
                     </div>
                     <div className="p-3.5 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100/50">
                       <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest">Start Date</p>
-                      <p className="text-lg font-medium text-slate-700 dark:text-white mt-0.5">{myTenancy.startDate}</p>
+                      <p className="text-lg font-medium text-slate-700 dark:text-white mt-0.5">{myTenancy.startDate ? new Date(myTenancy.startDate).toLocaleDateString() : "Not set"}</p>
                     </div>
+                  </div>
+                  <div className="p-4 rounded-xl border border-emerald-100 bg-emerald-50/60 dark:bg-emerald-950/20 dark:border-emerald-900">
+                    <p className="text-[10px] font-medium text-emerald-700 dark:text-emerald-400 uppercase tracking-widest">How to pay rent</p>
+                    {myTenancy.paymentInstructions ? (
+                      <p className="text-sm text-slate-700 dark:text-slate-200 mt-1 whitespace-pre-line">{myTenancy.paymentInstructions}</p>
+                    ) : (
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Your owner has not shared payment details on Nikupangishe yet.</p>
+                    )}
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-2">Rent is paid directly to the owner — never to the agent.</p>
                   </div>
                   <div className="flex gap-2 pt-2">
                     <button className="flex-1 py-3 bg-slate-800 dark:bg-slate-100 dark:text-slate-900 text-white text-xs font-medium rounded-xl uppercase tracking-widest hover:bg-primary hover:text-white transition-all">Payment History</button>
@@ -115,7 +135,7 @@ export default function TenantDashboard() {
                 <span className="text-[10px] font-medium text-emerald-500 uppercase tracking-widest">Excellent</span>
               </div>
             </div>
-            <p className="text-[11px] font-medium text-slate-400 leading-relaxed max-w-[180px]">Your score is updated based on on-time payments and verified profile.</p>
+            <p className="text-[11px] font-medium text-slate-400 leading-relaxed max-w-45">Your score is updated based on on-time payments and verified profile.</p>
             <button className="mt-8 text-slate-500 hover:text-primary text-[10px] font-medium uppercase tracking-widest hover:underline flex items-center gap-2 transition-colors">
               <Shield className="h-4 w-4" /> Boost Score
             </button>
@@ -129,13 +149,13 @@ export default function TenantDashboard() {
               <h3 className="text-xl font-medium uppercase tracking-tight text-slate-800">Exchange Requests</h3>
               <button className="text-[10px] font-medium text-slate-400 uppercase tracking-widest hover:underline">View History</button>
             </div>
-            <div className="space-y-4 max-h-[360px] overflow-y-auto pr-2 custom-scrollbar">
+            <div className="space-y-4 max-h-90 overflow-y-auto pr-2 custom-scrollbar">
             {myExchangeRequests.length > 0 ? myExchangeRequests.map(req => (
                 <div key={req.id} className="p-5 rounded-2xl border border-slate-50 dark:border-slate-800 hover:border-slate-100 hover:bg-slate-50/50 transition-all group">
                   <div className="flex items-center justify-between mb-4">
                     <span className={cn(
                       "text-[9px] font-medium px-2.5 py-1 rounded-full uppercase tracking-widest shadow-sm border",
-                      req.status === "pending" ? "bg-amber-50 text-amber-600 border-amber-100" : req.status === "accepted" ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-red-50 text-red-600 border-red-100"
+                      req.status === "pending" ? "bg-amber-50 text-amber-600 border-amber-100" : req.status === "approved" || req.status === "completed" ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-red-50 text-red-600 border-red-100"
                     )}>
                       {req.status}
                     </span>
@@ -146,8 +166,8 @@ export default function TenantDashboard() {
                       <ArrowLeftRight className="h-5 w-5" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-xs font-medium text-slate-700 dark:text-white truncate uppercase tracking-tight">{req.toHouseId}</p>
-                      <p className="text-[10px] font-medium text-slate-400 mt-0.5 truncate">From: {req.fromHouseId}</p>
+                      <p className="text-xs font-medium text-slate-700 dark:text-white truncate uppercase tracking-tight">{req.toPropertyTitle}</p>
+                      <p className="text-[10px] font-medium text-slate-400 mt-0.5 truncate">From: {req.fromPropertyTitle}</p>
                     </div>
                   </div>
                 </div>

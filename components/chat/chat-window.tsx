@@ -6,7 +6,8 @@ import { cn } from "@/lib/utils"
 import { Send, Smile, Paperclip, Phone, MoreVertical, ArrowLeft, Home, CheckCheck, Lock } from "lucide-react"
 import Link from "next/link"
 import { useAuth } from "@/context/auth-context"
-import { chatApi } from "@/lib/api"
+import { API_BASE, chatApi } from "@/lib/api"
+import { io, type Socket } from "socket.io-client"
 
 interface ChatWindowProps {
   conversation: ChatConversation
@@ -39,21 +40,37 @@ export function ChatWindow({ conversation, messages: _initialMessages, onBack }:
   const [sending, setSending] = useState(false)
   const [loading, setLoading] = useState(true)
   const bottomRef = useRef<HTMLDivElement>(null)
+  const socketRef = useRef<Socket | null>(null)
   const otherPerson = conversation.participants.find((p) => p.id !== user?.id) ?? conversation.participants[0]
+
+  const upsertMessage = useCallback((message: ChatMessage) => {
+    setAllMessages((previous) => {
+      const existing = previous.findIndex((item) => item.id === message.id)
+      if (existing >= 0) {
+        return previous.map((item, index) => (index === existing ? message : item))
+      }
+
+      const optimisticIndex = previous.findIndex(
+        (item) =>
+          item.id.startsWith("opt-") &&
+          item.senderId === message.senderId &&
+          item.content === message.content,
+      )
+      if (optimisticIndex >= 0) {
+        return previous.map((item, index) =>
+          index === optimisticIndex ? message : item,
+        )
+      }
+
+      return [...previous, message]
+    })
+  }, [])
 
   // Fetch messages from the API
   const fetchMessages = useCallback(async () => {
     if (!token) return
     try {
-      const raw = await chatApi.messages(conversation.id, token)
-      const msgs: ChatMessage[] = (Array.isArray(raw) ? raw : []).map((m: Record<string, unknown>) => ({
-        id: String(m.id),
-        conversationId: String(m.conversationId ?? conversation.id),
-        senderId: String(m.senderId),
-        content: String(m.content ?? ""),
-        timestamp: String(m.createdAt ?? m.timestamp ?? new Date().toISOString()),
-      }))
-      setAllMessages(msgs)
+      setAllMessages(await chatApi.messages(conversation.id, token))
     } catch {
       setAllMessages([])
     } finally {
@@ -64,12 +81,52 @@ export function ChatWindow({ conversation, messages: _initialMessages, onBack }:
   useEffect(() => {
     setLoading(true)
     setAllMessages([])
-    fetchMessages()
+    void fetchMessages()
     // Mark conversation as read when opened
-    if (token) chatApi.markAsRead(conversation.id, token).catch(() => {})
+    if (token) void chatApi.markAsRead(conversation.id, token).catch(() => {})
+
+    const socketBaseUrl = API_BASE.replace(/\/api\/v1\/?$/, "")
+    const socket = token
+      ? io(`${socketBaseUrl}/chat`, {
+          auth: { token },
+          transports: ["websocket", "polling"],
+          reconnection: true,
+        })
+      : null
+
+    if (socket) {
+      socketRef.current = socket
+      socket.on("connect", () => {
+        socket.emit("join:conversation", { conversationId: conversation.id })
+      })
+      socket.on("message:new", (raw: unknown) => {
+        if (!raw || typeof raw !== "object") return
+        const candidate = raw as Record<string, unknown>
+        if (candidate.conversationId !== conversation.id) return
+
+        const message: ChatMessage = {
+          id: String(candidate.id),
+          conversationId: String(candidate.conversationId),
+          senderId: String(candidate.senderId),
+          content: String(candidate.content ?? ""),
+          timestamp: String(
+            candidate.timestamp ?? candidate.createdAt ?? new Date().toISOString(),
+          ),
+        }
+        upsertMessage(message)
+        if (message.senderId !== user?.id && token) {
+          void chatApi.markAsRead(conversation.id, token).catch(() => {})
+        }
+      })
+    }
+
     const interval = setInterval(fetchMessages, 5000)
-    return () => clearInterval(interval)
-  }, [fetchMessages])
+    return () => {
+      clearInterval(interval)
+      socket?.disconnect()
+      if (socketRef.current === socket) socketRef.current = null
+    }
+  }, [conversation.id, fetchMessages, token, upsertMessage, user?.id])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -93,36 +150,36 @@ export function ChatWindow({ conversation, messages: _initialMessages, onBack }:
     setAllMessages((prev) => [...prev, optimistic])
 
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000/api"}/chat/conversations/${conversation.id}/messages`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-          body: JSON.stringify({
-            content: trimmed,
-            receiverId: otherPerson?.id,
-          }),
-        }
-      )
-      if (res.ok) {
-        const json = await res.json()
-        const msg = json?.data ?? json
-        setAllMessages((prev) =>
-          prev.map((m) =>
-            m.id === optimistic.id
-              ? {
-                  id: String(msg.id ?? optimistic.id),
-                  conversationId: conversation.id,
-                  senderId: String(msg.senderId ?? optimistic.senderId),
-                  content: String(msg.content ?? optimistic.content),
-                  timestamp: String(msg.createdAt ?? msg.timestamp ?? optimistic.timestamp),
-                }
-              : m
-          )
+      const payload = {
+        conversationId: conversation.id,
+        receiverId: otherPerson?.id ?? "",
+        content: trimmed,
+      }
+      const socket = socketRef.current
+      let deliveredRealtime = false
+
+      if (socket?.connected && payload.receiverId) {
+        deliveredRealtime = await new Promise<boolean>((resolve) => {
+          const timeout = window.setTimeout(() => resolve(false), 5000)
+          socket.emit("message:send", payload, (ack: unknown) => {
+            window.clearTimeout(timeout)
+            resolve(Boolean(ack))
+          })
+        })
+      }
+
+      if (deliveredRealtime) {
+        window.setTimeout(() => void fetchMessages(), 250)
+      } else {
+        const message = await chatApi.sendMessage(
+          conversation.id,
+          { content: trimmed, receiverId: otherPerson?.id },
+          token,
         )
+        upsertMessage(message)
       }
     } catch {
-      // keep optimistic message
+      setAllMessages((prev) => prev.filter((message) => message.id !== optimistic.id))
     } finally {
       setSending(false)
     }

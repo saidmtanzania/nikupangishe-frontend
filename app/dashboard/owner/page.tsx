@@ -107,9 +107,10 @@ export default function OwnerDashboard() {
             <Link className="text-primary text-xs font-medium hover:underline uppercase tracking-wider" href="/dashboard/owner/houses">View All</Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {ownerProperties.map((property) => (
+            {ownerProperties.map((property, index) => (
               <PropertyCardV3
                 key={property.id}
+                eager={index < 4}
                 houseId={property.id}
                 image={property.images[0]}
                 name={property.title}
@@ -196,11 +197,11 @@ function RevenueBar({ label, height, active }: any) {
   )
 }
 
-function PropertyCardV3({ houseId, image, name, location, price, period, status, statusColor, editable, subtitle }: any) {
+function PropertyCardV3({ houseId, image, name, location, price, period, status, statusColor, editable, subtitle, eager }: any) {
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm transition-all">
       <Link href={`/dashboard/owner/houses/${houseId}/edit`} className="block h-36 relative overflow-hidden">
-        <Image src={image} alt={name} fill className="object-cover transition-transform duration-500 hover:scale-110" />
+        <Image src={image} alt={name} fill loading={eager ? "eager" : "lazy"} sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw" className="object-cover transition-transform duration-500 hover:scale-110" />
         <div className={cn("absolute top-3 right-3 text-white text-[9px] font-medium px-2.5 py-1 rounded-full uppercase tracking-widest shadow-lg backdrop-blur-sm", statusColor)}>
           {status}
         </div>

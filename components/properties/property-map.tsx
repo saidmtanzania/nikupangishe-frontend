@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet"
+import { MapContainer, TileLayer, Marker, Popup, Circle, useMap, useMapEvents } from "react-leaflet"
 import L from "leaflet"
 import type { Property } from "@/lib/types"
 import "leaflet/dist/leaflet.css"
@@ -40,16 +40,52 @@ function createPin(color = "#ec5413") {
 }
 
 /** Keeps the map centred on the visible set of properties */
-function BoundsFitter({ properties }: { properties: Property[] }) {
+function BoundsFitter({ properties, paused = false }: { properties: Property[]; paused?: boolean }) {
     const map = useMap()
 
     useEffect(() => {
-        if (properties.length === 0) return
+        if (paused || properties.length === 0) return
+        const size = map.getSize()
+        if (size.x === 0 || size.y === 0) return
         const bounds = L.latLngBounds(
             properties.map((p) => [p.location.lat, p.location.lng])
         )
         map.fitBounds(bounds, { padding: [60, 60], maxZoom: 14 })
-    }, [map, properties])
+    }, [map, properties, paused])
+
+    return null
+}
+
+export interface MapPoint {
+    lat: number
+    lng: number
+    label?: string
+}
+
+function MapClickHandler({ onSelect }: { onSelect: (point: MapPoint) => void }) {
+    useMapEvents({
+        click: (e) => onSelect({ lat: e.latlng.lat, lng: e.latlng.lng }),
+    })
+    return null
+}
+
+function FlyToPoint({ point }: { point: MapPoint | null | undefined }) {
+    const map = useMap()
+
+    useEffect(() => {
+        if (!point) return
+        const lat = Number(point.lat)
+        const lng = Number(point.lng)
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) return
+        const zoom = Math.max(map.getZoom(), 12)
+        // flyTo yields NaN on a zero-size (CSS-hidden) map, e.g. the desktop map on mobile
+        const size = map.getSize()
+        if (size.x === 0 || size.y === 0) {
+            map.setView([lat, lng], zoom, { animate: false })
+            return
+        }
+        map.flyTo([lat, lng], zoom, { duration: 0.6 })
+    }, [map, point])
 
     return null
 }
@@ -63,9 +99,18 @@ const TZS = new Intl.NumberFormat("sw-TZ", {
 interface PropertyMapProps {
     properties: Property[]
     showPopups?: boolean
+    selectedPoint?: MapPoint | null
+    radiusKm?: number
+    onLocationSelect?: (point: MapPoint) => void
 }
 
-export default function PropertyMap({ properties, showPopups = true }: PropertyMapProps) {
+export default function PropertyMap({
+    properties,
+    showPopups = true,
+    selectedPoint,
+    radiusKm = 5,
+    onLocationSelect,
+}: PropertyMapProps) {
     useEffect(() => {
         fixLeafletIcons()
     }, [])
@@ -88,13 +133,31 @@ export default function PropertyMap({ properties, showPopups = true }: PropertyM
                 maxZoom={19}
             />
 
-            <BoundsFitter properties={properties} />
+            <BoundsFitter properties={properties} paused={!!selectedPoint} />
+
+            {onLocationSelect && <MapClickHandler onSelect={onLocationSelect} />}
+            <FlyToPoint point={selectedPoint} />
+
+            {selectedPoint && (
+                <Circle
+                    center={[selectedPoint.lat, selectedPoint.lng]}
+                    radius={radiusKm * 1000}
+                    pathOptions={{ color: "#ec5413", fillColor: "#ec5413", fillOpacity: 0.08, weight: 2, dashArray: "6 6" }}
+                />
+            )}
 
             {properties.map((property) => (
                 <Marker
                     key={property.id}
                     position={[property.location.lat, property.location.lng]}
                     icon={createPin(property.isVerified ? "#ec5413" : "#a89585")}
+                    eventHandlers={onLocationSelect ? {
+                        click: () => onLocationSelect({
+                            lat: property.location.lat,
+                            lng: property.location.lng,
+                            label: property.location.neighborhood,
+                        }),
+                    } : undefined}
                 >
                     {showPopups && (
                         <Popup maxWidth={280} className="property-popup">

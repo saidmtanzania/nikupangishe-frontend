@@ -257,7 +257,7 @@ export default function OwnerTenanciesPage() {
                                                     <div className="flex items-center gap-3">
                                                         <div className="w-10 h-10 rounded-lg bg-slate-100 relative overflow-hidden shrink-0 border border-slate-200/50">
                                                             {houseImg ? (
-                                                                <Image src={houseImg} alt="" fill className="object-cover" />
+                                                                <Image src={houseImg} alt="" fill sizes="40px" className="object-cover" />
                                                             ) : (
                                                                 <div className="w-full h-full flex items-center justify-center">
                                                                     <Home className="h-4 w-4 text-slate-300" />

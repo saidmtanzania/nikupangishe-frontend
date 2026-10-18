@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic"
 import { MapPin, CheckCircle2 } from "lucide-react"
 import type { Property } from "@/lib/types"
+import type { MapPoint } from "@/components/properties/property-map"
 
 // Dynamically import so Leaflet never runs on the server
 const PropertyMap = dynamic(
@@ -43,8 +44,14 @@ const PropertyMap = dynamic(
 
 export function MapPlaceholder({
   properties,
+  selectedPoint,
+  radiusKm,
+  onLocationSelect,
 }: {
   properties: Property[]
+  selectedPoint?: MapPoint | null
+  radiusKm?: number
+  onLocationSelect?: (point: MapPoint) => void
 }) {
   const verified = properties.filter((p) => p.isVerified).length
   const unverified = properties.length - verified
@@ -96,14 +103,19 @@ export function MapPlaceholder({
             </div>
           )}
           <p className="ml-auto text-[10px] text-muted-foreground/70">
-            Click a pin for details
+            {onLocationSelect ? "Click the map or a pin to see nearby homes" : "Click a pin for details"}
           </p>
         </div>
       </div>
 
       {/* ── Map fills the rest ──────────────────────────────────── */}
       <div className="relative min-h-0 flex-1">
-        <PropertyMap properties={properties} />
+        <PropertyMap
+          properties={properties}
+          selectedPoint={selectedPoint}
+          radiusKm={radiusKm}
+          onLocationSelect={onLocationSelect}
+        />
       </div>
 
       {/* ── Footer attribution strip ────────────────────────────── */}

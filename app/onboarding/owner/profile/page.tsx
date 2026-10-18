@@ -92,6 +92,7 @@ export default function OwnerProfileOnboardingPage() {
                                                 src={previewUrl}
                                                 alt="Profile Preview"
                                                 fill
+                                                sizes="96px"
                                                 className="object-cover"
                                             />
                                         ) : (

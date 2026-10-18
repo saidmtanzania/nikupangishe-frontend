@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
-import { Grid3X3, Map, LayoutGrid, AlignJustify } from "lucide-react"
+import { Grid3X3, Map, LayoutGrid, AlignJustify, MapPin, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { PropertyCard } from "@/components/properties/property-card"
@@ -10,8 +10,19 @@ import { PropertyListCard } from "@/components/properties/property-list-card"
 import { FilterSidebar, DEFAULT_FILTERS, type FilterState } from "@/components/properties/filter-sidebar"
 import { MapPlaceholder } from "@/components/properties/map-placeholder"
 import { propertiesApi, toProperty } from "@/lib/api"
+import type { MapPoint } from "@/components/properties/property-map"
 
 type ViewMode = "grid" | "list"
+
+const NEARBY_RADIUS_KM = 5
+
+function distanceKm(a: { lat: number; lng: number }, b: { lat: number; lng: number }) {
+  const toRad = (d: number) => (d * Math.PI) / 180
+  const dLat = toRad(b.lat - a.lat)
+  const dLng = toRad(b.lng - a.lng)
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2
+  return 6371 * 2 * Math.asin(Math.sqrt(h))
+}
 
 function BrowseContent() {
   const searchParams = useSearchParams()
@@ -45,6 +56,7 @@ function BrowseContent() {
   const [showFilters, setShowFilters] = useState(false)
   const [viewMode, setViewMode] = useState<ViewMode>("grid")
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS)
+  const [nearPoint, setNearPoint] = useState<MapPoint | null>(null)
 
   const filteredProperties = useMemo(() => {
     let results = [...allProperties]
@@ -133,13 +145,25 @@ function BrowseContent() {
     return results
   }, [search, filters, sortBy, allProperties])
 
+  // Selected map point narrows the list to nearby homes, closest first
+  const listedProperties = useMemo(() => {
+    if (!nearPoint) return filteredProperties
+    return filteredProperties
+      .map((p) => ({ p, d: distanceKm(nearPoint, p.location) }))
+      .filter(({ d }) => d <= NEARBY_RADIUS_KM)
+      .sort((a, b) => a.d - b.d)
+      .map(({ p }) => p)
+  }, [filteredProperties, nearPoint])
+
+  const handleLocationSelect = (point: MapPoint) => {
+    setNearPoint(point)
+    setShowMap(false)
+  }
+
   return (
     <div className="flex flex-col">
       {/* ── Main content: filter | listings | map ────────────── */}
       <div className="flex w-full" style={{ height: "calc(100vh - 64px)" }}>
-
-        {/* Left Spacer to align content with app's layout width */}
-        <div className="hidden flex-1 max-w-[calc((100vw-1440px)/2)] xl:block" />
 
         {/* Filter Sidebar – always visible on desktop */}
         <div className="hidden w-72 shrink-0 overflow-y-auto border-r border-border bg-card p-5 lg:block">
@@ -152,7 +176,7 @@ function BrowseContent() {
         </div>
 
         {/* Listings column - slightly wider for better card visibility */}
-        <div className="flex w-full flex-col overflow-hidden border-r border-border lg:w-135 xl:w-160 shrink-0">
+        <div className="flex w-full min-w-0 flex-col overflow-hidden border-r border-border lg:flex-1 xl:w-160 xl:flex-none 2xl:w-180">
 
           {/* ── Inline controls header (inside listings area) ── */}
           <div className="shrink-0 border-b border-border bg-card/80 px-4 py-2.5 backdrop-blur-sm lg:px-5">
@@ -164,7 +188,7 @@ function BrowseContent() {
                   <p className="text-sm text-muted-foreground animate-pulse">Loading properties…</p>
                 ) : (
                   <p className="text-sm text-muted-foreground">
-                    <span className="font-semibold text-foreground">{filteredProperties.length}</span>{" "}
+                    <span className="font-semibold text-foreground">{listedProperties.length}</span>{" "}
                     <span className="hidden sm:inline">properties</span> found
                   </p>
                 )}
@@ -231,6 +255,24 @@ function BrowseContent() {
           <div className="flex-1 overflow-y-auto p-3 lg:p-4">
 
             {/* Mobile Filters Panel */}
+            {nearPoint && (
+              <div className="mb-3 flex items-center justify-between gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2">
+                <p className="flex min-w-0 items-center gap-1.5 text-xs text-foreground">
+                  <MapPin className="h-3.5 w-3.5 shrink-0 text-primary" />
+                  <span className="truncate">
+                    Homes within {NEARBY_RADIUS_KM} km of{" "}
+                    <strong>{nearPoint.label ?? "selected location"}</strong>
+                  </span>
+                </p>
+                <button
+                  onClick={() => setNearPoint(null)}
+                  className="flex shrink-0 items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-primary hover:bg-primary/10"
+                >
+                  <X className="h-3 w-3" />
+                  Clear
+                </button>
+              </div>
+            )}
             {showFilters && (
               <div className="mb-4 rounded-xl border border-border bg-card p-4 lg:hidden">
                 <FilterSidebar
@@ -255,19 +297,19 @@ function BrowseContent() {
                   </div>
                 ))}
               </div>
-            ) : filteredProperties.length > 0 ? (
+            ) : listedProperties.length > 0 ? (
               viewMode === "grid" ? (
                 /* ── Grid view ── */
                 <div className="grid gap-3 sm:grid-cols-2">
-                  {filteredProperties.map((property) => (
-                    <PropertyCard key={property.id} property={property} />
+                  {listedProperties.map((property, index) => (
+                    <PropertyCard key={property.id} property={property} priority={index < 4} />
                   ))}
                 </div>
               ) : (
                 /* ── List view ── */
                 <div className="flex flex-col gap-3">
-                  {filteredProperties.map((property) => (
-                    <PropertyListCard key={property.id} property={property} />
+                  {listedProperties.map((property, index) => (
+                    <PropertyListCard key={property.id} property={property} priority={index < 4} />
                   ))}
                 </div>
               )
@@ -276,7 +318,9 @@ function BrowseContent() {
                 <Grid3X3 className="mb-4 h-12 w-12 text-muted-foreground/50" />
                 <h3 className="mb-2 text-lg font-semibold text-foreground">No properties found</h3>
                 <p className="text-sm text-muted-foreground">
-                  Try adjusting your filters or search query.
+                  {nearPoint
+                    ? "No homes near this location. Try another spot on the map or clear the location."
+                    : "Try adjusting your filters or search query."}
                 </p>
               </div>
             )}
@@ -284,8 +328,13 @@ function BrowseContent() {
         </div>
 
         {/* Map Panel - Fills the rest of the screen to the right */}
-        <div className="relative z-0 hidden flex-1 border-l border-border xl:flex xl:flex-col">
-          <MapPlaceholder properties={filteredProperties} />
+        <div className="relative z-0 hidden min-w-0 flex-1 xl:flex xl:flex-col">
+          <MapPlaceholder
+            properties={filteredProperties}
+            selectedPoint={nearPoint}
+            radiusKm={NEARBY_RADIUS_KM}
+            onLocationSelect={handleLocationSelect}
+          />
         </div>
       </div>
 
@@ -314,6 +363,9 @@ function BrowseContent() {
             <div className="flex-1">
               <MapPlaceholder
                 properties={filteredProperties}
+                selectedPoint={nearPoint}
+                radiusKm={NEARBY_RADIUS_KM}
+                onLocationSelect={handleLocationSelect}
               />
             </div>
           </div>

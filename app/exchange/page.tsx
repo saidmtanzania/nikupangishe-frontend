@@ -96,10 +96,11 @@ export default async function ExchangePage() {
             </Button>
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {exchangeableProperties.length > 0 ? exchangeableProperties.map((property) => (
+            {exchangeableProperties.length > 0 ? exchangeableProperties.map((property, index) => (
               <PropertyCard
                 key={property.id}
                 property={property}
+                priority={index < 4}
                 badge={
                   <span className="inline-flex items-center rounded-full bg-primary px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-primary-foreground">
                     Open to Swap

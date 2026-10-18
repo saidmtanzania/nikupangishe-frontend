@@ -47,8 +47,10 @@ export function PropertyGallery({ images, title }: { images: string[]; title: st
                 src={img}
                 alt={`${title} - Image ${index + 1}`}
                 fill
+                sizes="(min-width: 1280px) 1280px, 100vw"
                 className="object-cover select-none"
-                priority={index === 0}
+                preload={index === 0}
+                loading={index === 0 ? "eager" : "lazy"}
               />
               {/* Refined bottom gradient for dots visibility */}
               <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-80" />

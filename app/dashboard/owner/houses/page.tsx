@@ -213,7 +213,7 @@ export default function MyHousesPage() {
                                                 <td className="px-8 py-6">
                                                     <div className="flex items-center gap-4">
                                                         <div className="w-14 h-14 rounded-xl bg-slate-100 relative overflow-hidden shrink-0 border border-slate-200/50">
-                                                            <Image src={p.images[0]} alt={p.title} fill className="object-cover transition-transform duration-500 hover:scale-125" />
+                                                            <Image src={p.images[0]} alt={p.title} fill sizes="56px" className="object-cover transition-transform duration-500 hover:scale-125" />
                                                         </div>
                                                         <div className="min-w-0">
                                                             <p className="font-bold text-slate-800 dark:text-white truncate text-sm mb-0.5">{p.title}</p>

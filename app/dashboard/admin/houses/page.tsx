@@ -212,7 +212,7 @@ export default function AdminHousesPage() {
                                             {/* Thumbnail */}
                                             <div className="relative size-16 rounded-xl overflow-hidden shrink-0 border border-slate-100 dark:border-slate-700">
                                                 {p.images[0] ? (
-                                                    <Image src={p.images[0]} alt={p.title} fill className="object-cover" />
+                                                    <Image src={p.images[0]} alt={p.title} fill sizes="64px" className="object-cover" />
                                                 ) : (
                                                     <div className="w-full h-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
                                                         <Home className="h-5 w-5 text-slate-300" />

@@ -1,9 +1,34 @@
 "use client"
 
-import { Users, Search, Star, MessageSquare, Phone, MoreHorizontal } from "lucide-react"
+import { useEffect, useMemo, useState } from "react"
+import { Users, Search, Star, MessageSquare, Phone, MoreHorizontal, Building2 } from "lucide-react"
+import { agentsApi, type ApiAgentProfile } from "@/lib/api"
+
+const agentName = (a: ApiAgentProfile) =>
+    a.name ?? (a.user ? `${a.user.firstName} ${a.user.lastName}`.trim() : "Agent")
 
 export default function OwnerAgentsPage() {
-    const agents: { id: string; name: string; phone: string; email: string }[] = []
+    const [allAgents, setAllAgents] = useState<ApiAgentProfile[]>([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState<string | null>(null)
+    const [search, setSearch] = useState("")
+
+    useEffect(() => {
+        agentsApi
+            .list({ limit: 100 })
+            .then((res) => setAllAgents(res.data))
+            .catch((e) => setError(e instanceof Error ? e.message : "Failed to load agents."))
+            .finally(() => setLoading(false))
+    }, [])
+
+    const agents = useMemo(() => {
+        const q = search.trim().toLowerCase()
+        if (!q) return allAgents
+        return allAgents.filter((a) =>
+            [agentName(a), a.agencyName, a.phone ?? a.user?.phone]
+                .some((v) => v?.toLowerCase().includes(q))
+        )
+    }, [allAgents, search])
 
     return (
         <div className="py-12">
@@ -17,26 +42,32 @@ export default function OwnerAgentsPage() {
                     <input
                         type="text"
                         placeholder="Search agents..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
                         className="w-full pl-11 pr-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 outline-none font-normal"
                     />
                 </div>
             </header>
 
             <div className="px-4 pb-20">
-                {agents.length > 0 ? (
+                {loading ? (
+                    <p className="py-24 text-center text-sm font-medium text-slate-400">Loading agents…</p>
+                ) : error ? (
+                    <p className="py-24 text-center text-sm font-medium text-red-500">{error}</p>
+                ) : agents.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                         {agents.map((agent) => (
                             <div key={agent.id} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm p-6 group hover:border-slate-200 dark:hover:border-slate-700 transition-all">
                                 <div className="flex items-start justify-between mb-6">
                                     <div className="flex gap-4">
                                         <div className="size-14 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 font-medium text-lg shadow-inner border border-slate-100 group-hover:text-primary transition-colors">
-                                            {agent.name.split(' ').map((n: string) => n[0]).join('')}
+                                            {agentName(agent).split(' ').map((n: string) => n[0]).join('')}
                                         </div>
                                         <div>
-                                            <h3 className="font-medium text-slate-700 dark:text-white group-hover:text-primary transition-colors">{agent.name}</h3>
+                                            <h3 className="font-medium text-slate-700 dark:text-white group-hover:text-primary transition-colors">{agentName(agent)}</h3>
                                             <div className="flex items-center gap-1 mt-1">
                                                 <Star className="size-3 fill-amber-400 text-amber-400" />
-                                                <span className="text-[10px] font-medium text-slate-400 uppercase tracking-widest">4.9 • 24 Deals</span>
+                                                <span className="text-[10px] font-medium text-slate-400 uppercase tracking-widest">{Number(agent.rating).toFixed(1)} • {agent.totalCompletedDeals} Deals</span>
                                             </div>
                                         </div>
                                     </div>
@@ -49,13 +80,13 @@ export default function OwnerAgentsPage() {
                                         <div className="size-8 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center border border-slate-100/50">
                                             <Phone className="size-3.5" />
                                         </div>
-                                        {agent.phone}
+                                        {agent.phone ?? agent.user?.phone ?? "—"}
                                     </div>
                                     <div className="flex items-center gap-3 text-xs font-medium text-slate-500 dark:text-slate-400">
                                         <div className="size-8 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center border border-slate-100/50">
-                                            <MessageSquare className="size-3.5" />
+                                            <Building2 className="size-3.5" />
                                         </div>
-                                        {agent.email}
+                                        {agent.agencyName ?? "Independent agent"}
                                     </div>
                                 </div>
                                 <div className="flex gap-2">
@@ -70,8 +101,7 @@ export default function OwnerAgentsPage() {
                 ) : (
                     <div className="flex flex-col items-center justify-center py-24 text-center">
                         <Users className="size-16 text-slate-200 mb-4" />
-                        <p className="text-sm font-medium text-slate-400">No agents available yet.</p>
-                        <p className="text-xs text-slate-300 mt-1">Agent directory will be available soon.</p>
+                        <p className="text-sm font-medium text-slate-400">{search ? "No agents match your search." : "No verified agents available yet."}</p>
                     </div>
                 )}
             </div>

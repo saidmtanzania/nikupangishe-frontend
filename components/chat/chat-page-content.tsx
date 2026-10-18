@@ -7,12 +7,13 @@ import { ChatWindow } from "@/components/chat/chat-window"
 import { Loader2 } from "lucide-react"
 import { useAuth } from "@/context/auth-context"
 import { chatApi } from "@/lib/api"
+import type { ChatConversation } from "@/lib/types"
 
 export function ChatPageContent() {
   const { token } = useAuth()
   const searchParams = useSearchParams()
   const requestedConversationId = searchParams.get("conversation")
-  const [conversations, setConversations] = useState<unknown[]>([])
+  const [conversations, setConversations] = useState<ChatConversation[]>([])
   const [activeConvoId, setActiveConvoId] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
@@ -20,8 +21,7 @@ export function ChatPageContent() {
     setActiveConvoId(id)
     setConversations((prev) =>
       prev.map((c) => {
-        const conv = c as Record<string, unknown>
-        return conv.id === id ? { ...conv, unreadCount: 0 } : c
+        return c.id === id ? { ...c, unreadCount: 0 } : c
       })
     )
   }
@@ -36,16 +36,16 @@ export function ChatPageContent() {
     chatApi.conversations(token)
       .then((res) => {
         if (!cancelled) {
-          const list = Array.isArray(res) ? res : ((res as Record<string, unknown>)?.data as unknown[] ?? [])
+          const list = res
           setConversations(list)
           if (list.length > 0) {
             const foundRequested = requestedConversationId
-              ? list.some((item) => (item as Record<string, unknown>)?.id === requestedConversationId)
+              ? list.some((item) => item.id === requestedConversationId)
               : false
             setActiveConvoId(
               foundRequested
                 ? requestedConversationId
-                : ((list[0] as Record<string, unknown>)?.id as string ?? null)
+                : list[0]?.id ?? null
             )
           }
         }
@@ -55,9 +55,7 @@ export function ChatPageContent() {
     return () => { cancelled = true }
   }, [token, requestedConversationId])
 
-  const activeConvo = conversations.find(
-    (c) => (c as Record<string, unknown>)?.id === activeConvoId
-  ) as Record<string, unknown> | undefined
+  const activeConvo = conversations.find((c) => c.id === activeConvoId)
 
   if (isLoading) {
     return (
@@ -75,7 +73,7 @@ export function ChatPageContent() {
       {/* ── Left Panel: Conversation List ───────────────────────── */}
       <div className={`w-85 lg:w-95 shrink-0 border-r border-border bg-background flex-col ${activeConvoId ? "hidden md:flex" : "flex"}`}>
         <ChatList
-          conversations={conversations as Parameters<typeof ChatList>[0]["conversations"]}
+          conversations={conversations}
           activeId={activeConvoId}
           onSelect={selectConversation}
         />
@@ -85,7 +83,7 @@ export function ChatPageContent() {
       <div className={`flex-1 flex flex-col ${activeConvoId ? "flex" : "hidden md:flex"}`}>
         {activeConvo ? (
           <ChatWindow
-            conversation={activeConvo as Parameters<typeof ChatWindow>[0]["conversation"]}
+            conversation={activeConvo}
             messages={[]}
             onBack={() => setActiveConvoId(null)}
           />

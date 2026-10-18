@@ -154,7 +154,7 @@ export default function AgentViewingsPage() {
                                     <div key={v.id} className="p-6 hover:bg-slate-50/40 dark:hover:bg-slate-800/30 transition-colors">
                                         <div className="flex items-start gap-5">
                                             <div className="relative size-16 rounded-xl overflow-hidden shrink-0 border border-slate-100 shadow-sm">
-                                                <Image src={thumb} alt={v.house?.title ?? "House"} fill className="object-cover" />
+                                                <Image src={thumb} alt={v.house?.title ?? "House"} fill sizes="64px" className="object-cover" />
                                             </div>
                                             <div className="flex-1 min-w-0 space-y-2">
                                                 <div className="flex items-center gap-2 flex-wrap">

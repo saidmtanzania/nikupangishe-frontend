@@ -75,10 +75,10 @@ export function StartChatButton({
         token
       );
       router.push(`/chat?conversation=${encodeURIComponent(conversation.id)}`);
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast({
         title: "Unable to start chat",
-        description: err?.message ?? "Please try again.",
+        description: err instanceof Error ? err.message : "Please try again.",
       });
     } finally {
       setIsLoading(false);

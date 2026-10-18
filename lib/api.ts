@@ -6,8 +6,15 @@
  * `unwrap()` strips that envelope so callers get the payload directly.
  */
 
+import type { ChatConversation } from "./types";
+
 export const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api/v1";
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000/api/v1";
+
+export const ACCESS_TOKEN_KEY = "nkp_access_token";
+export const REFRESH_TOKEN_KEY = "nkp_refresh_token";
+export const AUTH_EXPIRED_EVENT = "nkp:auth-expired";
+export const COOKIE_SESSION_TOKEN = "__cookie_session__";
 
 // ── Envelope unwrap ────────────────────────────────────────────────────────
 function unwrap<T>(body: unknown): T {
@@ -19,13 +26,87 @@ function unwrap<T>(body: unknown): T {
 type RequestOptions = RequestInit & {
   token?: string;
   params?: Record<string, string | number | boolean | null | undefined>;
+  skipAuthRefresh?: boolean;
+  allowAuthRefresh?: boolean;
 };
+
+type AuthTokens = {
+  accessToken?: string;
+  refreshToken?: string;
+  refreshed?: boolean;
+};
+
+let refreshPromise: Promise<string | null> | null = null;
+
+function clearStoredSession() {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem(ACCESS_TOKEN_KEY);
+  localStorage.removeItem(REFRESH_TOKEN_KEY);
+  localStorage.removeItem("nkp_user");
+  window.dispatchEvent(new Event(AUTH_EXPIRED_EVENT));
+}
+
+async function refreshStoredAccessToken(): Promise<string | null> {
+  if (typeof window === "undefined") return null;
+
+  const storedRefreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
+
+  if (!refreshPromise) {
+    refreshPromise = (async () => {
+      const response = await fetch(`${API_BASE}/auth/refresh`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Client-Platform": "web",
+        },
+        credentials: "include",
+        body: storedRefreshToken
+          ? JSON.stringify({ refreshToken: storedRefreshToken })
+          : undefined,
+      });
+
+      const body = await response.json().catch(() => ({}));
+      if (response.status === 401) {
+        clearStoredSession();
+        return null;
+      }
+      if (!response.ok) {
+        throw new Error("Unable to refresh session");
+      }
+
+      const tokens = unwrap<AuthTokens>(body);
+      if (tokens.accessToken && tokens.refreshToken) {
+        localStorage.setItem(ACCESS_TOKEN_KEY, tokens.accessToken);
+        localStorage.setItem(REFRESH_TOKEN_KEY, tokens.refreshToken);
+        return tokens.accessToken;
+      }
+
+      if (tokens.refreshed) return "";
+      throw new Error("Refresh response is incomplete");
+    })().finally(() => {
+      refreshPromise = null;
+    });
+  }
+
+  return refreshPromise;
+}
+
+function getErrorMessage(body: unknown, status: number): string {
+  const message = (body as Record<string, unknown>)?.message ?? `API error ${status}`;
+  return Array.isArray(message) ? String(message[0]) : String(message);
+}
 
 export async function apiFetch<T>(
   path: string,
   options?: RequestOptions
 ): Promise<T> {
-  const { token, params, ...init } = options ?? {};
+  const {
+    token,
+    params,
+    skipAuthRefresh = false,
+    allowAuthRefresh = false,
+    ...init
+  } = options ?? {};
 
   let url = `${API_BASE}${path}`;
   if (params) {
@@ -37,18 +118,37 @@ export async function apiFetch<T>(
     if (str) url += `?${str}`;
   }
 
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-    ...(init.headers as Record<string, string>),
+  const request = async (requestToken?: string) => {
+    const headers = new Headers(init.headers);
+    const isMultipart =
+      typeof FormData !== "undefined" && init.body instanceof FormData;
+    if (!headers.has("Content-Type") && !isMultipart) {
+      headers.set("Content-Type", "application/json");
+    }
+    if (requestToken) headers.set("Authorization", `Bearer ${requestToken}`);
+    return fetch(url, {
+      ...init,
+      headers,
+      credentials: init.credentials ?? "include",
+    });
   };
-  if (token) headers.Authorization = `Bearer ${token}`;
 
-  const res = await fetch(url, { ...init, headers });
+  let res = await request(token);
+  if (
+    res.status === 401 &&
+    !skipAuthRefresh &&
+    (Boolean(token) || allowAuthRefresh)
+  ) {
+    const refreshedToken = await refreshStoredAccessToken();
+    if (refreshedToken !== null) {
+      res = await request(refreshedToken || undefined);
+    }
+  }
+
   const body = await res.json().catch(() => ({}));
 
   if (!res.ok) {
-    const msg = (body as Record<string, unknown>)?.message ?? `API error ${res.status}`;
-    throw new Error(Array.isArray(msg) ? (msg as string[])[0] : String(msg));
+    throw new Error(getErrorMessage(body, res.status));
   }
 
   return unwrap<T>(body);
@@ -71,6 +171,7 @@ export interface ApiProperty {
   longitude: number;
   location: { lat: number; lng: number; neighborhood: string; city: string };
   images: string[];         // photos from backend
+  photos?: string[];
   bedrooms: number;
   bathrooms: number;
   squareMeters?: number;
@@ -139,8 +240,8 @@ export interface ApiUser {
 
 export interface AuthResponse {
   user: ApiUser;
-  accessToken: string;
-  refreshToken: string;
+  accessToken?: string;
+  refreshToken?: string;
 }
 
 export interface ApiViewingRequest {
@@ -186,6 +287,8 @@ export interface ApiTenancy {
   agentCommissionRate?: number | null;
   agentCommissionAmount?: number;
   commissionPaid: boolean;
+  /** Official payment details the owner shared on approval. Rent goes directly to the owner. */
+  paymentInstructions?: string | null;
   notes?: string | null;
   createdAt: string;
 }
@@ -193,6 +296,9 @@ export interface ApiTenancy {
 export interface ApiAgentProfile {
   id: string;
   userId: string;
+  /** Flattened fields returned by the public GET /agents endpoints */
+  name?: string;
+  phone?: string | null;
   user?: { id: string; firstName: string; lastName: string; email: string; phone?: string; profilePhoto?: string };
   agencyName?: string;
   licenseNumber?: string;
@@ -206,14 +312,47 @@ export interface ApiAgentProfile {
   createdAt?: string;
 }
 
+/** Exchange/move request as returned by GET /exchanges/* */
 export interface ExchangeRequest {
   id: string;
-  fromHouseId: string;
-  toHouseId: string;
-  requesterId: string;
-  status: "pending" | "accepted" | "rejected" | "cancelled";
-  message?: string;
+  fromTenantId: string;
+  fromTenantName: string;
+  fromPropertyId: string;
+  fromPropertyTitle: string;
+  toPropertyId: string;
+  toPropertyTitle: string;
+  status: "pending" | "approved" | "rejected" | "completed";
+  reason?: string;
   createdAt: string;
+}
+
+export interface ApiCommission {
+  id: string;
+  type: "initial_placement" | "exchange";
+  amount: number;
+  currency: string;
+  houseId: string;
+  propertyTitle: string;
+  propertyLocation: string;
+  tenantName: string;
+  exchangeRequestId: string | null;
+  date: string;
+}
+
+export interface ApiCommissionSummary {
+  items: ApiCommission[];
+  totals: {
+    allTime: number;
+    thisMonth: number;
+    placements: number;
+    exchanges: number;
+    currency: string;
+  };
+}
+
+export interface ApproveTenantResult {
+  tenancy: ApiTenancy;
+  commission: { id: string; type: string; amount: number; rate: number; currency: string } | null;
 }
 
 export interface ChatMessage {
@@ -221,6 +360,19 @@ export interface ChatMessage {
   conversationId: string;
   senderId: string;
   content: string;
+  timestamp: string;
+  createdAt?: string;
+}
+
+export interface ApiNotification {
+  id: string;
+  userId: string;
+  type: string;
+  title: string;
+  body: string;
+  data?: Record<string, unknown> | null;
+  isRead: boolean;
+  readAt?: string | null;
   createdAt: string;
 }
 
@@ -234,8 +386,8 @@ export interface RegisterResponse {
 export interface VerifyPhoneResponse {
   message: string;
   user: ApiUser;
-  accessToken: string;
-  refreshToken: string;
+  accessToken?: string;
+  refreshToken?: string;
 }
 
 export const authApi = {
@@ -243,6 +395,7 @@ export const authApi = {
     return apiFetch<AuthResponse>("/auth/login", {
       method: "POST",
       body: JSON.stringify({ email, password }),
+      headers: { "X-Client-Platform": "web" },
     });
   },
 
@@ -264,6 +417,7 @@ export const authApi = {
     return apiFetch<VerifyPhoneResponse>("/auth/verify-phone", {
       method: "POST",
       body: JSON.stringify({ phone, otp }),
+      headers: { "X-Client-Platform": "web" },
     });
   },
 
@@ -273,14 +427,26 @@ export const authApi = {
     });
   },
 
-  async me(token: string): Promise<ApiUser> {
-    return apiFetch<ApiUser>("/auth/me", { token });
+  async me(token?: string): Promise<ApiUser> {
+    return apiFetch<ApiUser>("/auth/me", {
+      token,
+      allowAuthRefresh: true,
+    });
   },
 
-  async refreshToken(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {
+  async logout(token?: string): Promise<void> {
+    await apiFetch("/auth/logout", {
+      method: "POST",
+      token,
+      skipAuthRefresh: true,
+    });
+  },
+
+  async refreshToken(refreshToken?: string): Promise<{ accessToken?: string; refreshToken?: string; refreshed?: boolean }> {
     return apiFetch("/auth/refresh", {
       method: "POST",
-      body: JSON.stringify({ refreshToken }),
+      body: refreshToken ? JSON.stringify({ refreshToken }) : undefined,
+      headers: { "X-Client-Platform": "web" },
     });
   },
 };
@@ -437,6 +603,23 @@ export const viewingsApi = {
       token,
     });
   },
+
+  /**
+   * Owner approves a tenant the agent reported as interested after a completed
+   * viewing. Creates the tenancy, shares payment details and records the
+   * agent's placement commission.
+   */
+  async approveTenant(
+    id: string,
+    dto: { paymentInstructions: string; startDate?: string; agreedRent?: number },
+    token: string
+  ): Promise<ApproveTenantResult> {
+    return apiFetch<ApproveTenantResult>(`/viewings/${id}/approve-tenant`, {
+      method: "POST",
+      body: JSON.stringify(dto),
+      token,
+    });
+  },
 };
 
 // ── Agents API ─────────────────────────────────────────────────────────────
@@ -454,6 +637,10 @@ export const agentsApi = {
 
   async me(token: string): Promise<ApiAgentProfile> {
     return apiFetch<ApiAgentProfile>("/agents/me", { token });
+  },
+
+  async myCommissions(token: string): Promise<ApiCommissionSummary> {
+    return apiFetch<ApiCommissionSummary>("/agents/me/commissions", { token });
   },
 
   async get(id: string): Promise<ApiAgentProfile> {
@@ -519,7 +706,13 @@ export const exchangeApi = {
   },
 
   async confirmTenancy(
-    dto: { tenantUserId: string; houseId: string; startDate?: string; agreedRent?: number },
+    dto: {
+      tenantUserId: string;
+      houseId: string;
+      startDate?: string;
+      agreedRent?: number;
+      paymentInstructions?: string;
+    },
     token: string
   ): Promise<ApiTenancy> {
     return apiFetch<ApiTenancy>("/exchanges/confirm-tenancy", {
@@ -537,6 +730,10 @@ export const exchangeApi = {
     if (Array.isArray(res)) return res;
     if ("data" in res) return (res as { data: ApiTenancy[] }).data;
     return [];
+  },
+
+  async myTenancy(token: string): Promise<ApiTenancy | null> {
+    return apiFetch<ApiTenancy | null>("/exchanges/my-tenancy", { token });
   },
 
   async assignAgent(
@@ -581,8 +778,8 @@ export function toProperty(p: ApiProperty) {
     images:
       Array.isArray(p.images) && p.images.length > 0
         ? p.images
-        : Array.isArray((p as any).photos) && (p as any).photos.length > 0
-          ? (p as any).photos
+        : Array.isArray(p.photos) && p.photos.length > 0
+          ? p.photos
           : ["/images/house-placeholder.jpg"],
     bedrooms: p.bedrooms ?? 0,
     bathrooms: p.bathrooms ?? 0,
@@ -620,9 +817,13 @@ export function toProperty(p: ApiProperty) {
 
 // ── Chat API ───────────────────────────────────────────────────────────────
 export const chatApi = {
-  async conversations(token: string) {
-    const res = await apiFetch<unknown>("/chat/conversations", { token });
-    return res;
+  async conversations(token: string): Promise<ChatConversation[]> {
+    const res = await apiFetch<ChatConversation[] | { data: ChatConversation[] }>(
+      "/chat/conversations",
+      { token }
+    );
+    if (Array.isArray(res)) return res;
+    return res.data ?? [];
   },
 
   async startConversation(
@@ -636,15 +837,67 @@ export const chatApi = {
     });
   },
 
-  async messages(conversationId: string, token: string) {
-    const res = await apiFetch<unknown>(`/chat/conversations/${conversationId}/messages`, { token });
-    // API returns { data: [...], meta: {...} } after envelope unwrap
-    const arr = (res as Record<string, unknown>)?.data ?? res;
-    return Array.isArray(arr) ? (arr as ChatMessage[]) : [];
+  async messages(conversationId: string, token: string): Promise<ChatMessage[]> {
+    const res = await apiFetch<ChatMessage[] | { data: ChatMessage[] }>(
+      `/chat/conversations/${conversationId}/messages`,
+      { token }
+    );
+    if (Array.isArray(res)) return res;
+    return res.data ?? [];
+  },
+
+  async sendMessage(
+    conversationId: string,
+    payload: { content: string; receiverId?: string },
+    token: string
+  ): Promise<ChatMessage> {
+    return apiFetch<ChatMessage>(`/chat/conversations/${conversationId}/messages`, {
+      method: "POST",
+      body: JSON.stringify(payload),
+      token,
+    });
   },
 
   async markAsRead(conversationId: string, token: string) {
     await apiFetch(`/chat/conversations/${conversationId}/read`, {
+      method: "PATCH",
+      token,
+    });
+  },
+};
+
+// ── Notifications API ─────────────────────────────────────────────────────
+export const notificationsApi = {
+  async list(
+    token: string,
+    params?: { page?: number; limit?: number },
+  ): Promise<{
+    data: ApiNotification[];
+    meta: { total: number; page: number; limit: number; totalPages: number };
+  }> {
+    return apiFetch("/notifications", {
+      params: params as RequestOptions["params"],
+      token,
+    });
+  },
+
+  async unreadCount(token: string): Promise<number> {
+    const result = await apiFetch<{ count: number }>(
+      "/notifications/unread-count",
+      { token },
+    );
+    return result.count;
+  },
+
+  async markRead(id: string, token: string): Promise<void> {
+    await apiFetch(`/notifications/${id}/read`, {
+      method: "PATCH",
+      token,
+    });
+  },
+
+  async markAllRead(token: string): Promise<void> {
+    await apiFetch("/notifications/mark-all-read", {
       method: "PATCH",
       token,
     });

@@ -292,6 +292,7 @@ function UploadBox({
                                 src={previewUrl}
                                 alt="Preview"
                                 fill
+                                sizes="(min-width: 768px) 50vw, 100vw"
                                 className="object-cover"
                             />
                         </div>

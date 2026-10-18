@@ -247,16 +247,13 @@ chatApi.messages(conversationId, token)  // GET  /chat/conversations/:id/message
 
 Authentication is managed by `context/auth-context.tsx` which provides:
 
-- **JWT-based auth** — access token + refresh token stored in `localStorage`
+- **Cookie-backed web auth** — production access and refresh tokens use HttpOnly cookies; bearer tokens remain supported for mobile clients
 - **`useAuth()` hook** — exposes `user`, `token`, `isAuthenticated`, `login()`, `register()`, `verifyPhone()`, `logout()`
 - **OTP phone verification** — required after registration
-- **Auto-restore** — session persisted across page reloads via stored tokens
+- **Auto-restore** — the provider validates the server session on page load and refreshes expired access sessions
 - **Role-based access** — `owner`, `tenant`, `agent` (and `admin`) roles determine dashboard routing
 
-Storage keys:
-- `nkp_access_token` — JWT access token
-- `nkp_refresh_token` — JWT refresh token
-- `nkp_user` — Serialized user object
+The browser stores only non-sensitive user display state. Token cookies are not readable by JavaScript.
 
 ---
 

@@ -24,8 +24,9 @@ export function PropertyListCard({
                     src={property.images[0]}
                     alt={property.title}
                     fill
+                    sizes="(min-width: 768px) 208px, (min-width: 640px) 160px, 112px"
                     className="object-cover transition-transform duration-300 group-hover:scale-105"
-                    {...(priority ? { priority: true } : { loading: "lazy" })}
+                    loading={priority ? "eager" : "lazy"}
                 />
                 {/* Badges */}
                 {(property.isVerified || property.isOpenToExchange) && (

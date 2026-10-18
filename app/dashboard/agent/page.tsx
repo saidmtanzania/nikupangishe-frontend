@@ -127,10 +127,11 @@ export default function AgentDashboard() {
             <button className="text-primary text-xs font-medium uppercase tracking-widest hover:underline">Manage All</button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {assignedProperties.map((property) => (
+            {assignedProperties.map((property, index) => (
               <AgentPropertyCard
                 key={property.id}
                 property={property}
+                eager={index < 4}
               />
             ))}
           </div>
@@ -180,11 +181,11 @@ function ViewingItem({ viewing }: { viewing: ApiViewingRequest }) {
   )
 }
 
-function AgentPropertyCard({ property }: { property: ReturnType<typeof toProperty> }) {
+function AgentPropertyCard({ property, eager = false }: { property: ReturnType<typeof toProperty>; eager?: boolean }) {
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm transition-all">
       <div className="h-32 relative overflow-hidden">
-        <Image src={property.images[0]} alt={property.title} fill className="object-cover transition-transform duration-500 hover:scale-110" />
+        <Image src={property.images[0]} alt={property.title} fill loading={eager ? "eager" : "lazy"} sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw" className="object-cover transition-transform duration-500 hover:scale-110" />
         <div className="absolute top-3 right-3 bg-emerald-50 text-emerald-600 border border-emerald-100 text-[9px] font-medium px-2.5 py-1 rounded-full uppercase tracking-widest shadow-sm">
           Verified House
         </div>

@@ -8,11 +8,17 @@ import {
   useCallback,
   type ReactNode,
 } from "react";
-import { authApi, type ApiUser, type RegisterResponse } from "@/lib/api";
+import {
+  ACCESS_TOKEN_KEY,
+  AUTH_EXPIRED_EVENT,
+  COOKIE_SESSION_TOKEN,
+  REFRESH_TOKEN_KEY,
+  authApi,
+  type ApiUser,
+  type RegisterResponse,
+} from "@/lib/api";
 
 // ── Storage keys ─────────────────────────────────────────────────────────
-const ACCESS_TOKEN_KEY = "nkp_access_token";
-const REFRESH_TOKEN_KEY = "nkp_refresh_token";
 const USER_KEY = "nkp_user";
 
 // ── Types ─────────────────────────────────────────────────────────────────
@@ -73,26 +79,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoading: true,
   });
 
-  // Rehydrate from localStorage on mount
   useEffect(() => {
-    const token = getStored(ACCESS_TOKEN_KEY);
-    const rawUser = getStored(USER_KEY);
-    if (token && rawUser) {
+    let cancelled = false;
+
+    const rehydrate = async () => {
+      const token = getStored(ACCESS_TOKEN_KEY);
+
       try {
-        const user: ApiUser = JSON.parse(rawUser);
-        setState({ user, accessToken: token, isAuthenticated: true, isLoading: false });
-        return;
-      } catch {}
-    }
-    setState((s) => ({ ...s, isLoading: false }));
+        const verifiedUser = await authApi.me(token ?? undefined);
+        if (cancelled) return;
+        const currentToken = getStored(ACCESS_TOKEN_KEY) ?? COOKIE_SESSION_TOKEN;
+        setStored(USER_KEY, JSON.stringify(verifiedUser));
+        setState({
+          user: verifiedUser,
+          accessToken: currentToken,
+          isAuthenticated: true,
+          isLoading: false,
+        });
+      } catch {
+        if (cancelled) return;
+        removeStored(ACCESS_TOKEN_KEY);
+        removeStored(REFRESH_TOKEN_KEY);
+        removeStored(USER_KEY);
+        setState({
+          user: null,
+          accessToken: null,
+          isAuthenticated: false,
+          isLoading: false,
+        });
+      }
+    };
+
+    void rehydrate();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const login = useCallback(async (email: string, password: string): Promise<ApiUser> => {
     const { user, accessToken, refreshToken } = await authApi.login(email, password);
-    setStored(ACCESS_TOKEN_KEY, accessToken);
-    setStored(REFRESH_TOKEN_KEY, refreshToken);
+    if (accessToken) setStored(ACCESS_TOKEN_KEY, accessToken);
+    else removeStored(ACCESS_TOKEN_KEY);
+    if (refreshToken) setStored(REFRESH_TOKEN_KEY, refreshToken);
+    else removeStored(REFRESH_TOKEN_KEY);
     setStored(USER_KEY, JSON.stringify(user));
-    setState({ user, accessToken, isAuthenticated: true, isLoading: false });
+    setState({
+      user,
+      accessToken: accessToken ?? COOKIE_SESSION_TOKEN,
+      isAuthenticated: true,
+      isLoading: false,
+    });
     return user;
   }, []);
 
@@ -116,21 +152,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const verifyPhone = useCallback(
     async (phone: string, otp: string): Promise<ApiUser> => {
       const { user, accessToken, refreshToken } = await authApi.verifyPhone(phone, otp);
-      setStored(ACCESS_TOKEN_KEY, accessToken);
-      setStored(REFRESH_TOKEN_KEY, refreshToken);
+      if (accessToken) setStored(ACCESS_TOKEN_KEY, accessToken);
+      else removeStored(ACCESS_TOKEN_KEY);
+      if (refreshToken) setStored(REFRESH_TOKEN_KEY, refreshToken);
+      else removeStored(REFRESH_TOKEN_KEY);
       setStored(USER_KEY, JSON.stringify(user));
-      setState({ user, accessToken, isAuthenticated: true, isLoading: false });
+      setState({
+        user,
+        accessToken: accessToken ?? COOKIE_SESSION_TOKEN,
+        isAuthenticated: true,
+        isLoading: false,
+      });
       return user;
     },
     []
   );
 
   const logout = useCallback(() => {
+    const token = getStored(ACCESS_TOKEN_KEY);
+    void authApi.logout(token ?? undefined).catch(() => undefined);
     removeStored(ACCESS_TOKEN_KEY);
     removeStored(REFRESH_TOKEN_KEY);
     removeStored(USER_KEY);
     setState({ user: null, accessToken: null, isAuthenticated: false, isLoading: false });
   }, []);
+
+  useEffect(() => {
+    const handleAuthExpired = () => logout();
+    window.addEventListener(AUTH_EXPIRED_EVENT, handleAuthExpired);
+    return () => window.removeEventListener(AUTH_EXPIRED_EVENT, handleAuthExpired);
+  }, [logout]);
 
   return (
     <AuthContext.Provider

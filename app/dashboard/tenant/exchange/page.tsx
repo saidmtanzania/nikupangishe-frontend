@@ -41,21 +41,21 @@ export default function TenantExchangePage() {
                                 <div className="absolute top-4 right-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/20 shadow-lg">
                                     <span className={cn(
                                         "text-[9px] font-medium uppercase tracking-widest",
-                                        req.status === "accepted" ? "text-emerald-500" : req.status === "pending" ? "text-amber-500" : "text-red-500"
+                                        req.status === "approved" || req.status === "completed" ? "text-emerald-500" : req.status === "pending" ? "text-amber-500" : "text-red-500"
                                     )}>
                                         {req.status}
                                     </span>
                                 </div>
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent p-6 flex flex-col justify-end">
                                     <p className="text-[10px] font-medium text-white/70 uppercase tracking-widest mb-1">Target Home</p>
-                                    <h3 className="text-xl font-bold text-white truncate">{req.toHouseId}</h3>
+                                    <h3 className="text-xl font-bold text-white truncate">{req.toPropertyTitle}</h3>
                                 </div>
                             </div>
                             <div className="p-6">
                                 <div className="flex items-center gap-10">
                                     <div className="flex-1">
                                         <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest mb-1">Trading From</p>
-                                        <p className="text-sm font-medium text-slate-700 dark:text-slate-300 truncate">{req.fromHouseId}</p>
+                                        <p className="text-sm font-medium text-slate-700 dark:text-slate-300 truncate">{req.fromPropertyTitle}</p>
                                     </div>
                                     <div className="flex items-center justify-center size-10 rounded-full bg-slate-50 dark:bg-slate-800 text-slate-400">
                                         <ArrowLeftRight className="size-5" />

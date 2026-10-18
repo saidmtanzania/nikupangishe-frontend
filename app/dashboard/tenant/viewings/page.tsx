@@ -138,7 +138,7 @@ function ViewingRow({ v }: { v: ApiViewingRequest }) {
     return (
         <div className="p-5 flex items-start gap-5 hover:bg-slate-50/40 dark:hover:bg-slate-800/30 transition-colors">
             <div className="relative size-14 rounded-xl overflow-hidden shrink-0 border border-slate-100 shadow-sm">
-                <Image src={thumb} alt={v.house?.title ?? "House"} fill className="object-cover" />
+                <Image src={thumb} alt={v.house?.title ?? "House"} fill sizes="56px" className="object-cover" />
             </div>
             <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap mb-1.5">

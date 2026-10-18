@@ -5,6 +5,7 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/context/auth-context"
+import { notificationsApi } from "@/lib/api"
 import {
   LayoutDashboard,
   Home,
@@ -20,12 +21,14 @@ import {
   HelpCircle,
   MessageSquare,
   Briefcase,
+  Bell,
 } from "lucide-react"
+import type { LucideIcon } from "lucide-react"
 
 interface NavItem {
   href: string
   label: string
-  icon: any
+  icon: LucideIcon
 }
 
 const ownerNav: NavItem[] = [
@@ -70,13 +73,13 @@ interface DashboardSidebarProps {
 export function DashboardSidebar({ role, userName }: DashboardSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
-  const { logout } = useAuth()
+  const { logout, token } = useAuth()
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [unreadNotifications, setUnreadNotifications] = useState(0)
   const panelRef = useRef<HTMLDivElement>(null)
 
   const navItems = role === "owner" ? ownerNav : role === "agent" ? agentNav : role === "admin" ? adminNav : tenantNav
-  const initials = userName.split(' ').map(n => n[0]).join('')
-  const roleLabel = role.charAt(0).toUpperCase() + role.slice(1)
+  const initials = userName.split(" ").map((name) => name[0]).join("")
   const badgeLabel = role === "owner" ? "Premium Owner" : role === "agent" ? "Verified Agent" : role === "admin" ? "Platform Admin" : "Gold Tenant"
 
   const handleLogout = () => {
@@ -84,10 +87,9 @@ export function DashboardSidebar({ role, userName }: DashboardSidebarProps) {
     router.push("/")
   }
 
-  // Close panel when clicking outside
   useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
+    function handleClickOutside(event: MouseEvent) {
+      if (panelRef.current && !panelRef.current.contains(event.target as Node)) {
         setSettingsOpen(false)
       }
     }
@@ -97,9 +99,22 @@ export function DashboardSidebar({ role, userName }: DashboardSidebarProps) {
     }
   }, [settingsOpen])
 
+  useEffect(() => {
+    if (!token) return
+    let cancelled = false
+    notificationsApi
+      .unreadCount(token)
+      .then((count) => {
+        if (!cancelled) setUnreadNotifications(count)
+      })
+      .catch(() => undefined)
+    return () => {
+      cancelled = true
+    }
+  }, [token])
+
   return (
     <aside className="sticky top-0 h-screen w-65 shrink-0 flex flex-col border-r border-primary/10 bg-white dark:bg-slate-900 shadow-sm">
-      {/* Logo Section */}
       <div className="p-6">
         <Link href="/" className="flex items-center gap-3">
           <div className="size-9 bg-primary rounded-lg flex items-center justify-center text-white">
@@ -112,7 +127,6 @@ export function DashboardSidebar({ role, userName }: DashboardSidebarProps) {
         </Link>
       </div>
 
-      {/* Navigation Content */}
       <nav className="flex-1 px-4 space-y-1 overflow-y-auto mt-2">
         {navItems.map((item) => {
           const isActive = item.href === "/dashboard/owner" || item.href === "/dashboard/agent" || item.href === "/dashboard/tenant"
@@ -135,11 +149,26 @@ export function DashboardSidebar({ role, userName }: DashboardSidebarProps) {
             </Link>
           )
         })}
+        <Link
+          href="/notifications"
+          className={cn(
+            "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
+            pathname.startsWith("/notifications")
+              ? "bg-primary/10 text-primary"
+              : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-foreground",
+          )}
+        >
+          <Bell className="h-5 w-5 text-slate-400 group-hover:text-foreground" />
+          <span className="flex-1">Notifications</span>
+          {unreadNotifications > 0 && (
+            <span className="min-w-5 rounded-full bg-primary px-1.5 py-0.5 text-center text-[10px] font-bold text-white">
+              {unreadNotifications > 99 ? "99+" : unreadNotifications}
+            </span>
+          )}
+        </Link>
       </nav>
 
-      {/* User Profile Footer */}
       <div className="relative p-4 border-t border-slate-100 dark:border-slate-800" ref={panelRef}>
-        {/* Settings Panel (slides up) */}
         {settingsOpen && (
           <div className="absolute bottom-full left-3 right-3 mb-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-lg overflow-hidden animate-in slide-in-from-bottom-2 fade-in duration-200 z-50">
             <div className="px-3 py-2.5 border-b border-slate-100 dark:border-slate-800">

@@ -17,7 +17,7 @@ import {
 } from "lucide-react"
 import Image from "next/image"
 import { useAuth } from "@/context/auth-context"
-import { viewingsApi, exchangeApi, type ApiViewingRequest } from "@/lib/api"
+import { viewingsApi, type ApiViewingRequest } from "@/lib/api"
 
 function fmtDate(iso?: string) {
     if (!iso) return "—"
@@ -48,6 +48,7 @@ export default function OwnerViewingsPage() {
     const [tenancyFor, setTenancyFor] = useState<ApiViewingRequest | null>(null)
     const [agreedRent, setAgreedRent] = useState("")
     const [startDate, setStartDate] = useState("")
+    const [paymentInstructions, setPaymentInstructions] = useState("")
     const [tenancyBusy, setTenancyBusy] = useState(false)
 
     const loadViewings = useCallback(() => {
@@ -61,19 +62,29 @@ export default function OwnerViewingsPage() {
 
     useEffect(() => { loadViewings() }, [loadViewings])
 
+    function closeTenancyDialog() {
+        setTenancyFor(null)
+        setAgreedRent(""); setStartDate(""); setPaymentInstructions("")
+    }
+
     async function handleConfirmTenancy() {
         if (!token || !tenancyFor?.tenant) return
+        if (!paymentInstructions.trim()) {
+            setError("Add the payment details the tenant should use to pay you.")
+            return
+        }
         setTenancyBusy(true); setError(null)
         try {
-            await exchangeApi.confirmTenancy({
-                tenantUserId: tenancyFor.tenant.id,
-                houseId: tenancyFor.houseId,
+            const result = await viewingsApi.approveTenant(tenancyFor.id, {
+                paymentInstructions: paymentInstructions.trim(),
                 startDate: startDate || undefined,
                 agreedRent: agreedRent ? parseFloat(agreedRent) : undefined,
             }, token)
-            setSuccess(`Tenancy confirmed for ${tenancyFor.tenant.firstName} ${tenancyFor.tenant.lastName}. An official tenancy record has been created.`)
-            setTenancyFor(null)
-            setAgreedRent(""); setStartDate("")
+            const commissionNote = result.commission
+                ? ` The agent's commission of ${result.commission.currency} ${result.commission.amount.toLocaleString()} (${result.commission.rate}% of one month's rent) has been recorded.`
+                : ""
+            setSuccess(`Tenancy confirmed for ${tenancyFor.tenant.firstName} ${tenancyFor.tenant.lastName}. They can now see your payment details.${commissionNote}`)
+            closeTenancyDialog()
             loadViewings()
         } catch (e: unknown) { setError(e instanceof Error ? e.message : "Failed to confirm tenancy") }
         finally { setTenancyBusy(false) }
@@ -178,7 +189,7 @@ export default function OwnerViewingsPage() {
                                     )}>
                                         <div className="flex items-start gap-5">
                                             <div className="relative size-16 rounded-xl overflow-hidden shrink-0 border border-slate-100 shadow-sm">
-                                                <Image src={thumb} alt={v.house?.title ?? "House"} fill className="object-cover" />
+                                                <Image src={thumb} alt={v.house?.title ?? "House"} fill sizes="64px" className="object-cover" />
                                             </div>
                                             <div className="flex-1 min-w-0 space-y-2">
                                                 <div className="flex items-center gap-2 flex-wrap">
@@ -258,7 +269,7 @@ export default function OwnerViewingsPage() {
                                 <label className="text-[10px] font-medium text-slate-500 uppercase tracking-widest block mb-1.5">
                                     Agreed Monthly Rent (TZS)
                                 </label>
-                                <input type="number" placeholder="e.g. 450000" value={agreedRent}
+                                <input type="number" placeholder="Leave empty to use the listing rent" value={agreedRent}
                                     onChange={(e) => setAgreedRent(e.target.value)}
                                     className="w-full text-sm border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/30 dark:bg-slate-800 dark:text-white placeholder:text-slate-400" />
                             </div>
@@ -270,9 +281,19 @@ export default function OwnerViewingsPage() {
                                     className="w-full text-sm border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/30 dark:bg-slate-800 dark:text-white" />
                             </div>
 
+                            <div>
+                                <label className="text-[10px] font-medium text-slate-500 uppercase tracking-widest block mb-1.5">
+                                    Payment Details for the Tenant
+                                </label>
+                                <textarea rows={3} required maxLength={1000}
+                                    placeholder="e.g. M-Pesa 0712 345 678 (Juma Ali) or CRDB acc. 0150... Reference: house name"
+                                    value={paymentInstructions} onChange={(e) => setPaymentInstructions(e.target.value)}
+                                    className="w-full text-sm border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/30 dark:bg-slate-800 dark:text-white placeholder:text-slate-400 resize-none" />
+                            </div>
+
                             <div className="bg-amber-50 border border-amber-100 rounded-xl p-3">
                                 <p className="text-[10px] text-amber-700 font-medium">
-                                    ⚠️ Rent must be paid directly to you — not through the platform or agent. Share your payment details directly with the tenant.
+                                    ⚠️ Rent is paid directly to you — never through the platform or the agent. Only this tenant will see these details.
                                 </p>
                             </div>
                         </div>
@@ -283,7 +304,7 @@ export default function OwnerViewingsPage() {
                                 {tenancyBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
                                 Confirm Tenancy
                             </button>
-                            <button disabled={tenancyBusy} onClick={() => { setTenancyFor(null); setAgreedRent(""); setStartDate("") }}
+                            <button disabled={tenancyBusy} onClick={closeTenancyDialog}
                                 className="flex-1 py-3 border border-slate-200 dark:border-slate-600 text-slate-500 text-[10px] font-medium uppercase tracking-widest rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
                                 <XCircle className="h-4 w-4 inline mr-1.5" />Cancel
                             </button>
