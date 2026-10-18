@@ -1,30 +1,12 @@
 "use client"
 
-import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar"
 import { RequireAuth } from "@/components/auth/require-auth"
-import { useAuth } from "@/context/auth-context"
+import { DashboardShell } from "@/components/dashboard/dashboard-shell"
 
-export default function TenantDashboardLayout({
-    children,
-}: {
-    children: React.ReactNode
-}) {
-    const { user } = useAuth()
-    const userName = user ? `${user.firstName} ${user.lastName}` : "Tenant"
-
+export default function TenantDashboardLayout({ children }: { children: React.ReactNode }) {
     return (
         <RequireAuth allowedRoles={["tenant"]}>
-            <div className="min-h-screen w-full bg-[#f8f6f6] dark:bg-[#221610] flex justify-center">
-                <div className="relative flex w-full max-w-[1540px]">
-                    {/* Fixed Sidebar */}
-                    <DashboardSidebar role="tenant" userName={userName} />
-
-                    {/* Dynamic Content Container */}
-                    <main className="flex-1 h-screen overflow-y-auto custom-scrollbar">
-                        {children}
-                    </main>
-                </div>
-            </div>
+            <DashboardShell role="tenant">{children}</DashboardShell>
         </RequireAuth>
     )
 }

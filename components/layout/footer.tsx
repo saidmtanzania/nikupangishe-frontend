@@ -25,7 +25,7 @@ const footerLinks = {
 
 export function Footer() {
   const pathname = usePathname()
-  const isDashboard = pathname.startsWith("/dashboard")
+  const isDashboard = pathname.startsWith("/dashboard") || pathname.startsWith("/notifications")
   const isChat = pathname.startsWith("/chat")
   const isOnboarding = pathname.startsWith("/onboarding")
 

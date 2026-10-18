@@ -13,6 +13,7 @@ import {
     EyeOff,
     Trash2,
     Pencil,
+    MapPin,
 } from "lucide-react"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
@@ -65,9 +66,9 @@ export default function MyHousesPage() {
         setActionLoading(prev => ({ ...prev, [id]: true }))
         setActionError(null)
         try {
-            await propertiesApi.publishHouse(id, token)
+            const updated = toProperty(await propertiesApi.publishHouse(id, token))
             setOwnerProperties(prev =>
-                prev.map(p => p.id === id ? { ...p, status: "active" as const } : p)
+                prev.map(p => p.id === id ? { ...p, status: updated.status, isVerified: updated.isVerified } : p)
             )
         } catch (e) {
             setActionError(e instanceof Error ? e.message : "Failed to publish")
@@ -182,72 +183,76 @@ export default function MyHousesPage() {
                         </div>
                     ) : (
                         <div className="overflow-x-auto custom-scrollbar">
-                            <table className="w-full text-left border-collapse min-w-250">
+                            <table className="w-full text-left border-collapse min-w-190">
                                 <thead>
                                     <tr className="bg-slate-50/50 dark:bg-slate-800/50 text-[10px] font-medium uppercase tracking-[0.15em] text-slate-400 border-b border-slate-100 dark:border-slate-800">
-                                        <th className="px-8 py-5">House</th>
-                                        <th className="px-6 py-5">Location</th>
-                                        <th className="px-6 py-5">Price (TZS)</th>
-                                        <th className="px-6 py-5">Status</th>
-                                        <th className="px-6 py-5">Verification</th>
-                                        <th className="px-6 py-5">Agent</th>
-                                        <th className="px-6 py-5">Created</th>
-                                        <th className="px-6 py-5 text-right">Actions</th>
+                                        <th className="px-6 py-4">House</th>
+                                        <th className="px-4 py-4 whitespace-nowrap">Price</th>
+                                        <th className="px-4 py-4">Status</th>
+                                        <th className="hidden px-4 py-4 xl:table-cell">Agent</th>
+                                        <th className="hidden px-4 py-4 2xl:table-cell">Created</th>
+                                        <th className="px-6 py-4 text-right">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
                                     {filteredProperties.map((p) => {
                                         const isDraft = p.status === "draft"
+                                        const isPending = p.status === "pending"
                                         const isActive = p.status === "active"
                                         const isRented = p.status === "rented"
                                         const isInactive = p.status === "inactive"
                                         const isRejected = p.status === "rejected"
                                         const isLoading = actionLoading[p.id]
-                                        // Owner can publish draft/pending_verification houses
-                                        const canPublish = isDraft
-                                        // Owner can unpublish active houses only
-                                        const canUnpublish = isActive
+                                        // Owner can publish draft or rejected houses (resubmits for review)
+                                        const canPublish = isDraft || isRejected
+                                        // Owner can unpublish active or pending houses
+                                        const canUnpublish = isActive || isPending
 
                                         return (
                                             <tr key={p.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors group">
-                                                <td className="px-8 py-6">
+                                                <td className="px-6 py-4">
                                                     <div className="flex items-center gap-4">
                                                         <div className="w-14 h-14 rounded-xl bg-slate-100 relative overflow-hidden shrink-0 border border-slate-200/50">
                                                             <Image src={p.images[0]} alt={p.title} fill sizes="56px" className="object-cover transition-transform duration-500 hover:scale-125" />
                                                         </div>
                                                         <div className="min-w-0">
-                                                            <p className="font-bold text-slate-800 dark:text-white truncate text-sm mb-0.5">{p.title}</p>
-                                                            <p className="text-[10px] text-slate-400 font-mono tracking-tight uppercase">#NKP-{p.id.split('-')[1]}</p>
+                                                            <p className="font-semibold text-slate-800 dark:text-white line-clamp-1 text-sm">{p.title}</p>
+                                                            <p className="mt-0.5 flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 line-clamp-1">
+                                                                <MapPin className="h-3 w-3 shrink-0 text-primary/70" />
+                                                                {p.location.neighborhood}, {p.location.city}
+                                                            </p>
+                                                            <p className="mt-0.5 text-[10px] text-slate-400 font-mono tracking-tight uppercase">#NKP-{p.id.split('-')[1]}</p>
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td className="px-6 py-6 font-medium text-slate-600 dark:text-slate-400 text-[11px]">
-                                                    {p.location.neighborhood}, {p.location.city}
+                                                <td className="px-4 py-4 whitespace-nowrap">
+                                                    <p className="text-sm font-semibold text-slate-800 dark:text-white">
+                                                        TZS {(p.price / 1000000).toFixed(1)}M
+                                                    </p>
+                                                    <p className="text-[10px] uppercase tracking-wider text-slate-400">per month</p>
                                                 </td>
-                                                <td className="px-6 py-6 font-medium text-slate-800 dark:text-white text-sm">
-                                                    {(p.price / 1000000).toFixed(1)}M <span className="text-[9px] text-slate-400 uppercase tracking-tighter ml-0.5">/mo</span>
-                                                </td>
-                                                <td className="px-6 py-6">
+                                                <td className="px-4 py-4">
+                                                    <div className="flex flex-col items-start gap-1.5">
                                                     <span className={cn(
-                                                        "inline-flex items-center px-3 py-1 rounded-full text-[10px] font-medium uppercase tracking-wider shadow-sm",
+                                                        "inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-wider whitespace-nowrap",
                                                         isActive && "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 border border-emerald-100",
                                                         isDraft && "bg-amber-50 text-amber-600 dark:bg-amber-950/30 border border-amber-100",
+                                                        isPending && "bg-sky-50 text-sky-600 dark:bg-sky-950/30 border border-sky-100",
                                                         isRented && "bg-slate-100 text-slate-600 border border-slate-200",
                                                         isInactive && "bg-red-50 text-red-500 dark:bg-red-950/30 border border-red-100",
                                                         isRejected && "bg-red-50 text-red-600 dark:bg-red-950/30 border border-red-100",
                                                     )}>
-                                                        {isActive ? "Published" : isRented ? "Rented" : isDraft ? "Draft" : isInactive ? "Inactive" : "Rejected"}
+                                                        {isActive ? "Published" : isPending ? "Pending Review" : isRented ? "Rented" : isDraft ? "Draft" : isInactive ? "Inactive" : "Rejected"}
                                                     </span>
-                                                </td>
-                                                <td className="px-6 py-6">
                                                     <span className={cn(
-                                                        "px-2 py-0.5 rounded-md text-[9px] font-medium uppercase border",
-                                                        p.isVerified ? "bg-blue-50 text-blue-500 border-blue-100" : "text-slate-300 border-slate-100"
+                                                        "px-2 py-0.5 rounded-md text-[9px] font-medium uppercase border whitespace-nowrap",
+                                                        p.isVerified ? "bg-blue-50 text-blue-500 border-blue-100" : "text-slate-400 border-slate-200"
                                                     )}>
                                                         {p.isVerified ? "Verified" : "Unverified"}
                                                     </span>
+                                                    </div>
                                                 </td>
-                                                <td className="px-6 py-6">
+                                                <td className="hidden px-4 py-4 xl:table-cell">
                                                     {p.agentId ? (
                                                         <div className="flex items-center gap-2.5">
                                                             <div className="w-7 h-7 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center border border-slate-100 shadow-sm overflow-hidden text-slate-400">
@@ -259,16 +264,16 @@ export default function MyHousesPage() {
                                                         <span className="text-[10px] font-medium text-slate-400 italic">Unassigned</span>
                                                     )}
                                                 </td>
-                                                <td className="px-6 py-6 text-[10px] font-medium text-slate-400">
+                                                <td className="hidden px-4 py-4 text-xs text-slate-400 whitespace-nowrap 2xl:table-cell">
                                                     {relativeTime(p.createdAt)}
                                                 </td>
-                                                <td className="px-6 py-6">
+                                                <td className="px-6 py-4">
                                                     <div className="flex items-center justify-end gap-2">
                                                         {canPublish && (
                                                             <button
                                                                 onClick={() => handlePublish(p.id)}
                                                                 disabled={isLoading}
-                                                                className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-white text-[10px] font-bold uppercase tracking-wider rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95"
+                                                                className="flex items-center gap-1.5 px-3 py-1.5 whitespace-nowrap bg-primary text-white text-[10px] font-bold uppercase tracking-wider rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95"
                                                                 title="Make this listing visible to the public"
                                                             >
                                                                 {isLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Eye className="h-3 w-3" />}
@@ -279,7 +284,7 @@ export default function MyHousesPage() {
                                                             <button
                                                                 onClick={() => handleUnpublish(p.id)}
                                                                 disabled={isLoading}
-                                                                className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-bold uppercase tracking-wider rounded-lg hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95"
+                                                                className="flex items-center gap-1.5 px-3 py-1.5 whitespace-nowrap bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-bold uppercase tracking-wider rounded-lg hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95"
                                                                 title="Hide this listing from public browsing"
                                                             >
                                                                 {isLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <EyeOff className="h-3 w-3" />}
@@ -288,7 +293,7 @@ export default function MyHousesPage() {
                                                         )}
                                                         <button
                                                             onClick={() => router.push(`/dashboard/owner/houses/${p.id}/edit`)}
-                                                            className="p-1.5 text-slate-300 hover:text-primary transition-colors"
+                                                            className="rounded-lg p-2 text-slate-400 hover:bg-primary/10 hover:text-primary transition-colors"
                                                             title="Edit listing"
                                                         >
                                                             <Pencil className="h-3.5 w-3.5" />
@@ -296,7 +301,7 @@ export default function MyHousesPage() {
                                                         <button
                                                             onClick={() => handleDelete(p.id)}
                                                             disabled={isLoading}
-                                                            className="p-1.5 text-slate-300 hover:text-red-500 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                                                            className="rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-500 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                                                             title="Delete listing"
                                                         >
                                                             <Trash2 className="h-3.5 w-3.5" />

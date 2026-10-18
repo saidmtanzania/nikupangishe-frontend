@@ -5,7 +5,6 @@ import { useRouter, useParams } from "next/navigation"
 import dynamic from "next/dynamic"
 import {
     Check,
-    Shield,
     Upload,
     Trash2,
     Loader2,
@@ -14,6 +13,11 @@ import {
     Star,
     ChevronLeft,
     ChevronRight,
+    FileText,
+    Sparkles,
+    Camera,
+    ClipboardCheck,
+    Lock,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -30,6 +34,22 @@ import {
 } from "@/components/ui/select"
 import { propertiesApi } from "@/lib/api"
 import { useAuth } from "@/context/auth-context"
+import {
+    type WizardStep,
+    WizardHeader,
+    WizardStepper,
+    WizardFooter,
+    StepHeading,
+    SideTip,
+    ReviewSection,
+    ReviewItem,
+    ReviewTag,
+    fieldLabel,
+    inputClass,
+    selectTriggerClass,
+    textareaClass,
+    groupHeading,
+} from "@/components/dashboard/listing-wizard"
 
 const LocationPickerMap = dynamic(
     () => import("@/components/properties/location-picker-map"),
@@ -38,18 +58,18 @@ const LocationPickerMap = dynamic(
         loading: () => (
             <div className="h-full w-full bg-slate-100 dark:bg-slate-800/30 rounded-lg flex flex-col items-center justify-center gap-2 animate-pulse">
                 <MapPin className="size-5 text-slate-300" />
-                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Loading map…</span>
+                <span className="text-xs font-medium text-slate-400">Loading map…</span>
             </div>
         ),
     }
 )
 
-const steps = [
-    { id: 1, name: "Basic Details" },
-    { id: 2, name: "Location" },
-    { id: 3, name: "Features & Amenities" },
-    { id: 4, name: "Media" },
-    { id: 5, name: "Review" },
+const steps: WizardStep[] = [
+    { id: 1, name: "Basic Details", description: "Type, size & rent", icon: FileText },
+    { id: 2, name: "Location", description: "Address & map pin", icon: MapPin },
+    { id: 3, name: "Features", description: "Utilities & rules", icon: Sparkles },
+    { id: 4, name: "Media", description: "Photos & video", icon: Camera },
+    { id: 5, name: "Review", description: "Confirm & save", icon: ClipboardCheck },
 ]
 
 const houseTypes = [
@@ -343,98 +363,45 @@ export default function EditHousePage() {
         }
     }
 
-    const fieldLabel = "text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-1"
-    const inputClass =
-        "h-10 border-slate-100 bg-slate-50/50 dark:bg-slate-800/20 focus-visible:ring-primary/20 text-sm font-medium rounded-lg placeholder:font-normal placeholder:text-slate-300 shadow-none transition-none"
-
     if (loadingHouse) {
         return (
             <div className="flex h-full items-center justify-center py-32">
                 <div className="flex flex-col items-center gap-3">
                     <Loader2 className="size-6 animate-spin text-primary" />
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Loading house…</p>
+                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Loading house…</p>
                 </div>
             </div>
         )
     }
 
     return (
-        <div className="py-8 px-8 h-full flex flex-col items-center">
-            {/* Header */}
-            <header className="w-full max-w-4xl flex items-center justify-between mb-8 shrink-0">
-                <div className="flex items-center gap-4">
-                    <div className="size-10 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center">
-                        <Pencil className="size-4 text-slate-600 dark:text-slate-400" />
-                    </div>
-                    <div>
-                        <h2 className="text-lg font-bold text-slate-800 dark:text-white tracking-tight uppercase">
-                            Edit Listing
-                        </h2>
-                        <div className="flex items-center gap-2 mt-0.5">
-                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Owner Portal</span>
-                            <span className="size-1 bg-slate-200 rounded-full" />
-                            <span className="text-[9px] font-medium text-slate-500 uppercase tracking-wider">
-                                Step {currentStep}: {steps[currentStep - 1].name}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <div className="flex items-center gap-2">
-                    <button
-                        onClick={() => { if (currentStep === 1) router.back(); else prevStep() }}
-                        className="text-[10px] font-bold text-slate-400 hover:text-slate-600 transition-colors uppercase tracking-widest px-4 h-9"
-                    >
-                        {currentStep === 1 ? "Cancel" : "Back"}
-                    </button>
-                    <Button
-                        onClick={currentStep === steps.length ? handleSubmit : nextStep}
-                        disabled={submitting}
-                        className="bg-primary text-white text-[10px] font-bold rounded-lg h-9 px-6 uppercase tracking-widest transition-colors shadow-none"
-                    >
-                        {submitting ? (
-                            <><Loader2 className="size-3 animate-spin mr-2" />Saving…</>
-                        ) : currentStep === steps.length ? (
-                            "Save Changes"
-                        ) : (
-                            `Next: ${steps[currentStep]?.name}`
-                        )}
-                    </Button>
-                </div>
-            </header>
+        <div className="mx-auto w-full max-w-6xl px-8 py-8">
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+                <WizardHeader icon={Pencil} title="Edit Listing" subtitle={form.title || "Update your property details"} />
+                <span className="rounded-full bg-white px-3 py-1.5 text-xs font-medium text-slate-500 shadow-sm ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
+                    {Math.round(((currentStep - 1) / (steps.length - 1)) * 100)}% complete
+                </span>
+            </div>
 
             {/* Error banner */}
             {error && (
-                <div className="w-full max-w-5xl mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-xs text-red-600 dark:text-red-400 font-medium">
+                <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
                     {error}
                 </div>
             )}
 
             {/* Card Container */}
-            <div className="w-full max-w-5xl bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 overflow-hidden flex flex-col shadow-sm">
-                {/* Progress Strip */}
-                <div className="flex">
-                    {steps.map((step) => (
-                        <div key={step.id} className="flex-1">
-                            <div className={cn("h-1",
-                                step.id === currentStep ? "bg-primary"
-                                    : step.id < currentStep ? "bg-slate-800 dark:bg-slate-200"
-                                        : "bg-slate-50 dark:bg-slate-800"
-                            )} />
-                        </div>
-                    ))}
-                </div>
+            <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                <WizardStepper steps={steps} current={currentStep} onStepClick={setCurrentStep} />
 
-                <div className="flex divide-x divide-slate-50 dark:divide-slate-800 h-full">
+                <div className="flex flex-col divide-slate-100 lg:flex-row lg:divide-x dark:divide-slate-800">
                     {/* Form Side */}
-                    <div className="flex-1 p-10 space-y-8 overflow-y-auto max-h-[70vh]">
+                    <div key={currentStep} className="min-w-0 flex-1 space-y-8 p-6 animate-in fade-in slide-in-from-right-4 duration-300 sm:p-10">
 
                         {/* ─── STEP 1: Basic Details ──────────────────── */}
                         {currentStep === 1 && (
                             <>
-                                <div>
-                                    <h3 className="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-tight">House Details</h3>
-                                    <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider font-medium">Core property definitions</p>
-                                </div>
+                                <StepHeading icon={FileText} title="House Details" description="The essentials tenants look at first: type, size and rent." />
                                 <div className="grid gap-6">
                                     <div className="space-y-2">
                                         <Label className={fieldLabel}>Property Title *</Label>
@@ -444,7 +411,7 @@ export default function EditHousePage() {
                                         <div className="space-y-2">
                                             <Label className={fieldLabel}>House Type</Label>
                                             <Select value={form.houseType} onValueChange={(v) => { set("houseType", v); set("propertyType", v) }}>
-                                                <SelectTrigger className="h-10 border-slate-100 bg-slate-50/50 focus:ring-primary/20 rounded-lg text-xs font-medium shadow-none"><SelectValue /></SelectTrigger>
+                                                <SelectTrigger className={selectTriggerClass}><SelectValue /></SelectTrigger>
                                                 <SelectContent>{houseTypes.map((t) => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}</SelectContent>
                                             </Select>
                                         </div>
@@ -461,7 +428,7 @@ export default function EditHousePage() {
                                         <div className="space-y-2">
                                             <Label className={fieldLabel}>Furnishing</Label>
                                             <Select value={form.furnishingStatus} onValueChange={(v) => set("furnishingStatus", v)}>
-                                                <SelectTrigger className="h-10 border-slate-100 bg-slate-50/50 focus:ring-primary/20 rounded-lg text-xs font-medium shadow-none"><SelectValue /></SelectTrigger>
+                                                <SelectTrigger className={selectTriggerClass}><SelectValue /></SelectTrigger>
                                                 <SelectContent>{furnishingOptions.map((o) => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}</SelectContent>
                                             </Select>
                                         </div>
@@ -478,7 +445,7 @@ export default function EditHousePage() {
                                         <div className="space-y-2">
                                             <Label className={fieldLabel}>Monthly Rent *</Label>
                                             <div className="relative">
-                                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400">{form.currency}</span>
+                                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">{form.currency}</span>
                                                 <Input type="number" min={0} value={form.rentAmount} onChange={(e) => set("rentAmount", e.target.value)} placeholder="0" className={cn(inputClass, "pl-12")} />
                                             </div>
                                         </div>
@@ -489,7 +456,7 @@ export default function EditHousePage() {
                                         <div className="space-y-2">
                                             <Label className={fieldLabel}>Currency</Label>
                                             <Select value={form.currency} onValueChange={(v) => set("currency", v)}>
-                                                <SelectTrigger className="h-10 border-slate-100 bg-slate-50/50 focus:ring-primary/20 rounded-lg text-xs font-medium shadow-none"><SelectValue /></SelectTrigger>
+                                                <SelectTrigger className={selectTriggerClass}><SelectValue /></SelectTrigger>
                                                 <SelectContent>
                                                     <SelectItem value="TZS">TZS</SelectItem>
                                                     <SelectItem value="USD">USD</SelectItem>
@@ -503,7 +470,7 @@ export default function EditHousePage() {
                                     </div>
                                     <div className="space-y-2">
                                         <Label className={fieldLabel}>Description *</Label>
-                                        <Textarea value={form.description} onChange={(e) => set("description", e.target.value)} placeholder="Describe the property highlights, nearby landmarks, etc." className="min-h-25 border-slate-100 bg-slate-50/50 focus:ring-0 focus:border-slate-300 text-xs font-medium rounded-lg resize-none leading-relaxed transition-none" />
+                                        <Textarea value={form.description} onChange={(e) => set("description", e.target.value)} placeholder="Describe the property highlights, nearby landmarks, etc." className={textareaClass} />
                                     </div>
                                 </div>
                             </>
@@ -512,10 +479,7 @@ export default function EditHousePage() {
                         {/* ─── STEP 2: Location ──────────────────────── */}
                         {currentStep === 2 && (
                             <>
-                                <div>
-                                    <h3 className="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-tight">Property Location</h3>
-                                    <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider font-medium">Address and coordinates</p>
-                                </div>
+                                <StepHeading icon={MapPin} title="Property Location" description="Pin the exact spot so tenants can find it on the map." />
                                 <div className="grid gap-6">
                                     <div className="grid gap-6 grid-cols-2">
                                         <div className="space-y-2">
@@ -543,9 +507,9 @@ export default function EditHousePage() {
                                     </div>
                                     <div className="space-y-2">
                                         <Label className={fieldLabel}>Pin on Map</Label>
-                                        <p className="text-[9px] text-slate-400 uppercase tracking-wider font-medium ml-1">Click anywhere on the map to update the property location</p>
+                                        <p className="text-xs text-slate-400">Click anywhere on the map to update the property location</p>
                                     </div>
-                                    <div className="relative z-0 h-80 rounded-lg border border-slate-100 dark:border-slate-800 overflow-hidden">
+                                    <div className="relative z-0 h-80 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
                                         <LocationPickerMap
                                             lat={form.latitude ? parseFloat(form.latitude) : null}
                                             lng={form.longitude ? parseFloat(form.longitude) : null}
@@ -558,7 +522,7 @@ export default function EditHousePage() {
                                         />
                                         {form.latitude && form.longitude && (
                                             <div className="absolute bottom-3 left-3 z-7 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm rounded-md px-3 py-1.5 shadow-sm border border-slate-100 dark:border-slate-700">
-                                                <span className="text-[9px] font-bold text-slate-600 dark:text-slate-300 font-mono">
+                                                <span className="text-xs font-medium text-slate-600 dark:text-slate-300 font-mono">
                                                     {parseFloat(form.latitude).toFixed(6)}, {parseFloat(form.longitude).toFixed(6)}
                                                 </span>
                                             </div>
@@ -571,12 +535,9 @@ export default function EditHousePage() {
                         {/* ─── STEP 3: Features & Amenities ──────────── */}
                         {currentStep === 3 && (
                             <>
-                                <div>
-                                    <h3 className="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-tight">Features & Amenities</h3>
-                                    <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider font-medium">Utilities, amenities, and house rules</p>
-                                </div>
+                                <StepHeading icon={Sparkles} title="Features & Amenities" description="Utilities, amenities, listing options and house rules." />
                                 <div className="space-y-4">
-                                    <h4 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Utilities & Features</h4>
+                                    <h4 className={groupHeading}>Utilities & Features</h4>
                                     <div className="grid grid-cols-2 gap-3">
                                         {(
                                             [
@@ -589,61 +550,61 @@ export default function EditHousePage() {
                                                 ["petFriendly", "Pet Friendly"],
                                             ] as [keyof HouseForm, string][]
                                         ).map(([key, label]) => (
-                                            <div key={key} className="flex items-center justify-between p-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-lg">
-                                                <span className="text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wide">{label}</span>
+                                            <div key={key} className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-4 transition-colors hover:border-primary/30 dark:border-slate-700 dark:bg-slate-900">
+                                                <span className="text-sm font-medium text-slate-700 dark:text-slate-200">{label}</span>
                                                 <Switch checked={form[key] as boolean} onCheckedChange={(v) => set(key, v as HouseForm[typeof key])} />
                                             </div>
                                         ))}
                                     </div>
                                 </div>
                                 <div className="space-y-4">
-                                    <h4 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Amenities</h4>
+                                    <h4 className={groupHeading}>Amenities</h4>
                                     <div className="grid grid-cols-3 gap-2">
                                         {amenityOptions.map((a) => (
-                                            <label key={a} className={cn("flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors", form.amenities.includes(a) ? "bg-primary/5 border-primary/30" : "bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800")} onClick={() => toggleAmenity(a)}>
-                                                <div className={cn("size-4 rounded border flex items-center justify-center", form.amenities.includes(a) ? "bg-primary border-primary" : "border-slate-200 dark:border-slate-700")}>
+                                            <label key={a} className={cn("flex items-center gap-3 rounded-xl border p-3.5 cursor-pointer transition-all hover:border-primary/40", form.amenities.includes(a) ? "bg-primary/5 border-primary/30" : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700")} onClick={() => toggleAmenity(a)}>
+                                                <div className={cn("size-5 rounded-md border-2 flex items-center justify-center transition-colors", form.amenities.includes(a) ? "bg-primary border-primary" : "border-slate-200 dark:border-slate-700")}>
                                                     {form.amenities.includes(a) && <Check className="size-2.5 text-white" strokeWidth={3} />}
                                                 </div>
-                                                <span className="text-[9px] font-bold text-slate-500 uppercase">{a}</span>
+                                                <span className="text-sm font-medium text-slate-600 dark:text-slate-300">{a}</span>
                                             </label>
                                         ))}
                                     </div>
                                 </div>
                                 <div className="space-y-4">
-                                    <h4 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Listing Options</h4>
+                                    <h4 className={groupHeading}>Listing Options</h4>
                                     <div className="grid grid-cols-2 gap-3">
-                                        <div className="flex items-center justify-between p-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-lg">
+                                        <div className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-4 transition-colors hover:border-primary/30 dark:border-slate-700 dark:bg-slate-900">
                                             <div>
-                                                <span className="text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wide block">Open To Exchange</span>
-                                                <span className="text-[8px] text-slate-400 uppercase">Allow tenants to request swaps</span>
+                                                <span className="text-sm font-medium text-slate-700 dark:text-slate-200 block">Open To Exchange</span>
+                                                <span className="text-xs text-slate-400">Allow tenants to request swaps</span>
                                             </div>
                                             <Switch checked={form.isOpenToExchange} onCheckedChange={(v) => set("isOpenToExchange", v)} />
                                         </div>
-                                        <div className="flex items-center justify-between p-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-lg">
+                                        <div className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-4 transition-colors hover:border-primary/30 dark:border-slate-700 dark:bg-slate-900">
                                             <div>
-                                                <span className="text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wide block">Unique Property</span>
-                                                <span className="text-[8px] text-slate-400 uppercase">Feature as a unique listing</span>
+                                                <span className="text-sm font-medium text-slate-700 dark:text-slate-200 block">Unique Property</span>
+                                                <span className="text-xs text-slate-400">Feature as a unique listing</span>
                                             </div>
                                             <Switch checked={form.isUnique} onCheckedChange={(v) => set("isUnique", v)} />
                                         </div>
                                     </div>
                                 </div>
                                 <div className="space-y-4">
-                                    <h4 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">House Rules</h4>
+                                    <h4 className={groupHeading}>House Rules</h4>
                                     <div className="flex gap-2">
                                         <Input value={ruleInput} onChange={(e) => setRuleInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addRule() } }} placeholder="Type a rule and press Enter" className={inputClass} />
-                                        <Button type="button" variant="outline" onClick={addRule} className="h-10 text-[10px] font-bold uppercase tracking-widest shadow-none">Add</Button>
+                                        <Button type="button" variant="outline" onClick={addRule} className="h-11 rounded-xl px-5 shadow-none">Add</Button>
                                     </div>
                                     <div className="flex flex-wrap gap-1.5">
                                         {ruleOptions.filter((r) => !form.rules.includes(r)).map((r) => (
-                                            <button key={r} onClick={() => set("rules", [...form.rules, r])} className="text-[8px] font-bold text-slate-400 uppercase tracking-wider px-3 py-1.5 border border-dashed border-slate-200 dark:border-slate-700 rounded-md hover:border-primary hover:text-primary transition-colors">+ {r}</button>
+                                            <button key={r} onClick={() => set("rules", [...form.rules, r])} className="rounded-full border border-dashed border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-500 transition-colors hover:border-primary hover:bg-primary/5 hover:text-primary dark:border-slate-700">+ {r}</button>
                                         ))}
                                     </div>
                                     {form.rules.length > 0 && (
                                         <div className="space-y-1.5">
                                             {form.rules.map((r) => (
-                                                <div key={r} className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-800/30 rounded-lg">
-                                                    <span className="text-[10px] font-medium text-slate-600 dark:text-slate-300">{r}</span>
+                                                <div key={r} className="flex items-center justify-between rounded-xl bg-slate-50 px-4 py-3 dark:bg-slate-800/30">
+                                                    <span className="text-sm text-slate-700 dark:text-slate-200">{r}</span>
                                                     <button onClick={() => removeRule(r)} className="text-slate-400 hover:text-red-500"><Trash2 className="size-3" /></button>
                                                 </div>
                                             ))}
@@ -656,53 +617,50 @@ export default function EditHousePage() {
                         {/* ─── STEP 4: Media ─────────────────────────── */}
                         {currentStep === 4 && (
                             <>
-                                <div>
-                                    <h3 className="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-tight">Photos & Media</h3>
-                                    <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider font-medium">Existing photos and new uploads</p>
-                                </div>
+                                <StepHeading icon={Camera} title="Photos & Media" description="Manage existing photos, add new ones and set the cover." />
                                 <div className="space-y-6">
                                     {/* Existing photos */}
                                     {existingImages.length > 0 && (
                                         <div className="space-y-3">
-                                            <h4 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Current Photos</h4>
+                                            <h4 className={groupHeading}>Current Photos</h4>
                                             <div className="grid grid-cols-4 gap-4">
                                                 {existingImages.map((url, index) => (
-                                                    <div key={url} className="group relative aspect-square rounded-lg overflow-hidden border border-slate-100">
+                                                    <div key={url} className="group relative aspect-square rounded-xl overflow-hidden border border-slate-100 shadow-sm">
                                                         <img src={url} alt={`Photo ${index + 1}`} className="w-full h-full object-cover" />
                                                         {/* Trash */}
-                                                        <button onClick={() => removeExistingImage(index)} className="absolute top-2 right-2 p-1.5 bg-black/50 rounded text-white hover:bg-black/70">
-                                                            <Trash2 className="size-2.5" />
+                                                        <button onClick={() => removeExistingImage(index)} className="absolute top-2 right-2 p-1.5 bg-black/50 backdrop-blur-sm rounded-lg text-white hover:bg-red-500">
+                                                            <Trash2 className="size-3.5" />
                                                         </button>
                                                         {/* Swap left / right arrows */}
                                                         <div className="absolute top-2 left-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                                             {index > 0 && (
                                                                 <button
                                                                     onClick={() => swapImage(index, "left")}
-                                                                    className="p-1.5 bg-black/50 rounded text-white hover:bg-black/70"
+                                                                    className="p-1.5 bg-black/50 backdrop-blur-sm rounded-lg text-white hover:bg-red-500"
                                                                     title="Move left"
                                                                 >
-                                                                    <ChevronLeft className="size-2.5" />
+                                                                    <ChevronLeft className="size-3.5" />
                                                                 </button>
                                                             )}
                                                             {index < existingImages.length - 1 && (
                                                                 <button
                                                                     onClick={() => swapImage(index, "right")}
-                                                                    className="p-1.5 bg-black/50 rounded text-white hover:bg-black/70"
+                                                                    className="p-1.5 bg-black/50 backdrop-blur-sm rounded-lg text-white hover:bg-red-500"
                                                                     title="Move right"
                                                                 >
-                                                                    <ChevronRight className="size-2.5" />
+                                                                    <ChevronRight className="size-3.5" />
                                                                 </button>
                                                             )}
                                                         </div>
                                                         {/* Cover badge / Set-as-cover button */}
                                                         {index === 0 ? (
-                                                            <span className="absolute bottom-2 left-2 flex items-center gap-1 text-[7px] font-bold uppercase tracking-widest bg-primary text-white px-2 py-0.5 rounded">
+                                                            <span className="absolute bottom-2 left-2 flex items-center gap-1 text-[10px] font-semibold bg-primary text-white px-2 py-0.5 rounded">
                                                                 <Star className="size-2 fill-white" /> Cover
                                                             </span>
                                                         ) : (
                                                             <button
                                                                 onClick={() => setCoverImage(index)}
-                                                                className="absolute bottom-2 left-2 flex items-center gap-1 text-[7px] font-bold uppercase tracking-widest bg-black/60 text-white px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity hover:bg-primary"
+                                                                className="absolute bottom-2 left-2 flex items-center gap-1 text-[10px] font-semibold bg-black/60 text-white px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity hover:bg-primary"
                                                             >
                                                                 <Star className="size-2" /> Set Cover
                                                             </button>
@@ -715,26 +673,26 @@ export default function EditHousePage() {
 
                                     {/* Upload new photos */}
                                     <div className="space-y-3">
-                                        <h4 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Add New Photos</h4>
-                                        <div onClick={() => fileInputRef.current?.click()} className="h-40 border border-slate-100 dark:border-slate-800 rounded-lg bg-slate-50/50 dark:bg-slate-800/20 flex flex-col items-center justify-center gap-3 cursor-pointer">
+                                        <h4 className={groupHeading}>Add New Photos</h4>
+                                        <div onClick={() => fileInputRef.current?.click()} className="h-48 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/50 dark:border-slate-700 dark:bg-slate-800/20 flex flex-col items-center justify-center gap-3 cursor-pointer transition-colors hover:border-primary/50 hover:bg-primary/5">
                                             <input type="file" ref={fileInputRef} className="hidden" multiple accept="image/jpeg,image/png,image/webp" onChange={handleImageUpload} />
-                                            <div className="size-9 bg-white dark:bg-slate-900 rounded-lg flex items-center justify-center border border-slate-100 shadow-sm">
-                                                <Upload className="size-4 text-slate-400" />
+                                            <div className="size-12 rounded-2xl bg-white dark:bg-slate-900 flex items-center justify-center shadow-sm ring-1 ring-slate-100 dark:ring-slate-800">
+                                                <Upload className="size-5 text-primary" />
                                             </div>
                                             <div className="text-center">
-                                                <p className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Upload photos</p>
-                                                <p className="text-[8px] text-slate-400 mt-1">JPG, PNG, WEBP — max 10 MB per file</p>
+                                                <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">Upload photos</p>
+                                                <p className="text-xs text-slate-400 mt-1">JPG, PNG, WEBP — max 10 MB per file</p>
                                             </div>
                                         </div>
                                         {newImagePreviews.length > 0 && (
                                             <div className="grid grid-cols-4 gap-4">
                                                 {newImagePreviews.map((url, index) => (
-                                                    <div key={index} className="relative aspect-square rounded-lg overflow-hidden border border-slate-100">
+                                                    <div key={index} className="relative aspect-square rounded-xl overflow-hidden border border-slate-100 shadow-sm">
                                                         <img src={url} alt={`New ${index + 1}`} className="w-full h-full object-cover" />
-                                                        <button onClick={() => removeNewImage(index)} className="absolute top-2 right-2 p-1.5 bg-black/50 rounded text-white hover:bg-black/70">
-                                                            <Trash2 className="size-2.5" />
+                                                        <button onClick={() => removeNewImage(index)} className="absolute top-2 right-2 p-1.5 bg-black/50 backdrop-blur-sm rounded-lg text-white hover:bg-red-500">
+                                                            <Trash2 className="size-3.5" />
                                                         </button>
-                                                        <span className="absolute bottom-2 left-2 text-[7px] font-bold uppercase tracking-widest bg-emerald-500 text-white px-2 py-0.5 rounded">New</span>
+                                                        <span className="absolute bottom-2 left-2 text-[10px] font-semibold bg-emerald-500 text-white px-2 py-0.5 rounded">New</span>
                                                     </div>
                                                 ))}
                                             </div>
@@ -743,8 +701,8 @@ export default function EditHousePage() {
                     {/* Verification evidence for admin */}
                                     <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                                         <div>
-                                            <h4 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Verification Evidence</h4>
-                                            <p className="text-[8px] text-slate-400 mt-1 uppercase tracking-wider">Help the admin verify your property — optional but speeds up getting the Verified badge</p>
+                                            <h4 className={groupHeading}>Verification Evidence</h4>
+                                            <p className="text-xs text-slate-400 mt-1">Help the admin verify your property — optional but speeds up getting the Verified badge</p>
                                         </div>
                                         <div className="space-y-2">
                                             <Label className={fieldLabel}>Verification Video URL</Label>
@@ -754,7 +712,7 @@ export default function EditHousePage() {
                                                 placeholder="https://youtube.com/... or Google Drive link"
                                                 className={inputClass}
                                             />
-                                            <p className="text-[8px] text-slate-400 ml-1">Walk-through video of the property — YouTube, Google Drive, or any public link</p>
+                                            <p className="text-xs text-slate-400">Walk-through video of the property — YouTube, Google Drive, or any public link</p>
                                         </div>
                                         <div className="space-y-2">
                                             <Label className={fieldLabel}>Note to Admin</Label>
@@ -762,7 +720,7 @@ export default function EditHousePage() {
                                                 value={form.ownerVerificationNote}
                                                 onChange={(e) => set("ownerVerificationNote", e.target.value)}
                                                 placeholder="Describe ownership proof, any supporting information, or special notes for the reviewer..."
-                                                className="min-h-25 border-slate-100 bg-slate-50/50 focus:ring-0 focus:border-slate-300 text-xs font-medium rounded-lg resize-none leading-relaxed transition-none"
+                                                className={textareaClass}
                                             />
                                         </div>
                                     </div>
@@ -771,11 +729,8 @@ export default function EditHousePage() {
                         )}
                         {currentStep === 5 && (
                             <>
-                                <div>
-                                    <h3 className="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-tight">Review Changes</h3>
-                                    <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider font-medium">Confirm before saving</p>
-                                </div>
-                                <div className="space-y-6">
+                                <StepHeading icon={ClipboardCheck} title="Review Changes" description="Double-check everything before saving." />
+                                <div className="space-y-4">
                                     <ReviewSection title="Basic Details">
                                         <ReviewItem label="Title" value={form.title || "—"} />
                                         <ReviewItem label="Type" value={form.houseType} />
@@ -812,15 +767,15 @@ export default function EditHousePage() {
                                     )}
                                     <ReviewSection title={`Photos (${existingImages.length} existing + ${newImagePreviews.length} new)`}>
                                         {existingImages.length === 0 && newImagePreviews.length === 0
-                                            ? <p className="text-[10px] text-slate-400">No photos.</p>
+                                            ? <p className="text-sm text-slate-400">No photos.</p>
                                             : <div className="grid grid-cols-6 gap-2">
-                                                {existingImages.map((url, i) => <div key={`e-${i}`} className="aspect-square rounded-md overflow-hidden border border-slate-100"><img src={url} alt="" className="w-full h-full object-cover" /></div>)}
-                                                {newImagePreviews.map((url, i) => <div key={`n-${i}`} className="aspect-square rounded-md overflow-hidden border border-emerald-200"><img src={url} alt="" className="w-full h-full object-cover" /></div>)}
+                                                {existingImages.map((url, i) => <div key={`e-${i}`} className="aspect-square rounded-lg overflow-hidden border border-slate-100"><img src={url} alt="" className="w-full h-full object-cover" /></div>)}
+                                                {newImagePreviews.map((url, i) => <div key={`n-${i}`} className="aspect-square rounded-lg overflow-hidden border border-emerald-200"><img src={url} alt="" className="w-full h-full object-cover" /></div>)}
                                             </div>
                                         }
                                     </ReviewSection>
                                     <ReviewSection title="Description">
-                                        <p className="text-[10px] text-slate-600 dark:text-slate-300 font-medium leading-relaxed whitespace-pre-wrap">{form.description || "—"}</p>
+                                        <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">{form.description || "—"}</p>
                                     </ReviewSection>
                                     {(form.verificationVideoUrl || form.ownerVerificationNote) && (
                                         <ReviewSection title="Verification Evidence">
@@ -834,10 +789,10 @@ export default function EditHousePage() {
                     </div>
 
                     {/* Side Panel */}
-                    <div className="w-[320px] bg-slate-50/30 dark:bg-slate-800/10 p-10 flex flex-col gap-8 shrink-0">
+                    <aside className="flex shrink-0 flex-col gap-6 bg-slate-50/50 p-6 sm:p-8 lg:w-80 dark:bg-slate-800/10">
                         {currentStep === 1 && (
                             <section>
-                                <h4 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-4">Edit Tips</h4>
+                                <h4 className={cn(groupHeading, "mb-4")}>Edit Tips</h4>
                                 <div className="space-y-3">
                                     <SideTip title="Accurate Pricing" text="Update rent if market rates have changed." />
                                     <SideTip title="Keep It Fresh" text="Updated listings attract more views." />
@@ -846,7 +801,7 @@ export default function EditHousePage() {
                         )}
                         {currentStep === 2 && (
                             <section className="space-y-6">
-                                <h4 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Location Tips</h4>
+                                <h4 className={groupHeading}>Location Tips</h4>
                                 <div className="space-y-3">
                                     <SideTip title="GPS Coordinates" text="Use the map to set the precise location." />
                                     <SideTip title="Landmarks" text="Nearby landmarks help tenants orient quickly." />
@@ -855,7 +810,7 @@ export default function EditHousePage() {
                         )}
                         {currentStep === 3 && (
                             <section className="space-y-6">
-                                <h4 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Feature Tips</h4>
+                                <h4 className={groupHeading}>Feature Tips</h4>
                                 <div className="space-y-3">
                                     <SideTip title="Be Honest" text="Accurate features build trust with potential tenants." />
                                     <SideTip title="Rules Matter" text="Clear house rules prevent future disputes." />
@@ -864,7 +819,7 @@ export default function EditHousePage() {
                         )}
                         {currentStep === 4 && (
                             <section className="space-y-6">
-                                <h4 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Photo Tips</h4>
+                                <h4 className={groupHeading}>Photo Tips</h4>
                                 <div className="space-y-3">
                                     <SideTip title="Quality Photos" text="Well-lit photos get 3x more views." />
                                     <SideTip title="New uploads" text="New photos are added to existing ones (not replaced)." />
@@ -874,59 +829,32 @@ export default function EditHousePage() {
                         )}
                         {currentStep === 5 && (
                             <section className="space-y-6">
-                                <h4 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Before Saving</h4>
+                                <h4 className={groupHeading}>Before Saving</h4>
                                 <div className="space-y-3">
                                     <SideTip title="Review Carefully" text="Changes are applied immediately after saving." />
                                 </div>
                             </section>
                         )}
-                        <div className="mt-auto p-6 border border-slate-100 dark:border-slate-800 rounded-lg relative overflow-hidden">
-                            <div className="flex gap-4 relative z-10 items-center">
-                                <Shield className="h-4 w-4 text-slate-300 shrink-0" />
-                                <div>
-                                    <h5 className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Verified Data</h5>
-                                    <p className="text-[9px] leading-relaxed text-slate-500 font-medium uppercase">Information is encrypted.</p>
-                                </div>
-                            </div>
+                        <div className="mt-auto flex items-center gap-3 rounded-xl border border-emerald-100 bg-emerald-50/60 p-4 dark:border-emerald-900/40 dark:bg-emerald-900/10">
+                            <Lock className="size-4 shrink-0 text-emerald-600" />
+                            <p className="text-xs leading-relaxed text-emerald-700 dark:text-emerald-400">
+                                Your details are stored securely and only shared with verified tenants.
+                            </p>
                         </div>
-                    </div>
+                    </aside>
                 </div>
+
+                <WizardFooter
+                    current={currentStep}
+                    total={steps.length}
+                    onBack={() => { if (currentStep === 1) router.back(); else prevStep() }}
+                    onNext={currentStep === steps.length ? handleSubmit : nextStep}
+                    submitting={submitting}
+                    nextLabel={`Next: ${steps[currentStep]?.name ?? ""}`}
+                    finalLabel="Save Changes"
+                    submittingLabel="Saving…"
+                />
             </div>
-        </div>
-    )
-}
-
-// ── Sub-components ──────────────────────────────────────────────────────────
-
-function ReviewSection({ title, children }: { title: string; children: React.ReactNode }) {
-    return (
-        <div className="space-y-3">
-            <h4 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800 pb-2">{title}</h4>
-            {children}
-        </div>
-    )
-}
-
-function ReviewItem({ label, value }: { label: string; value: string }) {
-    return (
-        <div className="flex justify-between items-center py-1">
-            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">{label}</span>
-            <span className="text-[10px] font-medium text-slate-700 dark:text-slate-200">{value}</span>
-        </div>
-    )
-}
-
-function ReviewTag({ children }: { children: React.ReactNode }) {
-    return (
-        <span className="text-[8px] font-bold uppercase tracking-wider px-2.5 py-1 bg-primary/10 text-primary rounded-md">{children}</span>
-    )
-}
-
-function SideTip({ title, text }: { title: string; text: string }) {
-    return (
-        <div className="p-4 bg-white dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-800 shadow-none">
-            <p className="text-[9px] font-bold text-slate-800 dark:text-white uppercase tracking-widest mb-1.5">{title}</p>
-            <p className="text-[9px] leading-relaxed text-slate-400 uppercase font-medium">{text}</p>
         </div>
     )
 }

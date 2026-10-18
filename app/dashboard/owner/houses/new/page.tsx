@@ -5,11 +5,15 @@ import { useRouter } from "next/navigation"
 import dynamic from "next/dynamic"
 import {
     Check,
-    Shield,
     Upload,
     Trash2,
-    Loader2,
     MapPin,
+    HousePlus,
+    FileText,
+    Sparkles,
+    Camera,
+    ClipboardCheck,
+    Lock,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -26,6 +30,22 @@ import {
 } from "@/components/ui/select"
 import { propertiesApi } from "@/lib/api"
 import { useAuth } from "@/context/auth-context"
+import {
+    type WizardStep,
+    WizardHeader,
+    WizardStepper,
+    WizardFooter,
+    StepHeading,
+    SideTip,
+    ReviewSection,
+    ReviewItem,
+    ReviewTag,
+    fieldLabel,
+    inputClass,
+    selectTriggerClass,
+    textareaClass,
+    groupHeading,
+} from "@/components/dashboard/listing-wizard"
 
 // SSR-safe dynamic import for Leaflet map
 const LocationPickerMap = dynamic(
@@ -35,19 +55,19 @@ const LocationPickerMap = dynamic(
         loading: () => (
             <div className="h-full w-full bg-slate-100 dark:bg-slate-800/30 rounded-lg flex flex-col items-center justify-center gap-2 animate-pulse">
                 <MapPin className="size-5 text-slate-300" />
-                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Loading map…</span>
+                <span className="text-xs font-medium text-slate-400">Loading map…</span>
             </div>
         ),
     }
 )
 
 // ── Steps ──────────────────────────────────────────────────────────────────
-const steps = [
-    { id: 1, name: "Basic Details" },
-    { id: 2, name: "Location" },
-    { id: 3, name: "Features & Amenities" },
-    { id: 4, name: "Media" },
-    { id: 5, name: "Review" },
+const steps: WizardStep[] = [
+    { id: 1, name: "Basic Details", description: "Type, size & rent", icon: FileText },
+    { id: 2, name: "Location", description: "Address & map pin", icon: MapPin },
+    { id: 3, name: "Features", description: "Utilities & rules", icon: Sparkles },
+    { id: 4, name: "Media", description: "Photos", icon: Camera },
+    { id: 5, name: "Review", description: "Confirm & publish", icon: ClipboardCheck },
 ]
 
 const houseTypes = [
@@ -318,105 +338,34 @@ export default function AddHousePage() {
         }
     }
 
-    // ── Style helpers ──────────────────────────────────────────────────────
-    const fieldLabel = "text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-1"
-    const inputClass =
-        "h-10 border-slate-100 bg-slate-50/50 dark:bg-slate-800/20 focus-visible:ring-primary/20 text-sm font-medium rounded-lg placeholder:font-normal placeholder:text-slate-300 shadow-none transition-none"
-
     // ── Render ─────────────────────────────────────────────────────────────
     return (
-        <div className="py-8 px-8 h-full flex flex-col items-center">
-            {/* Header */}
-            <header className="w-full max-w-4xl flex items-center justify-between mb-8 shrink-0">
-                <div className="flex items-center gap-4">
-                    <div className="size-10 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center">
-                        <PlusIcon className="size-4 text-slate-600 dark:text-slate-400" />
-                    </div>
-                    <div>
-                        <h2 className="text-lg font-bold text-slate-800 dark:text-white tracking-tight uppercase">
-                            Add New Listing
-                        </h2>
-                        <div className="flex items-center gap-2 mt-0.5">
-                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
-                                Owner Portal
-                            </span>
-                            <span className="size-1 bg-slate-200 rounded-full" />
-                            <span className="text-[9px] font-medium text-slate-500 uppercase tracking-wider">
-                                Step {currentStep}: {steps[currentStep - 1].name}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <div className="flex items-center gap-2">
-                    <button
-                        onClick={() => {
-                            if (currentStep === 1) router.back()
-                            else prevStep()
-                        }}
-                        className="text-[10px] font-bold text-slate-400 hover:text-slate-600 transition-colors uppercase tracking-widest px-4 h-9"
-                    >
-                        {currentStep === 1 ? "Cancel" : "Back"}
-                    </button>
-                    <Button
-                        onClick={currentStep === steps.length ? handleSubmit : nextStep}
-                        disabled={submitting}
-                        className="bg-primary text-white text-[10px] font-bold rounded-lg h-9 px-6 uppercase tracking-widest transition-colors shadow-none"
-                    >
-                        {submitting ? (
-                            <>
-                                <Loader2 className="size-3 animate-spin mr-2" />
-                                Publishing…
-                            </>
-                        ) : currentStep === steps.length ? (
-                            "Publish"
-                        ) : (
-                            `Next: ${steps[currentStep]?.name}`
-                        )}
-                    </Button>
-                </div>
-            </header>
+        <div className="mx-auto w-full max-w-6xl px-8 py-8">
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+                <WizardHeader icon={HousePlus} title="Add New Listing" subtitle="List your property in a few simple steps." />
+                <span className="rounded-full bg-white px-3 py-1.5 text-xs font-medium text-slate-500 shadow-sm ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
+                    {Math.round(((currentStep - 1) / (steps.length - 1)) * 100)}% complete
+                </span>
+            </div>
 
             {/* Error banner */}
             {error && (
-                <div className="w-full max-w-5xl mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-xs text-red-600 dark:text-red-400 font-medium">
+                <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
                     {error}
                 </div>
             )}
 
             {/* Card Container */}
-            <div className="w-full max-w-5xl bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 overflow-hidden flex flex-col shadow-sm">
-                {/* Progress Strip */}
-                <div className="flex">
-                    {steps.map((step) => (
-                        <div key={step.id} className="flex-1">
-                            <div
-                                className={cn(
-                                    "h-1",
-                                    step.id === currentStep
-                                        ? "bg-primary"
-                                        : step.id < currentStep
-                                        ? "bg-slate-800 dark:bg-slate-200"
-                                        : "bg-slate-50 dark:bg-slate-800"
-                                )}
-                            />
-                        </div>
-                    ))}
-                </div>
+            <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                <WizardStepper steps={steps} current={currentStep} onStepClick={setCurrentStep} />
 
-                <div className="flex divide-x divide-slate-50 dark:divide-slate-800 h-full">
+                <div className="flex flex-col divide-slate-100 lg:flex-row lg:divide-x dark:divide-slate-800">
                     {/* Form Side */}
-                    <div className="flex-1 p-10 space-y-8 overflow-y-auto max-h-[70vh]">
+                    <div key={currentStep} className="min-w-0 flex-1 space-y-8 p-6 animate-in fade-in slide-in-from-right-4 duration-300 sm:p-10">
                         {/* ─── STEP 1: Basic Details ──────────────────── */}
                         {currentStep === 1 && (
                             <>
-                                <div>
-                                    <h3 className="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-tight">
-                                        House Details
-                                    </h3>
-                                    <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider font-medium">
-                                        Core property definitions
-                                    </p>
-                                </div>
+                                <StepHeading icon={FileText} title="House Details" description="The essentials tenants look at first: type, size and rent." />
 
                                 <div className="grid gap-6">
                                     {/* Title */}
@@ -441,7 +390,7 @@ export default function AddHousePage() {
                                                     set("propertyType", v)
                                                 }}
                                             >
-                                                <SelectTrigger className="h-10 border-slate-100 bg-slate-50/50 focus:ring-primary/20 rounded-lg text-xs font-medium shadow-none">
+                                                <SelectTrigger className={selectTriggerClass}>
                                                     <SelectValue />
                                                 </SelectTrigger>
                                                 <SelectContent>
@@ -483,7 +432,7 @@ export default function AddHousePage() {
                                                 value={form.furnishingStatus}
                                                 onValueChange={(v) => set("furnishingStatus", v)}
                                             >
-                                                <SelectTrigger className="h-10 border-slate-100 bg-slate-50/50 focus:ring-primary/20 rounded-lg text-xs font-medium shadow-none">
+                                                <SelectTrigger className={selectTriggerClass}>
                                                     <SelectValue />
                                                 </SelectTrigger>
                                                 <SelectContent>
@@ -523,7 +472,7 @@ export default function AddHousePage() {
                                         <div className="space-y-2">
                                             <Label className={fieldLabel}>Monthly Rent *</Label>
                                             <div className="relative">
-                                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400">
+                                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">
                                                     {form.currency}
                                                 </span>
                                                 <Input
@@ -552,7 +501,7 @@ export default function AddHousePage() {
                                                 value={form.currency}
                                                 onValueChange={(v) => set("currency", v)}
                                             >
-                                                <SelectTrigger className="h-10 border-slate-100 bg-slate-50/50 focus:ring-primary/20 rounded-lg text-xs font-medium shadow-none">
+                                                <SelectTrigger className={selectTriggerClass}>
                                                     <SelectValue />
                                                 </SelectTrigger>
                                                 <SelectContent>
@@ -581,7 +530,7 @@ export default function AddHousePage() {
                                             value={form.description}
                                             onChange={(e) => set("description", e.target.value)}
                                             placeholder="Describe the property highlights, nearby landmarks, etc."
-                                            className="min-h-[100px] border-slate-100 bg-slate-50/50 focus:ring-0 focus:border-slate-300 text-xs font-medium rounded-lg resize-none leading-relaxed transition-none"
+                                            className={textareaClass}
                                         />
                                     </div>
                                 </div>
@@ -591,14 +540,7 @@ export default function AddHousePage() {
                         {/* ─── STEP 2: Location ──────────────────────── */}
                         {currentStep === 2 && (
                             <>
-                                <div>
-                                    <h3 className="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-tight">
-                                        Property Location
-                                    </h3>
-                                    <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider font-medium">
-                                        Address and coordinates
-                                    </p>
-                                </div>
+                                <StepHeading icon={MapPin} title="Property Location" description="Pin the exact spot so tenants can find it on the map." />
 
                                 <div className="grid gap-6">
                                     <div className="grid gap-6 grid-cols-2">
@@ -661,11 +603,11 @@ export default function AddHousePage() {
                                     {/* Interactive map for pin selection */}
                                     <div className="space-y-2">
                                         <Label className={fieldLabel}>Pin on Map</Label>
-                                        <p className="text-[9px] text-slate-400 uppercase tracking-wider font-medium ml-1">
+                                        <p className="text-xs text-slate-400">
                                             Click anywhere on the map to set the property location
                                         </p>
                                     </div>
-                                    <div className="relative z-0 h-[320px] rounded-lg border border-slate-100 dark:border-slate-800 overflow-hidden">
+                                    <div className="relative z-0 h-80 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
                                         <LocationPickerMap
                                             lat={form.latitude ? parseFloat(form.latitude) : null}
                                             lng={form.longitude ? parseFloat(form.longitude) : null}
@@ -681,8 +623,8 @@ export default function AddHousePage() {
                                         />
                                         {/* Coordinate display overlay */}
                                         {form.latitude && form.longitude && (
-                                            <div className="absolute bottom-3 left-3 z-[7] bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm rounded-md px-3 py-1.5 shadow-sm border border-slate-100 dark:border-slate-700">
-                                                <span className="text-[9px] font-bold text-slate-600 dark:text-slate-300 font-mono">
+                                            <div className="absolute bottom-3 left-3 z-7 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm rounded-md px-3 py-1.5 shadow-sm border border-slate-100 dark:border-slate-700">
+                                                <span className="text-xs font-medium text-slate-600 dark:text-slate-300 font-mono">
                                                     {parseFloat(form.latitude).toFixed(6)}, {parseFloat(form.longitude).toFixed(6)}
                                                 </span>
                                             </div>
@@ -695,18 +637,11 @@ export default function AddHousePage() {
                         {/* ─── STEP 3: Features & Amenities ──────────── */}
                         {currentStep === 3 && (
                             <>
-                                <div>
-                                    <h3 className="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-tight">
-                                        Features & Amenities
-                                    </h3>
-                                    <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider font-medium">
-                                        Utilities, amenities, and house rules
-                                    </p>
-                                </div>
+                                <StepHeading icon={Sparkles} title="Features & Amenities" description="Utilities, amenities, listing options and house rules." />
 
                                 {/* Utility toggles */}
                                 <div className="space-y-4">
-                                    <h4 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">
+                                    <h4 className={groupHeading}>
                                         Utilities & Features
                                     </h4>
                                     <div className="grid grid-cols-2 gap-3">
@@ -723,9 +658,9 @@ export default function AddHousePage() {
                                         ).map(([key, label]) => (
                                             <div
                                                 key={key}
-                                                className="flex items-center justify-between p-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-lg"
+                                                className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-4 transition-colors hover:border-primary/30 dark:border-slate-700 dark:bg-slate-900"
                                             >
-                                                <span className="text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wide">
+                                                <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
                                                     {label}
                                                 </span>
                                                 <Switch
@@ -741,7 +676,7 @@ export default function AddHousePage() {
 
                                 {/* Amenities checkboxes */}
                                 <div className="space-y-4">
-                                    <h4 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">
+                                    <h4 className={groupHeading}>
                                         Amenities
                                     </h4>
                                     <div className="grid grid-cols-3 gap-2">
@@ -749,16 +684,16 @@ export default function AddHousePage() {
                                             <label
                                                 key={a}
                                                 className={cn(
-                                                    "flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors",
+                                                    "flex items-center gap-3 rounded-xl border p-3.5 cursor-pointer transition-all hover:border-primary/40",
                                                     form.amenities.includes(a)
                                                         ? "bg-primary/5 border-primary/30"
-                                                        : "bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800"
+                                                        : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700"
                                                 )}
                                                 onClick={() => toggleAmenity(a)}
                                             >
                                                 <div
                                                     className={cn(
-                                                        "size-4 rounded border flex items-center justify-center",
+                                                        "size-5 rounded-md border-2 flex items-center justify-center transition-colors",
                                                         form.amenities.includes(a)
                                                             ? "bg-primary border-primary"
                                                             : "border-slate-200 dark:border-slate-700"
@@ -768,7 +703,7 @@ export default function AddHousePage() {
                                                         <Check className="size-2.5 text-white" strokeWidth={3} />
                                                     )}
                                                 </div>
-                                                <span className="text-[9px] font-bold text-slate-500 uppercase">
+                                                <span className="text-sm font-medium text-slate-600 dark:text-slate-300">
                                                     {a}
                                                 </span>
                                             </label>
@@ -778,16 +713,16 @@ export default function AddHousePage() {
 
                                 {/* Exchange & Unique toggles */}
                                 <div className="space-y-4">
-                                    <h4 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">
+                                    <h4 className={groupHeading}>
                                         Listing Options
                                     </h4>
                                     <div className="grid grid-cols-2 gap-3">
-                                        <div className="flex items-center justify-between p-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-lg">
+                                        <div className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-4 transition-colors hover:border-primary/30 dark:border-slate-700 dark:bg-slate-900">
                                             <div>
-                                                <span className="text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wide block">
+                                                <span className="text-sm font-medium text-slate-700 dark:text-slate-200 block">
                                                     Open To Exchange
                                                 </span>
-                                                <span className="text-[8px] text-slate-400 uppercase">
+                                                <span className="text-xs text-slate-400">
                                                     Allow tenants to request swaps
                                                 </span>
                                             </div>
@@ -796,12 +731,12 @@ export default function AddHousePage() {
                                                 onCheckedChange={(v) => set("isOpenToExchange", v)}
                                             />
                                         </div>
-                                        <div className="flex items-center justify-between p-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-lg">
+                                        <div className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-4 transition-colors hover:border-primary/30 dark:border-slate-700 dark:bg-slate-900">
                                             <div>
-                                                <span className="text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wide block">
+                                                <span className="text-sm font-medium text-slate-700 dark:text-slate-200 block">
                                                     Unique Property
                                                 </span>
-                                                <span className="text-[8px] text-slate-400 uppercase">
+                                                <span className="text-xs text-slate-400">
                                                     Feature as a unique listing
                                                 </span>
                                             </div>
@@ -815,7 +750,7 @@ export default function AddHousePage() {
 
                                 {/* House rules */}
                                 <div className="space-y-4">
-                                    <h4 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">
+                                    <h4 className={groupHeading}>
                                         House Rules
                                     </h4>
                                     <div className="flex gap-2">
@@ -835,7 +770,7 @@ export default function AddHousePage() {
                                             type="button"
                                             variant="outline"
                                             onClick={addRule}
-                                            className="h-10 text-[10px] font-bold uppercase tracking-widest shadow-none"
+                                            className="h-11 rounded-xl px-5 shadow-none"
                                         >
                                             Add
                                         </Button>
@@ -850,7 +785,7 @@ export default function AddHousePage() {
                                                     onClick={() =>
                                                         set("rules", [...form.rules, r])
                                                     }
-                                                    className="text-[8px] font-bold text-slate-400 uppercase tracking-wider px-3 py-1.5 border border-dashed border-slate-200 dark:border-slate-700 rounded-md hover:border-primary hover:text-primary transition-colors"
+                                                    className="rounded-full border border-dashed border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-500 transition-colors hover:border-primary hover:bg-primary/5 hover:text-primary dark:border-slate-700"
                                                 >
                                                     + {r}
                                                 </button>
@@ -862,9 +797,9 @@ export default function AddHousePage() {
                                             {form.rules.map((r) => (
                                                 <div
                                                     key={r}
-                                                    className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-800/30 rounded-lg"
+                                                    className="flex items-center justify-between rounded-xl bg-slate-50 px-4 py-3 dark:bg-slate-800/30"
                                                 >
-                                                    <span className="text-[10px] font-medium text-slate-600 dark:text-slate-300">
+                                                    <span className="text-sm text-slate-700 dark:text-slate-200">
                                                         {r}
                                                     </span>
                                                     <button
@@ -884,19 +819,12 @@ export default function AddHousePage() {
                         {/* ─── STEP 4: Media ─────────────────────────── */}
                         {currentStep === 4 && (
                             <>
-                                <div>
-                                    <h3 className="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-tight">
-                                        Photos & Media
-                                    </h3>
-                                    <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider font-medium">
-                                        Upload property photos (max 20 images, 10MB each)
-                                    </p>
-                                </div>
+                                <StepHeading icon={Camera} title="Photos & Media" description="Up to 20 photos, 10 MB each. The first photo becomes the cover." />
 
                                 <div className="space-y-6">
                                     <div
                                         onClick={() => fileInputRef.current?.click()}
-                                        className="h-40 border border-slate-100 dark:border-slate-800 rounded-lg bg-slate-50/50 dark:bg-slate-800/20 flex flex-col items-center justify-center gap-3 cursor-pointer transition-none"
+                                        className="h-48 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/50 dark:border-slate-700 dark:bg-slate-800/20 flex flex-col items-center justify-center gap-3 cursor-pointer transition-colors hover:border-primary/50 hover:bg-primary/5"
                                     >
                                         <input
                                             type="file"
@@ -906,14 +834,14 @@ export default function AddHousePage() {
                                             accept="image/jpeg,image/png,image/webp"
                                             onChange={handleImageUpload}
                                         />
-                                        <div className="size-9 bg-white dark:bg-slate-900 rounded-lg flex items-center justify-center border border-slate-100 shadow-sm">
-                                            <Upload className="size-4 text-slate-400" />
+                                        <div className="size-12 rounded-2xl bg-white dark:bg-slate-900 flex items-center justify-center shadow-sm ring-1 ring-slate-100 dark:ring-slate-800">
+                                            <Upload className="size-5 text-primary" />
                                         </div>
                                         <div className="text-center">
-                                            <p className="text-[9px] font-bold uppercase tracking-widest text-slate-500">
+                                            <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">
                                                 Upload photos
                                             </p>
-                                            <p className="text-[8px] text-slate-400 mt-1">
+                                            <p className="text-xs text-slate-400 mt-1">
                                                 JPG, PNG, WEBP — max 10 MB per file
                                             </p>
                                         </div>
@@ -924,7 +852,7 @@ export default function AddHousePage() {
                                             {imagePreviews.map((url, index) => (
                                                 <div
                                                     key={index}
-                                                    className="relative aspect-square rounded-lg overflow-hidden border border-slate-100"
+                                                    className="relative aspect-square rounded-xl overflow-hidden border border-slate-100 shadow-sm"
                                                 >
                                                     <img
                                                         src={url}
@@ -933,12 +861,12 @@ export default function AddHousePage() {
                                                     />
                                                     <button
                                                         onClick={() => removeImage(index)}
-                                                        className="absolute top-2 right-2 p-1.5 bg-black/50 rounded text-white hover:bg-black/70"
+                                                        className="absolute top-2 right-2 p-1.5 bg-black/50 backdrop-blur-sm rounded-lg text-white hover:bg-red-500"
                                                     >
-                                                        <Trash2 className="size-2.5" />
+                                                        <Trash2 className="size-3.5" />
                                                     </button>
                                                     {index === 0 && (
-                                                        <span className="absolute bottom-2 left-2 text-[7px] font-bold uppercase tracking-widest bg-primary text-white px-2 py-0.5 rounded">
+                                                        <span className="absolute bottom-2 left-2 text-[10px] font-semibold bg-primary text-white px-2 py-0.5 rounded">
                                                             Cover
                                                         </span>
                                                     )}
@@ -953,16 +881,9 @@ export default function AddHousePage() {
                         {/* ─── STEP 5: Review ────────────────────────── */}
                         {currentStep === 5 && (
                             <>
-                                <div>
-                                    <h3 className="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-tight">
-                                        Review Your Listing
-                                    </h3>
-                                    <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider font-medium">
-                                        Confirm details before publishing
-                                    </p>
-                                </div>
+                                <StepHeading icon={ClipboardCheck} title="Review Your Listing" description="Confirm the details before publishing." />
 
-                                <div className="space-y-6">
+                                <div className="space-y-4">
                                     {/* Basic Info */}
                                     <ReviewSection title="Basic Details">
                                         <ReviewItem label="Title" value={form.title || "—"} />
@@ -1019,7 +940,7 @@ export default function AddHousePage() {
                                             {form.isOpenToExchange && <ReviewTag>Open To Exchange</ReviewTag>}
                                             {form.isUnique && <ReviewTag>Unique</ReviewTag>}
                                             {![form.hasWater, form.hasElectricity, form.hasInternet, form.hasGarden, form.hasSecurityGuard, form.hasCCTV, form.petFriendly, form.isOpenToExchange, form.isUnique].some(Boolean) && (
-                                                <span className="text-[10px] text-slate-400">None selected</span>
+                                                <span className="text-sm text-slate-400">None selected</span>
                                             )}
                                         </div>
                                     </ReviewSection>
@@ -1058,7 +979,7 @@ export default function AddHousePage() {
                                                 {imagePreviews.map((url, i) => (
                                                     <div
                                                         key={i}
-                                                        className="aspect-square rounded-md overflow-hidden border border-slate-100"
+                                                        className="aspect-square rounded-lg overflow-hidden border border-slate-100"
                                                     >
                                                         <img
                                                             src={url}
@@ -1069,7 +990,7 @@ export default function AddHousePage() {
                                                 ))}
                                             </div>
                                         ) : (
-                                            <p className="text-[10px] text-slate-400 font-medium">
+                                            <p className="text-sm text-slate-400">
                                                 No photos uploaded — you can add them later.
                                             </p>
                                         )}
@@ -1077,7 +998,7 @@ export default function AddHousePage() {
 
                                     {/* Description */}
                                     <ReviewSection title="Description">
-                                        <p className="text-[10px] text-slate-600 dark:text-slate-300 font-medium leading-relaxed whitespace-pre-wrap">
+                                        <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
                                             {form.description || "—"}
                                         </p>
                                     </ReviewSection>
@@ -1087,10 +1008,10 @@ export default function AddHousePage() {
                     </div>
 
                     {/* Side Panel */}
-                    <div className="w-[320px] bg-slate-50/30 dark:bg-slate-800/10 p-10 flex flex-col gap-8 shrink-0">
+                    <aside className="flex shrink-0 flex-col gap-6 bg-slate-50/50 p-6 sm:p-8 lg:w-80 dark:bg-slate-800/10">
                         {currentStep === 1 && (
                             <section>
-                                <h4 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-4">
+                                <h4 className={cn(groupHeading, "mb-4")}>
                                     Quick Tips
                                 </h4>
                                 <div className="space-y-3">
@@ -1108,7 +1029,7 @@ export default function AddHousePage() {
 
                         {currentStep === 2 && (
                             <section className="space-y-6">
-                                <h4 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">
+                                <h4 className={groupHeading}>
                                     Location Tips
                                 </h4>
                                 <div className="space-y-3">
@@ -1130,7 +1051,7 @@ export default function AddHousePage() {
 
                         {currentStep === 3 && (
                             <section className="space-y-6">
-                                <h4 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">
+                                <h4 className={groupHeading}>
                                     Feature Tips
                                 </h4>
                                 <div className="space-y-3">
@@ -1148,7 +1069,7 @@ export default function AddHousePage() {
 
                         {currentStep === 4 && (
                             <section className="space-y-6">
-                                <h4 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">
+                                <h4 className={groupHeading}>
                                     Photo Tips
                                 </h4>
                                 <div className="space-y-3">
@@ -1166,7 +1087,7 @@ export default function AddHousePage() {
 
                         {currentStep === 5 && (
                             <section className="space-y-6">
-                                <h4 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">
+                                <h4 className={groupHeading}>
                                     Before Publishing
                                 </h4>
                                 <div className="space-y-3">
@@ -1182,82 +1103,27 @@ export default function AddHousePage() {
                             </section>
                         )}
 
-                        <div className="mt-auto p-6 border border-slate-100 dark:border-slate-800 rounded-lg relative overflow-hidden">
-                            <div className="flex gap-4 relative z-10 items-center">
-                                <Shield className="h-4 w-4 text-slate-300 shrink-0" />
-                                <div>
-                                    <h5 className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">
-                                        Verified Data
-                                    </h5>
-                                    <p className="text-[9px] leading-relaxed text-slate-500 font-medium uppercase">
-                                        Information is encrypted.
-                                    </p>
-                                </div>
-                            </div>
+                        <div className="mt-auto flex items-center gap-3 rounded-xl border border-emerald-100 bg-emerald-50/60 p-4 dark:border-emerald-900/40 dark:bg-emerald-900/10">
+                            <Lock className="size-4 shrink-0 text-emerald-600" />
+                            <p className="text-xs leading-relaxed text-emerald-700 dark:text-emerald-400">
+                                Your details are stored securely and only shared with verified tenants.
+                            </p>
                         </div>
-                    </div>
+                    </aside>
                 </div>
+
+                <WizardFooter
+                    current={currentStep}
+                    total={steps.length}
+                    onBack={() => { if (currentStep === 1) router.back(); else prevStep() }}
+                    onNext={currentStep === steps.length ? handleSubmit : nextStep}
+                    submitting={submitting}
+                    nextLabel={`Next: ${steps[currentStep]?.name ?? ""}`}
+                    finalLabel="Publish Listing"
+                    submittingLabel="Publishing…"
+                />
             </div>
         </div>
     )
 }
-
-// ── Sub-components ──────────────────────────────────────────────────────────
-
-function ReviewSection({ title, children }: { title: string; children: React.ReactNode }) {
-    return (
-        <div className="space-y-3">
-            <h4 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800 pb-2">
-                {title}
-            </h4>
-            {children}
-        </div>
-    )
-}
-
-function ReviewItem({ label, value }: { label: string; value: string }) {
-    return (
-        <div className="flex justify-between items-center py-1">
-            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">{label}</span>
-            <span className="text-[10px] font-medium text-slate-700 dark:text-slate-200">{value}</span>
-        </div>
-    )
-}
-
-function ReviewTag({ children }: { children: React.ReactNode }) {
-    return (
-        <span className="text-[8px] font-bold uppercase tracking-wider px-2.5 py-1 bg-primary/10 text-primary rounded-md">
-            {children}
-        </span>
-    )
-}
-
-function SideTip({ title, text }: { title: string; text: string }) {
-    return (
-        <div className="p-4 bg-white dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-800 shadow-none">
-            <p className="text-[9px] font-bold text-slate-800 dark:text-white uppercase tracking-widest mb-1.5">
-                {title}
-            </p>
-            <p className="text-[9px] leading-relaxed text-slate-400 uppercase font-medium">{text}</p>
-        </div>
-    )
-}
-
-function PlusIcon(props: React.SVGProps<SVGSVGElement>) {
-    return (
-        <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            {...props}
-        >
-            <path d="M5 12h14" />
-            <path d="M12 5v14" />
-        </svg>
-    )
-}
-
 

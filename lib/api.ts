@@ -801,7 +801,7 @@ export function toProperty(p: ApiProperty) {
       if (s === "rented" || s === "occupied") return "rented" as const;
       if (s === "inactive") return "inactive" as const;
       if (s === "rejected") return "rejected" as const;
-      // draft, pending_verification → not yet published
+      if (s === "pending_verification") return "pending" as const;
       return "draft" as const;
     })(),
     createdAt: p.createdAt ?? new Date().toISOString(),

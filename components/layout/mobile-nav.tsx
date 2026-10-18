@@ -10,7 +10,7 @@ export function MobileNav() {
   const pathname = usePathname()
   const { isAuthenticated, user } = useAuth()
 
-  const isDashboard = pathname.startsWith("/dashboard")
+  const isDashboard = pathname.startsWith("/dashboard") || pathname.startsWith("/notifications")
   const isChat = pathname.startsWith("/chat")
   const isOnboarding = pathname.startsWith("/onboarding")
 
